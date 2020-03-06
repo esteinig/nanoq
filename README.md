@@ -3,7 +3,7 @@
 ![](https://img.shields.io/badge/lang-rust-black.svg)
 ![](https://img.shields.io/badge/version-0.0.1-purple.svg)
 
-Speedy but minimal quality control for `fastq` nanopore reads.
+Speedy but minimal quality control for nanopore reads.
 
 ## Overview
 
@@ -22,4 +22,4 @@ Speedy but minimal quality control for `fastq` nanopore reads.
 
 ## Motivation
 
-Basic filters and summary statistics can be quite slow when a `seqeuncing_summary` file is not available.
+Basic read filters and summary statistics can be quite slow when a `sequencing_summary` file is not available. `Nanoq` attempts to perform basic quality control a little faster.
