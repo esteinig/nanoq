@@ -22,4 +22,4 @@ Speedy but minimal quality control for `fastq` nanopore reads.
 
 ## Motivation
 
-I need to filter reads by average quality and length thresholds but current quality control tools are slow on `fastq` files, e.g. where a `sequencing_summary` from basecalling is not available. For this reason, `nanoq` only implements a read length and average quality filter keeping things minmal and speedy.
+Basic filters and summary statistics can be quite slow when a `seqeuncing_summary` file is not available.
