@@ -1,0 +1,23 @@
+[package]
+name = "nanoq"
+version = "0.0.1"
+authors = ["esteinig <eikejoachim.steinig@my.jcu.edu.au>"]
+description = "Minimal quality control for nanopore reads"
+documentation = "https://github.com/esteinig/nanoq"
+homepage = "https://github.com/esteinig/nanoq"
+repository = "https://github.com/esteinig/nanoq"
+readme = "README.md"
+keywords = ["nanoq", "nanopore", "quality control", "filter"]
+categories = ["science"]
+license = "MIT"
+edition = "2018"
+include = [
+    "**/*.rs",
+    "src/data/*",
+    "Cargo.toml",
+]
+
+[dependencies]
+clap = "2.33.0"
+fastq = "0.6.0"
+libm = "0.2.1"

@@ -3,7 +3,7 @@
 ![](https://img.shields.io/badge/lang-rust-black.svg)
 ![](https://img.shields.io/badge/version-0.0.1-purple.svg)
 
-Minimal quality control filter for nanopore reads.
+Speedy but minimal quality control for `fastq` nanopore reads.
 
 ## Overview
 
@@ -22,4 +22,4 @@ Minimal quality control filter for nanopore reads.
 
 ## Motivation
 
-I often need to filter nanopore reads (`fastq`) by minimum length and average quality but current tools are slowish.
+I need to filter reads by average quality and length thresholds but current quality control tools are slow on `fastq` files, e.g. where a `sequencing_summary` from basecalling is not available. For this reason, `nanoq` only implements a read length and average quality filter keeping things minmal and speedy.
