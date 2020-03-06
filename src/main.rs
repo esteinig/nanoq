@@ -4,8 +4,6 @@ use bio::io::fastq;
 use std::str;
 use libm::log10;
 
-
-
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
     //Sets the command line interface of the program.
@@ -38,7 +36,7 @@ fn main() {
 
     for result in reader.records() {
         
-        let record = result.expect("Could not parse read record");
+        let record = result.expect("Could not parse record");
 
         let head = record.id();
 
@@ -49,8 +47,7 @@ fn main() {
         
         // // Nanopore quality score computation
 
-        let quality_values: Vec<u8> = record.qual().to_vec(); // .iter().map(|x| 10f64.powf(*x as f64 / -10f64) ).collect();
-        
+        let quality_values: Vec<u8> = record.qual().to_vec();
         let mean_error = get_mean_error(&quality_values);
         let mean_quality: f64 = -10f64*log10(mean_error as f64);
 
@@ -59,14 +56,12 @@ fn main() {
         read_lengths.push(seq_len);
         read_qualities.push(mean_quality);
         
-        // // Nanopore quality score computation
-        
         basepairs += seq_len;
         reads += 1;
 
-        // if seq_len >= min_length && seq_len > 0 && mean_quality >= min_quality && min_quality > 0.0 {
-        //     println!("@{}\n{}\n+\n{}", head, seq, qual);
-        // }           
+        if seq_len >= min_length && seq_len > 0 && mean_quality >= min_quality && min_quality > 0.0 {
+            println!("@{}\n{}\n+\n{}", head, seq, qual);
+        }           
 
     }  
 
