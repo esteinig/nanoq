@@ -28,7 +28,7 @@ Basic read filters and computation of summary statistics can be a bit slow when 
 
 ## Etymology
 
-Since all the 'qc' variants of nanopore-themed names seemed to be taken the 'c' was rather lazily dropped. Coincidentally `nanoq` [nanɔq] also means 'polar bear' in Native American (Eskimo-Aleut, Greenlandic). If you find `nanoq` useful for your research consider a small donation to the [Polar Bear Fund](https://www.polarbearfund.ca/) or [Polar Bears International](https://polarbearsinternational.org/research).
+Since all the 'qc' variants of nanopore-themed names seemed to be taken the 'c' was rather lazily dropped. Coincidentally `nanoq` [nanɔq] also means 'polar bear' in Native American (Eskimo-Aleut, Greenlandic). If you find `nanoq` useful for your research consider a small donation to the [Polar Bear Fund](https://www.polarbearfund.ca/) or [Polar Bears International](https://polarbearsinternational.org/).
 
 ## Citing
 
