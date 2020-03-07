@@ -79,7 +79,17 @@ fn main() {
     let median_read_quality = get_median_read_quality(&mut read_qualities);
     let (min_read_length, max_read_length) = get_read_length_range(&read_lengths);
 
-    eprintln!("{:} {:} {:} {:} {:} {:} {:.2} {:.2}", basepairs, reads, max_read_length, min_read_length, mean_read_length, median_read_length, mean_read_quality, median_read_quality);
+    eprintln!(
+        "{:} {:} {:} {:} {:} {:} {:.2} {:.2}",
+        reads, 
+        basepairs, 
+        max_read_length, 
+        min_read_length, 
+        mean_read_length, 
+        median_read_length, 
+        mean_read_quality, 
+        median_read_quality
+    );
     
 }
 
