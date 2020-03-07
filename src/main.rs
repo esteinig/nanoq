@@ -100,7 +100,7 @@ fn compare_f64(a: &f64, b: &f64) -> Ordering {
 
 fn get_mean_error(quality_bytes: &Vec<u8>) -> f32 {
 
-    /* Compute the error probability from the quality score of a single base
+    /* Compute the mean error probability from a quality score vector
 
     Quality encoding: Sanger Phred+33 --> ASCII: 33 - 126 --> Q: 0 - 93
 
