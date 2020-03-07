@@ -19,6 +19,7 @@ Minimal but speedy quality control for nanopore reads in `Rust`
   - [Command line](#command-line)
   - [Parameters](#parameters)
   - [Output](#output)
+- [Benchmarks](#benchmarks)
 - [Etymology](#etymology)
 - [Citing](#citing)
 
