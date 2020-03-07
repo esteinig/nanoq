@@ -3,7 +3,7 @@
 ![](https://img.shields.io/badge/lang-rust-black.svg)
 ![](https://img.shields.io/badge/version-0.0.1-purple.svg)
 
-Minimal quality control for nanopore reads in `Rust`.
+Minimal quality control for nanopore reads in `Rust`
 
 ## Overview
 
@@ -23,4 +23,4 @@ Minimal quality control for nanopore reads in `Rust`.
 
 ## Motivation
 
-Basic read filters and summary statistics can be a bit slow when a `sequencing_summary` file is not available. `Nanoq` attempts to perform basic quality control a little faster.
+Basic read filtering and computation of summary statistics can be a bit slow when a `sequencing_summary` file is not available. `Nanoq` attempts to perform these operations a little faster.
