@@ -3,7 +3,7 @@
 ![](https://img.shields.io/badge/lang-rust-black.svg)
 ![](https://img.shields.io/badge/version-0.0.1-purple.svg)
 
-Minimal but speedy quality control for nanopore reads in `Rust`
+Minimal but speedy quality control for nanopore reads.
 
 ## Overview
 
