@@ -54,7 +54,7 @@ FLAGS:
 OPTIONS:
     -f, --fastq <FILE>     Input fastq file [required]
     -l, --length <INT>     Minimum read length [0]
-    -o, --output <FILE>    Output fastq file [required].
+    -o, --output <FILE>    Output fastq file [required]
     -q, --quality <INT>    Minimum read quality [0]
 ```
 
@@ -69,7 +69,7 @@ OPTIONS:
 These correspond to:
 
 ```
-num_reads bp_total longest_reads shortest_read mean_length median_length mean_q median_q
+reads bp longest shortest mean_length median_length mean_qscore median_qscore
 ```
 
 ## Etymology
