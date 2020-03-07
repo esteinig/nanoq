@@ -24,7 +24,11 @@ Minimal quality control for nanopore reads in `Rust`
 
 ## Motivation
 
-Basic read filters and computation of summary statistics can be a bit slow when a `sequencing_summary` file is not available. `Nanoq` attempts to perform these operations a little faster on `fastq` files that contain nanopore reads.
+Basic read filters and computation of summary statistics can be a bit slow when a `sequencing_summary` file is not available. `Nanoq` attempts to perform these operations a little faster on `fastq` files.
+
+## Usage
+
+Please note that `nanoq` is not a general `fastq` quality control tool, since the quality scores are computed for basecalls from nanopore sequencing data, as outlined in the [technical documentation](https://community.nanoporetech.com/technical_documents/data-analysis/) and [this issue](https://github.com/esteinig/nanoq/issues/2).
 
 ## Etymology
 
