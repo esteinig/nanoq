@@ -44,7 +44,7 @@ These correspond to:
 bp_total num_reads longest_reads shortest_read mean_length median_length mean_q median_q
 ```
 
-Please note that `nanoq` is not a general `fastq` quality control tool because the quality scores are computed for basecalls from nanopore sequencing data, as outlined in the [technical documentation](https://community.nanoporetech.com/technical_documents/data-analysis/) and [this issue](https://github.com/esteinig/nanoq/issues/2).
+Please note that `nanoq` is not a general `fastq` quality control tool because the quality scores are computed for basecalls from nanopore sequencing data as outlined in the [technical documentation](https://community.nanoporetech.com/technical_documents/data-analysis/) and [this issue](https://github.com/esteinig/nanoq/issues/2).
 
 ## Etymology
 
