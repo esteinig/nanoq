@@ -23,4 +23,4 @@ Minimal quality control for nanopore reads in `Rust`
 
 ## Motivation
 
-Basic read filtering and computation of summary statistics can be a bit slow when a `sequencing_summary` file is not available. `Nanoq` attempts to perform these operations a little faster.
+Basic read filters and computation of summary statistics can be a bit slow when a `sequencing_summary` file is not available. `Nanoq` attempts to perform these operations a little faster on `fastq` files.
