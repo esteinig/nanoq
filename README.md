@@ -29,13 +29,22 @@ Basic read filters and computation of summary statistics can be a bit slow when 
 ## Usage
 
 ```
-nanoq --fastq test.fq --output filt.fq --length 1000 --quality 10
+nanoq --fastq test.fq --length 1000 --quality 10 --output filt.fq 
 ```
 
+`Nanoq` outputs a single row of whitespace delimited numerics for the summary statistics of the `fastq` file to `stderr`:
+
+```
+29082396 5000 62483 120 5816 2898 11.87 12.02
+```
+
+These correspond to:
+
+```
+bp_total num_reads longest_reads shortest_read mean_length median_length mean_q median_q
+```
 
 Please note that `nanoq` is not a general `fastq` quality control tool because the quality scores are computed for basecalls from nanopore sequencing data, as outlined in the [technical documentation](https://community.nanoporetech.com/technical_documents/data-analysis/) and [this issue](https://github.com/esteinig/nanoq/issues/2).
-
-
 
 ## Etymology
 
