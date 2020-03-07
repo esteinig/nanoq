@@ -52,9 +52,9 @@ FLAGS:
     -V, --version    Prints version information
 
 OPTIONS:
-    -f, --fastq <FILE>     Input fastq file [required]
-    -l, --length <INT>     Minimum read length [0]
+    -f, --fastq <FILE>     Input fastq file [required]    
     -o, --output <FILE>    Output fastq file [required]
+    -l, --length <INT>     Minimum read length [0]
     -q, --quality <INT>    Minimum read quality [0]
 ```
 
