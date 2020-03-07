@@ -3,12 +3,11 @@
 ![](https://img.shields.io/badge/lang-rust-black.svg)
 ![](https://img.shields.io/badge/version-0.0.1-purple.svg)
 
-Speedy but minimal quality control for nanopore reads.
+Minimal quality control for nanopore reads in `Rust`.
 
 ## Overview
 
-**`v0.0.1: basically nothing`**
-
+**`v0.0.1: it's something`**
 
 - [Motivation](#motivation)
 - [Install](#install)
@@ -18,8 +17,10 @@ Speedy but minimal quality control for nanopore reads.
   - [:snake: `conda`](#conda)
 - [Usage](#usage)
   - [Command line](#command-line)
+  - [Parameters](#parameters)
+- [Output](#output)
 - [Citing](#citing)
 
 ## Motivation
 
-Basic read filters and summary statistics can be quite slow when a `sequencing_summary` file is not available. `Nanoq` attempts to perform basic quality control a little faster.
+Basic read filters and summary statistics can be a bit slow when a `sequencing_summary` file is not available. `Nanoq` attempts to perform basic quality control a little faster.
