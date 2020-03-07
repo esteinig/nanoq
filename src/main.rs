@@ -1,17 +1,20 @@
 use clap::{Arg, ArgMatches, App};
 use std::cmp::Ordering;
 use bio::io::fastq;
-use std::str;
+use std::path::Path;
+use std::fs;
+use std::io;
 use libm::log10;
 
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
-    //Sets the command line interface of the program.
+    // Sets the command line interface of the program.
 
     App::new("nanoq")
             .version("0.0.1")
             .about("\nMinimal quality control for nanopore reads\n")
-            .arg(Arg::from_usage("-f, --fastq=[FILE] 'Input read file or stream [-]'"))
+            .arg(Arg::from_usage("-f, --fastq=[FILE] 'Input fastq file [required]'"))
+            .arg(Arg::from_usage("-o, --output=[FILE] 'Output fastq file [required].'"))
             .arg(Arg::from_usage("-l, --length=[INT] 'Minimum read length [0]'"))
             .arg(Arg::from_usage("-q, --quality=[INT] 'Minimum read quality [0]'"))
             .get_matches()
@@ -20,14 +23,24 @@ fn command_line_interface<'a>() -> ArgMatches<'a> {
 fn main() {
 
     let cli = command_line_interface();
-
+ 
     let reader = match cli.value_of("fastq") {
         Some(filename) => fastq::Reader::from_file(filename).expect("Could not initiate reader from file"),
-        None => panic!("Input file must be specified with --fastq")
+        None => panic!("Error: input file must be specified with --fastq")
     };
 
+    let path = match cli.value_of("output") {
+        Some(filename) => Path::new(filename),
+        None => panic!("Error: output file must be specified with --output")
+    };
+    
     let min_length: u64 = cli.value_of("length").unwrap_or("0").parse().unwrap();
     let min_quality: f64 = cli.value_of("quality").unwrap_or("0").parse().unwrap();
+
+    let file = fs::File::create(path).unwrap();
+
+    let handle = io::BufWriter::new(file);
+    let mut writer = fastq::Writer::new(handle);
 
     let mut basepairs: u64 = 0;
     let mut reads: u64 = 0;
@@ -36,22 +49,15 @@ fn main() {
 
     for result in reader.records() {
         
-        let record = result.expect("Could not parse record");
-
-        let head = record.id();
-
-        let seq = match str::from_utf8(record.seq()) {
-            Ok(v) => v, Err(e) => panic!("Invalid sequence: {}", e)
-        };
-
+        let record = result.expect("Error: could not parse record");
         
-        // // Nanopore quality score computation
+        // Nanopore quality score computation
 
         let quality_values: Vec<u8> = record.qual().to_vec();
         let mean_error = get_mean_error(&quality_values);
         let mean_quality: f64 = -10f64*log10(mean_error as f64);
 
-        let seq_len = seq.len() as u64;
+        let seq_len = record.seq().len() as u64;
 
         read_lengths.push(seq_len);
         read_qualities.push(mean_quality);
@@ -59,8 +65,8 @@ fn main() {
         basepairs += seq_len;
         reads += 1;
 
-        if seq_len >= min_length && seq_len > 0 && mean_quality >= min_quality && min_quality > 0.0 {
-            println!("@{}\n{}\n+\n{}", head, seq, qual);
+        if seq_len >= min_length && mean_quality >= min_quality {
+            writer.write_record(&record).expect("Error: could not write record.");
         }           
 
     }  
@@ -81,8 +87,8 @@ fn main() {
 
 fn compare_f64(a: &f64, b: &f64) -> Ordering {
 
-    // Will get killed with NAN, but we 
-    // should never see NAN
+    // Will get killed with NAN (R.I.P)
+    // but we should also never see NAN
 
     if a < b {
         return Ordering::Less;
