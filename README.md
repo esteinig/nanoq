@@ -60,7 +60,7 @@ OPTIONS:
 
 ### Output
 
-`Nanoq` outputs a a `fastq` file with reads passing the filter and single row of `fastq` summary statistics to `stderr`:
+`Nanoq` outputs a `fastq` file with reads passing the filters and a single row of summary statistics to `/dev/stderr`:
 
 ```
 5000 29082396 62483 120 5816 2898 11.87 12.02
@@ -74,7 +74,9 @@ reads bp longest shortest mean_length median_length mean_qscore median_qscore
 
 ## Etymology
 
-Since all the 'qc' variants of nanopore-themed names seemed to be taken the 'c' was rather lazily dropped. Coincidentally `nanoq` [nanɔq] also means 'polar bear' in Native American (Eskimo-Aleut, Greenlandic). If you find `nanoq` useful for your research consider a small donation to the [Polar Bear Fund](https://www.polarbearfund.ca/) or [Polar Bears International](https://polarbearsinternational.org/).
+Since all the 'qc' variants of nanopore-themed names seemed to be taken the 'c' was rather lazily dropped. 
+
+Coincidentally `nanoq` [nanɔq] also means 'polar bear' in Native American (Eskimo-Aleut, Greenlandic). If you find `nanoq` useful for your research consider a small donation to the [Polar Bear Fund](https://www.polarbearfund.ca/) or [Polar Bears International](https://polarbearsinternational.org/).
 
 ## Citing
 
