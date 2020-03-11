@@ -54,7 +54,7 @@ cat test.fq | nanoq -l 1000 -q 10 > /dev/null
 ### Parameters
 
 ```
-nanoq 0.0.1
+nanoq 0.1.0
 
 Minimal quality control for nanopore reads
 
