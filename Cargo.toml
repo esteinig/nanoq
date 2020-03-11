@@ -2,7 +2,7 @@
 name = "nanoq"
 version = "0.1.0"
 authors = ["esteinig <eikejoachim.steinig@my.jcu.edu.au>"]
-description = "Minimal quality control for nanopore reads"
+description = "Minimal but speedy quality control for nanopore reads"
 documentation = "https://github.com/esteinig/nanoq"
 homepage = "https://github.com/esteinig/nanoq"
 repository = "https://github.com/esteinig/nanoq"
@@ -13,7 +13,6 @@ license = "MIT"
 edition = "2018"
 include = [
     "**/*.rs",
-    "src/data/*",
     "Cargo.toml",
 ]
 
