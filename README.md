@@ -11,10 +11,10 @@ Minimal but speedy quality control for nanopore reads.
 
 - [Motivation](#motivation)
 - [Install](#install)
-  - [:new_moon: `singularity`](#singularity)
   - [:rocket: `cargo`](#cargo)
-  - [:whale: `docker`](#docker)
+  - [:new_moon: `singularity`](#singularity)
   - [:snake: `conda`](#conda)
+  - [:whale: `docker`](#docker)
 - [Usage](#usage)
   - [Command line](#command-line)
   - [Parameters](#parameters)
@@ -28,6 +28,46 @@ Minimal but speedy quality control for nanopore reads.
 Basic read filters and computation of summary statistics can be a bit slow when a `sequencing_summary` file is not available. `Nanoq` attempts to perform these operations on `fastq` files faster.
 
 Quality scores are computed for basecalls from nanopore sequencing data as outlined in the [technical documentation](https://community.nanoporetech.com/technical_documents/data-analysis/) and [this issue](https://github.com/esteinig/nanoq/issues/2).
+
+## Install
+
+#### `Cargo`
+
+If you have [`Rust`](https://www.rust-lang.org/tools/install) and `Cargo` installed:
+
+```
+cargo install nanoq
+```
+
+#### `Singularity`
+
+I prefer `Singularity` over `Docker` containers for integrated access to the host file system.
+
+```
+singularity pull docker://esteinig/nanoq
+./nanoq_latest.sif --help
+```
+
+#### `Conda`
+
+Currently on my channel but will be in `BioConda` soon:
+
+```
+conda install -c esteinig nanoq
+```
+
+#### `Docker`
+
+`Docker` containers need a user- and bindmount of the current directory containing the `fastq` (here: `test.fq`) file into the default working directory `/data` inside the container:
+
+```
+docker run -it \
+  -v $(pwd):/data \
+  -u $(id -u):$(id -g) \
+  esteinig/nanoq \
+  --fastq /data/test.fq \
+  --output /data/filt.fq
+```
 
 ## Usage
 
@@ -85,6 +125,10 @@ These correspond to:
 ```
 reads bp longest shortest mean_length median_length mean_qscore median_qscore
 ```
+
+## Benchmarks
+
+Benchmarks performed on desktop server using the `Singularity` image: `nanoq:v0.1.0`
 
 ## Etymology
 
