@@ -74,7 +74,7 @@ OPTIONS:
 
 ### Output
 
-`Nanoq` outputs  reads to `/dev/stdout` or a `fastq` file, exept when filters are switched off (default) so that only the summary statistics are computed. `Nanoq` outputs a single row of summary statistics on the filtered read set to `/dev/stderr`:
+`Nanoq` outputs  reads to `/dev/stdout` or a `fastq` file - except when filters are switched off (default) so that only the summary statistics are computed. `Nanoq` outputs a single row of summary statistics on the filtered read set to `/dev/stderr`:
 
 ```
 5000 29082396 62483 120 5816 2898 11.87 12.02
