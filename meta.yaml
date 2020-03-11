@@ -1,0 +1,31 @@
+{% set version = "0.1.0" %}
+
+# conda build -c esteinig -c bioconda -c conda-forge .
+
+package:
+  name: nanoq
+  version: {{ version }}
+
+source:
+  path: .
+
+build:
+  number: 0
+
+requirements:
+  build:
+      - {{ compiler('cxx') }}
+  host:
+      - rust>=1.39
+  run:
+      - rust>=1.39
+test:
+  commands:
+    - nanoq -h
+
+about:
+  home: 'https://github.com/esteinig/nanoq'
+  license: MIT
+  license_file: LICENSE
+  summary: 'Minimal but speedy quality control for nanopore reads'
+
