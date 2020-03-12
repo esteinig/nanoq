@@ -37,6 +37,7 @@ If you have [`Rust`](https://www.rust-lang.org/tools/install) and `Cargo` instal
 
 ```
 cargo install nanoq
+nanoq --help
 ```
 
 #### `Singularity`
@@ -54,6 +55,7 @@ Currently on my channel but will be in `BioConda` soon:
 
 ```
 conda install -c esteinig nanoq
+nanoq --help
 ```
 
 #### `Docker`
