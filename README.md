@@ -130,7 +130,15 @@ reads bp longest shortest mean_length median_length mean_qscore median_qscore
 
 ## Benchmarks
 
-Benchmarks performed on desktop server using the `Singularity` image: `nanoq:v0.1.0`
+Benchmarking evaluates a couple of simple long-read filters on the [even Zymo mock community run on `GridION` from the Loman group](https://github.com/LomanLab/mockcommunity) using the `Singularity` image `nanoq:v0.1.0` and compares it to [`NanoFilt`](https://github.com/wdecoster/nanofilt) installed via `PyPI`.
+
+| program         | input reads   |   filter        | output reads |  real time |  reads / sec    |
+| -------------   | ------------- |-----------------|--------------|------------|-----------------|
+| nanofilt        | 3,491,390     | `-l 5000`       | 944,546      | 00:20:39   | 2,818           |
+| nanoq           | 3,491,390     | `-l 5000`       | 944,546      | 00:02:54   | 20,065          |
+
+ `cat zymo.gridion.fq | {nanoq, NanoFilt} {command} > /dev/null`
+
 
 ## Etymology
 
