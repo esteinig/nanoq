@@ -132,11 +132,11 @@ reads bp longest shortest mean_length median_length mean_qscore median_qscore
 
 Benchmarking evaluates a simple long-read filter on the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) (3,491,390  reads, 14.38 Gbp, `GridION`) using `Singularity` image `nanoq:v0.1.0` and compares it to [`NanoFilt`](https://github.com/wdecoster/nanofilt) via `PyPI` and [`Filtlong`](https://github.com/rrwick/Filtlong) via `BioConda`.
 
-| program         |  command                                           |  real time |  reads / sec    |
-| -------------   | ---------------------------------------------------|------------| ----------------|
-| nanofilt        | `NanoFilt -f test.fq -l 5000 > /dev/null`          | 00:20:39   | 2,818           |
-| filtlong        | `filtlong --min_length 5000 test.fq > /dev/null`   | 00:13:20   | 4,364           |
-| nanoq           | `nanoq -f test.fq -l 5000 > /dev/null`             | 00:02:44   | 21,289          |
+| program         |  command                                           |  real time |  reads / sec    | speedup |
+| -------------   | ---------------------------------------------------|------------| ----------------|---------|
+| nanofilt        | `NanoFilt -f test.fq -l 5000 > /dev/null`          | 00:20:39   | 2,818           | 1.00 x  |
+| filtlong        | `filtlong --min_length 5000 test.fq > /dev/null`   | 00:13:20   | 4,364           | 1.55 x  |
+| nanoq           | `nanoq -f test.fq -l 5000 > /dev/null`             | 00:02:44   | 21,289          | 7.55 x  |
 
 ## Etymology
 
