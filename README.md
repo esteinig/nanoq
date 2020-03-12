@@ -145,4 +145,15 @@ Coincidentally `nanoq` [nanɔq] means 'polar bear' in Native American (Eskimo-Al
 
 ## Citing
 
-Nothing yet.
+```
+@software{eike_steinig_2020_3707754,
+  author       = {Eike Steinig},
+  title        = {esteinig/nanoq: Zenodo release},
+  month        = mar,
+  year         = 2020,
+  publisher    = {Zenodo},
+  version      = {v0.1.1},
+  doi          = {10.5281/zenodo.3707754},
+  url          = {https://doi.org/10.5281/zenodo.3707754}
+}
+```
