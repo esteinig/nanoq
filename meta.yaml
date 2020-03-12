@@ -1,4 +1,4 @@
-{% set version = "0.1.0" %}
+{% set version = "0.1.1" %}
 
 # conda build -c esteinig -c bioconda -c conda-forge .
 

@@ -11,7 +11,7 @@ fn command_line_interface<'a>() -> ArgMatches<'a> {
     // Sets the command line interface of the program
 
     App::new("nanoq")
-            .version("0.1.0")
+            .version("0.1.1")
             .about("\nMinimal quality control and summary statistics for nanopore reads\n")
             .arg(Arg::from_usage("-f, --fastq=[FILE] 'Input fastq file [-]'"))
             .arg(Arg::from_usage("-o, --output=[FILE] 'Output fastq file [-]'"))
