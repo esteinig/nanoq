@@ -1,13 +1,13 @@
 # nanoq <a href='https://github.com/esteinig'><img src='docs/nanoq.png' align="right" height="270" /></a>
 
 ![](https://img.shields.io/badge/lang-rust-black.svg)
-![](https://img.shields.io/badge/version-0.1.0-purple.svg)
+![](https://img.shields.io/badge/version-0.1.1-purple.svg)
 
 Minimal but speedy quality control for nanopore reads.
 
 ## Overview
 
-**`v0.1.0 no tests`**
+**`v0.1.1 no tests`**
 
 - [Motivation](#motivation)
 - [Install](#install)
@@ -96,7 +96,7 @@ cat test.fq | nanoq -l 1000 -q 10 > /dev/null
 ### Parameters
 
 ```
-nanoq 0.1.0
+nanoq 0.1.1
 
 Minimal quality control for nanopore reads
 
