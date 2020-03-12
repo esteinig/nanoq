@@ -136,7 +136,7 @@ Benchmarking evaluates a simple long-read filter on the even [Zymo mock communit
 | -------------   | ---------------------------------------------------|------------| ----------------|
 | nanofilt        | `NanoFilt -f test.fq -l 5000 > /dev/null`          | 00:20:39   | 2,818           |
 | filtlong        | `filtlong --min_length 5000 test.fq > /dev/null`   | 00:13:20   | 4,364           |
-| nanoq           | `nanoq -f test.fq -l 5000 > /dev/null`             | 00:02:54   | 20,065          |
+| nanoq           | `nanoq -f test.fq -l 5000 > /dev/null`             | 00:02:44   | 21,289          |
 
 ## Etymology
 
