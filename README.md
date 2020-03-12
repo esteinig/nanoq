@@ -58,7 +58,7 @@ conda install -c esteinig nanoq
 
 #### `Docker`
 
-`Docker` containers need a user- and bindmount of the current directory containing the `fastq` (here: `test.fq`) file into the default working directory `/data` inside the container:
+`Docker` containers need a user- and bindmount of the current host working directory containing the `fastq` (here: `test.fq`) - which links into the default container working directory `/data`:
 
 ```
 docker run -it \
