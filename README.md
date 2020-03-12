@@ -1,4 +1,4 @@
-# nanoq <a href='https://github.com/esteinig'><img src='docs/logo.png' align="right" height="210" /></a>
+# nanoq <a href='https://github.com/esteinig'><img src='docs/nanoq.png' align="right" height="210" /></a>
 
 ![](https://img.shields.io/badge/lang-rust-black.svg)
 ![](https://img.shields.io/badge/version-0.1.0-purple.svg)
