@@ -155,13 +155,13 @@ Since we directed the reads to `/dev/null` in the filter benchmarks there is no 
 
 Keep in mind that `nanoq` does not accept the more convenient `sequencing_summary` file from local sequencing runs; applications may be more suitable for shared or public nanopore reads and automated pipelines.
 
-## Etymology
-
-Coincidentally `nanoq` [nanɔq] means 'polar bear' in Native American (Eskimo-Aleut, Greenlandic). If you find `nanoq` useful for your research consider a small donation to the [Polar Bear Fund](https://www.polarbearfund.ca/) or [Polar Bears International](https://polarbearsinternational.org/).
-
 ## Dependencies
 
 Johannes Koester's paper on [`rust-bio`](https://rust-bio.github.io/) can be [found here](https://academic.oup.com/bioinformatics/article/32/3/444/1743419). 
+
+## Etymology
+
+Coincidentally `nanoq` [nanɔq] means 'polar bear' in Native American (Eskimo-Aleut, Greenlandic). If you find `nanoq` useful for your research consider a small donation to the [Polar Bear Fund](https://www.polarbearfund.ca/) or [Polar Bears International](https://polarbearsinternational.org/).
 
 ## Citing
 
