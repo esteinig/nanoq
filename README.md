@@ -21,6 +21,7 @@ Minimal but speedy quality control for nanopore reads.
   - [Parameters](#parameters)
   - [Output](#output)
 - [Benchmarks](#benchmarks)
+- [Dependencies](#dependencies)
 - [Etymology](#etymology)
 - [Citing](#citing)
 
@@ -117,7 +118,7 @@ OPTIONS:
 
 ### Output
 
-`Nanoq` outputs  reads to `/dev/stdout` or a `fastq` file - except when filters are switched off (default) so that only the summary statistics are computed. `Nanoq` outputs a single row of summary statistics on the filtered read set to `/dev/stderr`:
+`Nanoq` outputs  reads to `/dev/stdout` or a `fastq` filile. If filters are switched off (default) only the summary statistics are computed. `Nanoq` outputs a single row of summary statistics on the filtered read set to `/dev/stderr`:
 
 ```
 5000 29082396 62483 120 5816 2898 11.87 12.02
@@ -131,7 +132,9 @@ reads bp longest shortest mean_length median_length mean_qscore median_qscore
 
 ## Benchmarks
 
-Benchmarking evaluates a simple long-read filter on the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) (3,491,390  reads, 14.38 Gbp, `GridION`) using `Singularity` image `nanoq:v0.1.0` and compares it to [`NanoFilt`](https://github.com/wdecoster/nanofilt) via `PyPI` and [`Filtlong`](https://github.com/rrwick/Filtlong) via `BioConda`.
+Benchmarks evaluate processing speed of a long-read filter and computation of summary statistics on the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) (3,491,390  reads, 14.38 Gbp, `GridION`) using the `nanoq:v0.1.0` `Singularity` image in comparison to [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong)
+
+Filter:
 
 | program         |  command                                           |  real time |  reads / sec    | speedup |
 | -------------   | ---------------------------------------------------|------------| ----------------|---------|
@@ -139,9 +142,26 @@ Benchmarking evaluates a simple long-read filter on the even [Zymo mock communit
 | filtlong        | `filtlong --min_length 5000 test.fq > /dev/null`   | 00:13:20   | 4,364           | 1.55 x  |
 | nanoq           | `nanoq -f test.fq -l 5000 > /dev/null`             | 00:02:44   | 21,289          | 7.55 x  |
 
+Summary statistics:
+
+| program         |  command                       | threads  | real time |  reads / sec    | speedup |
+| -------------   | -------------------------------|----------|-----------| ----------------|---------|
+| nanostat        | `NanoStat -f test.fq -t 1`     | 1        | 00:18:47  | 3,097           | 1.00 x  |
+| nanostat        | `NanoStat -f test.fq -t 8`     | 8        | 00:18:29  | 3,148           | 1.01 x  |
+| nanostat        | `NanoStat -f test.fq -t 8`     | 16       | 00:18:24  | 3,162           | 1.02 x  |
+| nanoq           | `nanoq -f test.fq 2> stats.txt`| 1        | 00:02:44  | 21,289          | 6.87 x  |
+
+Since we directed the reads to `/dev/null` in the filter benchmarks there is no difference to computing just the summary statistics for `nanoq`. Surprisingly, additional threads in `NanoStat` did not make a difference in processing the `fastq`, which is likely limited by input / output capacity of the reader compared to the `rust-bio` implementation in `nanoq`. 
+
+Keep in mind that `nanoq` does not accept the more convenient `sequencing_summary` file from local sequencing runs; applications may be more suitable for shared or public nanopore reads and automated pipelines.
+
 ## Etymology
 
 Coincidentally `nanoq` [nanɔq] means 'polar bear' in Native American (Eskimo-Aleut, Greenlandic). If you find `nanoq` useful for your research consider a small donation to the [Polar Bear Fund](https://www.polarbearfund.ca/) or [Polar Bears International](https://polarbearsinternational.org/).
+
+## Dependencies
+
+Johannes Koester's paper on [`rust-bio`](https://rust-bio.github.io/) can be [found here](https://academic.oup.com/bioinformatics/article/32/3/444/1743419). 
 
 ## Citing
 
