@@ -151,7 +151,7 @@ Summary statistics:
 | nanostat        | `NanoStat -f test.fq -t 16`    | 16       | 00:18:24  | 3,162           | 1.02 x  |
 | nanoq           | `nanoq -f test.fq 2> stats.txt`| 1        | 00:02:44  | 21,289          | 6.87 x  |
 
-Since we directed the reads to `/dev/null` in the filter benchmarks there is no difference to computing just the summary statistics for `nanoq`. Surprisingly, additional threads in `NanoStat` did not make a difference in processing the `fastq`, which is likely limited by input / output capacity of the reader compared to the `rust-bio` implementation in `nanoq`. 
+Since we directed the reads to `/dev/null` in the filter benchmarks there is no difference to computing just the summary statistics for `nanoq`. Additional threads in `NanoStat` did not make a difference in processing the `fastq` which is likely limited by input capacity of the reader. 
 
 Keep in mind that `nanoq` does not accept the more convenient `sequencing_summary` file from local sequencing runs; applications may be more suitable for shared or public nanopore reads and automated pipelines.
 
