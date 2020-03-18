@@ -157,7 +157,7 @@ Keep in mind that `nanoq` does not accept the more convenient `sequencing_summar
 
 ## Dependencies
 
-Johannes Koester's paper on [`rust-bio`](https://rust-bio.github.io/) can be [found here](https://academic.oup.com/bioinformatics/article/32/3/444/1743419). 
+`Nanoq` uses [`rust-bio`](https://rust-bio.github.io/) which has a ton of great contributors, check it out. 
 
 ## Etymology
 
