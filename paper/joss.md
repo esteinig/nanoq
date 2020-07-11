@@ -30,7 +30,7 @@ Nanopore sequencing is now routinely applied to a variety of genomic problems ra
 # Applications
 
 ```bash
-RUN = /nanopore/data/run
+RUN=/nanopore/data/run
 ```
 
 Check total run statistics:
