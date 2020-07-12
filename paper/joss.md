@@ -29,6 +29,26 @@ Nanopore sequencing is now routinely applied to a variety of genomic problems ra
 
 # Applications
 
+Compute summary statistics:
+
+```
+nanoq -f test.fq
+```
+
+Filtered by read length and mean read quality:
+
+```
+nanoq -f test.fq -l 1000 -q 10 -o filt.fq 
+```
+
+Read stream:
+
+```
+cat test.fq | nanoq -l 1000 -q 10 > /dev/null
+```
+
+Live sequencing run checks:
+
 ```bash
 RUN=/nanopore/data/run
 ```
@@ -49,10 +69,35 @@ done
 
 # Benchmarks
 
+
+Benchmarks evaluate processing speed of a long-read filter and computation of summary statistics on the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) (3,491,390  reads, 14.38 Gbp, `GridION`) using the `nanoq:v0.1.0` `Singularity` image in comparison to [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong)
+
+Filter:
+
+| program         |  command                                           |  real time |  reads / sec    | speedup |
+| -------------   | ---------------------------------------------------|------------| ----------------|---------|
+| nanofilt        | `NanoFilt -f test.fq -l 5000 > /dev/null`          | 00:20:39   | 2,818           | 1.00 x  |
+| filtlong        | `filtlong --min_length 5000 test.fq > /dev/null`   | 00:13:20   | 4,364           | 1.55 x  |
+| nanoq           | `nanoq -f test.fq -l 5000 > /dev/null`             | 00:02:44   | 21,289          | 7.55 x  |
+
+Summary statistics:
+
+| program         |  command                       | threads  | real time |  reads / sec    | speedup |
+| -------------   | -------------------------------|----------|-----------| ----------------|---------|
+| nanostat        | `NanoStat -f test.fq -t 1`     | 1        | 00:18:47  | 3,097           | 1.00 x  |
+| nanostat        | `NanoStat -f test.fq -t 8`     | 8        | 00:18:29  | 3,148           | 1.01 x  |
+| nanostat        | `NanoStat -f test.fq -t 16`    | 16       | 00:18:24  | 3,162           | 1.02 x  |
+| nanoq           | `nanoq -f test.fq 2> stats.txt`| 1        | 00:02:44  | 21,289          | 6.87 x  |
+
+Since we directed the reads to `/dev/null` in the filter benchmarks there is no difference to computing just the summary statistics for `nanoq`. Additional threads in `NanoStat` did not make a difference in processing the `fastq` which is likely limited by input capacity of the reader. 
+
 # Availability
 
+`Nanoq` is open-source on GitHub (https://github.com/esteinig/nanoq) and available through Cargo (`cargo install nanoq`), as Docker (`docker pull esteinig/nanoq`) or Singularity container (`singularity pull docker://esteinig/nanoq`) or through BioConda (`conda install -c bioconda nanoq`).
 
-# Acknowledgments
+# Acknowledgements
 
+My backyard monitor lizard, P. Hanson. Just like the namesake, just a cold brainless reptilian scavenging for scraps.
 
 # References
+
