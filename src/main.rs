@@ -71,7 +71,7 @@ fn main() -> Result<(), Error> {
     let median_read_length = get_median_read_length(&mut read_lengths);
     let median_read_quality = get_median_read_quality(&mut read_qualities);
     let (min_read_length, max_read_length) = get_read_length_range(&read_lengths);
-    let read_length_n50 = get_read_length_n50(&base_pairs, &read_lengths);
+    let read_length_n50 = get_read_length_n50(&base_pairs, &mut read_lengths);
 
     eprintln!(
         "{:} {:} {:} {:} {:} {:} {:} {:.2} {:.2}",
@@ -207,7 +207,7 @@ fn get_mean_read_quality(numbers: &Vec<f64>) -> f64 {
 
 }
 
-fn get_read_length_n50(base_pairs: &u64, read_lengths: &Vec<u64>) -> u64 {
+fn get_read_length_n50(base_pairs: &u64, read_lengths: &mut Vec<u64>) -> u64 {
     
     // Compute the read length N50 if a vector of unsigned integers
     
@@ -217,7 +217,8 @@ fn get_read_length_n50(base_pairs: &u64, read_lengths: &Vec<u64>) -> u64 {
 
     let _stop = base_pairs / 2;
 
-    let mut n50 = 0;
+    let n50 = 0;
+    
     let mut _cum_sum = 0;
     for x in read_lengths.iter().rev() {
         _cum_sum += x;
