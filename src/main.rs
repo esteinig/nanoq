@@ -34,9 +34,7 @@ fn main() {
     //     _ => Box::new(BufWriter::new(io::stdout()))
     // };
     
-    let fastq = match cli.value_of("fastq").or_else("-");
-
-    let mut reader = if fastq == "-" {
+    let mut reader = if cli.value_of("fastq").or_else("-") == "-" {
         parse_fastx_file(BufReader::new(io::stdin())).expect("valid stdin"); 
     } else {
         parse_fastx_file(fastq).expect("valid file/path"); 
