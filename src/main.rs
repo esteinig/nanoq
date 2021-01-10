@@ -30,7 +30,7 @@ fn main() -> Result<(), Error> {
     let output = cli.value_of("OUTPUT").unwrap_or("-").parse::<String>().unwrap();
     let min_length: u64 = cli.value_of("LENGTH").unwrap_or("0").parse().unwrap();
     let min_quality: f64 = cli.value_of("QUALITY").unwrap_or("0").parse().unwrap();
-    let needle_tail: bool = cli.is_present("NEEDLE");
+    let needletail: bool = cli.is_present("NEEDLE");
 
     
     if needletail {
