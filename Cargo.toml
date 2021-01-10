@@ -17,7 +17,7 @@ include = [
 ]
 
 [dependencies]
-clap >= "2.33.0"
-bio >= "0.30.0"
-libm >= "0.2.1"
-needletail >= "0.4"
+clap = "2.33.0"
+bio = "0.30.0"
+libm = "0.2.1"
+needletail = "0.4"
