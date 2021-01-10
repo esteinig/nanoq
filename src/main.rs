@@ -26,7 +26,7 @@ fn main() {
         parse_fastx_stdin().expect("valid file/path"); 
     } else {
         parse_fastx_file(fastx).expect("valid file/path"); 
-    }
+    };
 
     let _min_length: u64 = cli.value_of("length").unwrap_or("0").parse().unwrap();
     let _min_quality: f64 = cli.value_of("quality").unwrap_or("0").parse().unwrap();
