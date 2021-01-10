@@ -212,8 +212,6 @@ fn get_read_length_n50(base_pairs: &u64, read_lengths: &mut Vec<u64>) -> u64 {
     
     read_lengths.sort_by(compare_u64);
 
-    println!("{:?}", read_lengths);
-
     let _stop = base_pairs / 2;
 
     let mut n50: u64 = 0;
@@ -226,7 +224,6 @@ fn get_read_length_n50(base_pairs: &u64, read_lengths: &mut Vec<u64>) -> u64 {
         }
     }
 
-    println!("{} {}", n50, _cum_sum);
     return n50
 
 }
