@@ -18,7 +18,7 @@ fn command_line_interface<'a>() -> ArgMatches<'a> {
             .get_matches()
 }
 
-fn main() -> Result<()> {
+fn main() -> Result<(), Error> {
 
     let cli = command_line_interface();
  
