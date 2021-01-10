@@ -34,7 +34,7 @@ fn main() {
     //     _ => Box::new(BufWriter::new(io::stdout()))
     // };
 
-    let fastx = cli.value_of("fastx").unwrap_or("-").parse::<String>().unwrap();;
+    let fastx = cli.value_of("fastx").unwrap_or("-").parse::<String>().unwrap();
 
     let mut reader = parse_fastx_file(fastx).expect("valid file/path"); 
 
