@@ -1,4 +1,4 @@
-use clap::{Arg, ArgMatches, App};
+use clap::{Arg, ArgMatches, App, AppSettings};
 use std::cmp::Ordering;
 use std::process;
 use libm::log10;
@@ -9,20 +9,23 @@ use needletail::{parse_fastx_reader};
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
     App::new("nanoq")
-            .version("0.2.0")
-            .about("\nMinimal quality control and summary statistics for nanopore reads\n")
-            .arg(Arg::from_usage("-f, --fastx=[FILE] 'Input fastx file [-]'"))
-            .arg(Arg::from_usage("-o, --output=[FILE] 'Output fastx file [-]'"))
-            .arg(Arg::from_usage("-l, --length=[INT] 'Minimum read length [0]'"))
-            .arg(Arg::from_usage("-q, --quality=[INT] 'Minimum read quality [0]'"))
-            .get_matches()
+    .setting(AppSettings::SubcommandRequiredElseHelp)
+    .setting(AppSettings::DisableHelpSubcommand)
+    .version("0.2.0")
+    .about("\nFast quality control and summary statistics for nanopore reads\n")
+    .arg(Arg::with_name("FASTX").short("f").long("fastx").takes_value(true).help("Fastx path or STDIN [-]"))
+    .arg(Arg::with_name("OUTPUT").short("o").long("output").takes_value(true).help("Output path or STDOUT [-]"))
+    .arg(Arg::with_name("LENGTH").short("l").long("min_length").takes_value(true).help("Minimum sequence length [0]"))
+    .arg(Arg::with_name("QUALITY").short("q").long("min_quality").takes_value(true).help("Minimum sequence quality [0]"))
+    .arg(Arg::with_name("NEEDLE").short("n").long("needletail").takes_value(false).help("Use needletail as read parser [0]"))
+    .get_matches()
 }
 
 fn main() -> Result<(), Error> {
 
     let cli = command_line_interface();
  
-    let fastx = cli.value_of("fastx").unwrap_or("-").parse::<String>().unwrap();
+    let fastx = cli.value_of("FASTX").unwrap_or("-").parse::<String>().unwrap();
 
     let mut reader = if fastx == "-".to_string() {
         let stdin = stdin();
@@ -31,8 +34,8 @@ fn main() -> Result<(), Error> {
         parse_fastx_reader(File::open(&fastx)?).expect("invalid file/path")
     };
 
-    let _min_length: u64 = cli.value_of("length").unwrap_or("0").parse().unwrap();
-    let _min_quality: f64 = cli.value_of("quality").unwrap_or("0").parse().unwrap();
+    let _min_length: u64 = cli.value_of("LENGTH").unwrap_or("0").parse().unwrap();
+    let _min_quality: f64 = cli.value_of("QUALITY").unwrap_or("0").parse().unwrap();
     
 
     let mut reads: u64 = 0;
@@ -68,6 +71,7 @@ fn main() -> Result<(), Error> {
     let median_read_length = get_median_read_length(&mut read_lengths);
     let median_read_quality = get_median_read_quality(&mut read_qualities);
     let (min_read_length, max_read_length) = get_read_length_range(&read_lengths);
+    let read_length_n50 = get_read_length_n50(&base_pairs, &read_lengths);
 
     eprintln!(
         "{:} {:} {:} {:} {:} {:} {:.2} {:.2}",
@@ -88,6 +92,19 @@ fn main() -> Result<(), Error> {
 // Helper functions
 
 fn compare_f64(a: &f64, b: &f64) -> Ordering {
+
+    // Will get killed with NAN (R.I.P)
+    // but we should also never see NAN
+
+    if a < b {
+        return Ordering::Less;
+    } else if a > b {
+        return Ordering::Greater;
+    }
+    Ordering::Equal
+}
+
+fn compare_u64(a: &u64, b: &u64) -> Ordering {
 
     // Will get killed with NAN (R.I.P)
     // but we should also never see NAN
@@ -186,5 +203,26 @@ fn get_mean_read_quality(numbers: &Vec<f64>) -> f64 {
     let sum: f64 = numbers.iter().sum();
 
     sum as f64 / numbers.len() as f64
+
+}
+
+fn get_read_length_n50(base_pairs: &u64, read_lengths: &Vec<u64>) -> f64 {
+    
+    // Compute the read length N50 if a vector of unsigned integers
+    
+    read_lengths.sort_by(compare_u64);
+
+    println!("{:?}", read_lengths);
+
+    let _stop = base_pairs / 2;
+
+    let mut _cum_sum = 0;
+    for x in &read_lengths.rev() {
+        _cum_sum += x;
+        if _cum_sum >= _stop {
+
+        }
+    }
+
 
 }

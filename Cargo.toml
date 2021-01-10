@@ -19,4 +19,5 @@ include = [
 [dependencies]
 clap = "2.33.0"
 libm = "0.2.1"
+bio = "*"
 needletail = "0.4"
