@@ -33,7 +33,7 @@ fn main() -> Result<(), Error> {
     let needletail: bool = cli.is_present("NEEDLE");
 
     
-    let (reads, base_pairs, read_lengths, read_qualities) = if needletail {
+    let Ok((reads, base_pairs, read_lengths, read_qualities)) = if needletail {
         needle_cast(fastx).expect("Could not run the needle cast [needletail error]");
     } else {
         crab_cast(fastx, output, min_length, min_quality).expect("Could not run the crab cast [rust-bio error]");
