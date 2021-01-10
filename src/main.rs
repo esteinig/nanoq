@@ -217,7 +217,7 @@ fn get_read_length_n50(base_pairs: &u64, read_lengths: &mut Vec<u64>) -> u64 {
 
     let _stop = base_pairs / 2;
 
-    let n50 = 0;
+    let n50: u64 = 0;
 
     let mut _cum_sum = 0;
     for x in read_lengths.iter().rev() {
@@ -228,6 +228,6 @@ fn get_read_length_n50(base_pairs: &u64, read_lengths: &mut Vec<u64>) -> u64 {
         }
     }
 
-    n50 as u64
+    return n50
 
 }
