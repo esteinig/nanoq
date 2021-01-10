@@ -29,19 +29,13 @@ fn main() -> Result<(), Error> {
 
     let min_length: u64 = cli.value_of("LENGTH").unwrap_or("0").parse().unwrap();
     let min_quality: f64 = cli.value_of("QUALITY").unwrap_or("0").parse().unwrap();
-
     let needle_tail: bool = cli.is_present("NEEDLE");
 
-    println!("{:}", fastx);
-
     let mut reader = if fastx == "-".to_string() {
-        let stdin = stdin();
-        parse_fastx_reader(stdin).expect("invalid /dev/stdin")
+        parse_fastx_reader(stdin()).expect("invalid /dev/stdin")
     } else {
         parse_fastx_reader(File::open(&fastx)?).expect("invalid file/path")
     };
-
-    
 
     let mut reads: u64 = 0;
     let mut base_pairs: u64 = 0;
@@ -227,6 +221,7 @@ fn get_read_length_n50(base_pairs: &u64, read_lengths: &mut Vec<u64>) -> u64 {
     let mut _cum_sum = 0;
     for x in read_lengths.iter().rev() {
         _cum_sum += x;
+        println!("{} {}", x, _cum_sum);
         if _cum_sum >= _stop {
             let n50 = x;
             break
