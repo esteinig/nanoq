@@ -13,11 +13,14 @@ fn command_line_interface<'a>() -> ArgMatches<'a> {
     App::new("nanoq")
         .version("0.2.0")
         .about("\nFast quality control and summary statistics for nanopore reads\n")
-        .arg(Arg::with_name("FASTX").short("f").long("fastx").takes_value(true).help("Fastx path or STDIN [-]"))
+        .arg(Arg::with_name("FASTQ").short("f").long("fastq").takes_value(true).help("Fastq path or STDIN [-]"))
         .arg(Arg::with_name("OUTPUT").short("o").long("output").takes_value(true).help("Output path or STDOUT [-]"))
-        .arg(Arg::with_name("LENGTH").short("l").long("min_length").takes_value(true).help("Minimum sequence length [0]"))
+        .arg(Arg::with_name("MINLEN").short("l").long("min_length").takes_value(true).help("Minimum sequence length [0]"))
+        .arg(Arg::with_name("MAXLEN").short("m").long("max_length").takes_value(true).help("Maximum sequence length [0]"))
         .arg(Arg::with_name("QUALITY").short("q").long("min_quality").takes_value(true).help("Minimum sequence quality [0]"))
-        .arg(Arg::with_name("NEEDLE").short("n").long("needletail").takes_value(false).help("Use needletail read parser [false]"))
+        .arg(Arg::with_name("KEEP").short("k").long("keep_percent").takes_value(true).help("Keep best percent quality bases (2-pass) [0]"))
+        .arg(Arg::with_name("TARGET").short("t").long("target_bases").takes_value(true).help("Remove the worst reads (2-pass) [0]"))
+        .arg(Arg::with_name("NEEDLE").short("n").long("needlecast").takes_value(false).help("Use needletail parser, supports Fasta [false]"))
     .get_matches()
 
 }
@@ -28,16 +31,17 @@ fn main() -> Result<(), Error> {
  
     let fastx = cli.value_of("FASTX").unwrap_or("-").parse::<String>().unwrap();
     let output = cli.value_of("OUTPUT").unwrap_or("-").parse::<String>().unwrap();
-    let min_length: u64 = cli.value_of("LENGTH").unwrap_or("0").parse().unwrap();
+    let min_length: u64 = cli.value_of("MINLEN").unwrap_or("0").parse().unwrap();
+    let max_length: u64 = cli.value_of("MAXLEN").unwrap_or("0").parse().unwrap();
     let min_quality: f64 = cli.value_of("QUALITY").unwrap_or("0").parse().unwrap();
     let needletail: bool = cli.is_present("NEEDLE");
 
     
     let (reads, base_pairs, mut read_lengths, mut read_qualities) = if needletail {
-        needle_cast(fastx)
+        needlecast(fastx)
     } else {
-        crab_cast(fastx, output, min_length, min_quality)
-    }.expect("Irreddemable error");
+        crabcast(fastx, output, min_length, min_quality)
+    }.expect("Irreddemable error encountered - what the crab?");
 
     // Summary statistics
 
@@ -46,12 +50,15 @@ fn main() -> Result<(), Error> {
         process::exit(1);
     }
 
+    let (min_read_length, max_read_length) = get_read_length_range(&read_lengths);
+
     let mean_read_length = get_mean_read_length(&read_lengths);
     let mean_read_quality = get_mean_read_quality(&read_qualities);
+
     let median_read_length = get_median_read_length(&mut read_lengths);
     let median_read_quality = get_median_read_quality(&mut read_qualities);
+
     let read_length_n50 = get_read_length_n50(&base_pairs, &mut read_lengths);
-    let (min_read_length, max_read_length) = get_read_length_range(&read_lengths);
 
     eprintln!(
         "{:} {:} {:} {:} {:} {:} {:} {:.2} {:.2}",
@@ -72,7 +79,9 @@ fn main() -> Result<(), Error> {
 
 // Main functions
 
-fn crab_cast(fastx: String, output: String, min_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error>  {
+fn crabcast(fastx: String, output: String, min_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error>  {
+
+    // Rust-Bio parser
 
     let input_handle: Box<dyn Read> = if fastx == "-".to_string(){
         Box::new(BufReader::new(io::stdin()))
@@ -125,8 +134,9 @@ fn crab_cast(fastx: String, output: String, min_length: u64, min_quality: f64) -
 
 }
 
-fn needle_cast(fastx: String) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
+fn needlecast(fastx: String) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
 
+    // Needletail parser 
     
     let mut reader = if fastx == "-".to_string() {
         parse_fastx_reader(stdin()).expect("invalid /dev/stdin")
@@ -161,7 +171,7 @@ fn needle_cast(fastx: String) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
 
 // Helper functions
 
-fn compare_f64(a: &f64, b: &f64) -> Ordering {
+fn compare_f64_ascending(a: &f64, b: &f64) -> Ordering {
 
     // Will get killed with NAN (R.I.P)
     // but we should also never see NAN
@@ -174,15 +184,15 @@ fn compare_f64(a: &f64, b: &f64) -> Ordering {
     Ordering::Equal
 }
 
-fn compare_u64(a: &u64, b: &u64) -> Ordering {
+fn compare_u64_descending(a: &u64, b: &u64) -> Ordering {
 
     // Will get killed with NAN (R.I.P)
     // but we should also never see NAN
 
     if a < b {
-        return Ordering::Less;
-    } else if a > b {
         return Ordering::Greater;
+    } else if a > b {
+        return Ordering::Less;
     }
     Ordering::Equal
 }
@@ -255,7 +265,7 @@ fn get_median_read_quality(numbers: &mut Vec<f64>) -> f64 {
 
     // Compute the median of a vector of double-precision floats
 
-    numbers.sort_by(compare_f64);
+    numbers.sort_by(compare_f64_ascending);
 
     let mid = numbers.len() / 2;
     if numbers.len() % 2 == 0 {
@@ -280,13 +290,13 @@ fn get_read_length_n50(base_pairs: &u64, read_lengths: &mut Vec<u64>) -> u64 {
     
     // Compute the read length N50 if a vector of unsigned integers
     
-    read_lengths.sort_by(compare_u64);
+    read_lengths.sort_by(compare_u64_descending);
 
     let _stop = base_pairs / 2;
 
     let mut n50: u64 = 0;
     let mut _cum_sum: u64 = 0;
-    for x in read_lengths.iter().rev() {
+    for x in read_lengths.iter() {
         _cum_sum += x;
         if _cum_sum >= _stop {
             n50 += x;
