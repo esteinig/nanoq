@@ -34,9 +34,9 @@ fn main() -> Result<(), Error> {
 
     
     if needletail {
-        let (reads, base_pairs, read_lengths, read_qualities) = needle_cast(fastx);
+        let (reads, base_pairs, read_lengths, read_qualities) = needle_cast(fastx).expect("Could not run the needle cast!");
     } else {
-        let (reads, base_pairs, read_lengths, read_qualities) = crab_cast(fastx, output, min_length, min_quality);
+        let (reads, base_pairs, read_lengths, read_qualities) = crab_cast(fastx, output, min_length, min_quality).expect("Could not run the crab cast!");
     }
 
     // Summary statistics
