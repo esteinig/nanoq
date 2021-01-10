@@ -9,15 +9,13 @@ use needletail::{parse_fastx_reader};
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
     App::new("nanoq")
-        .setting(AppSettings::SubcommandRequiredElseHelp)
-        .setting(AppSettings::DisableHelpSubcommand)
         .version("0.2.0")
         .about("\nFast quality control and summary statistics for nanopore reads\n")
         .arg(Arg::with_name("FASTX").short("f").long("fastx").takes_value(true).help("Fastx path or STDIN [-]"))
         .arg(Arg::with_name("OUTPUT").short("o").long("output").takes_value(true).help("Output path or STDOUT [-]"))
         .arg(Arg::with_name("LENGTH").short("l").long("min_length").takes_value(true).help("Minimum sequence length [0]"))
         .arg(Arg::with_name("QUALITY").short("q").long("min_quality").takes_value(true).help("Minimum sequence quality [0]"))
-        .arg(Arg::with_name("NEEDLE").short("n").long("needletail").takes_value(false).help("Use needletail as read parser [0]"))
+        .arg(Arg::with_name("NEEDLE").short("n").long("needletail").takes_value(false).help("Use needletail read parser [false]"))
     .get_matches()
 
 }
