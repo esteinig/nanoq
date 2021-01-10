@@ -25,10 +25,10 @@ fn main() -> Result<()> {
     let fastx = cli.value_of("fastx").unwrap_or("-").parse::<String>().unwrap();
 
     let mut reader = if fastx == "-".to_string() {
-        parse_fastx_reader(File::open(&path)?)
-    } else {
         let stdin = stdin();
         parse_fastx_reader(stdin)
+    } else {
+        parse_fastx_reader(File::open(&fastx)?)
     };
 
     let _min_length: u64 = cli.value_of("length").unwrap_or("0").parse().unwrap();
