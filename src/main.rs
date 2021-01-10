@@ -1,6 +1,7 @@
-
-use std::io::{self, BufReader, BufWriter, Read, Write};
 use clap::{Arg, ArgMatches, App};
+use std::io::{self, BufReader, BufWriter, Read, Write};
+use std::cmp::Ordering;
+use bio::io::fastq;
 use std::fs;
 use std::process;
 use libm::log10;
@@ -33,7 +34,7 @@ fn main() {
         Some(filename) if filename != "-" => Box::new(fs::File::create(filename).unwrap()),
         _ => Box::new(BufWriter::new(io::stdout()))
     };
-    
+
     let _min_length: u64 = cli.value_of("length").unwrap_or("0").parse().unwrap();
     let _min_quality: f64 = cli.value_of("quality").unwrap_or("0").parse().unwrap();
     
@@ -54,7 +55,6 @@ fn main() {
         if let Some(qual) = seqrec.qual() {
             read_qualities.push(qual as u64);
         }
-
     }
 
     // old code
