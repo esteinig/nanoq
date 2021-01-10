@@ -27,9 +27,9 @@ Minimal but speedy quality control for nanopore reads.
 
 ## Motivation
 
-Basic read filters and computation of summary statistics can be a bit slow when a `sequencing_summary` file is not available. `Nanoq` attempts to perform these operations on `fastq` files faster.
+Basic sequence quality control and computation of summary statistics can be a bit slow due to bottlenecks in read parsing. `Nanoq` attempts to perform these operations on `fastx` files using the `needletail` library with either a single-pass operation for defaulty summary statistics and filtering, or a two-pass operation enabling advanced filtering methods similar to `Filtlong`.
 
-Quality scores are computed for basecalls from nanopore sequencing data as outlined in the [technical documentation](https://community.nanoporetech.com/technical_documents/data-analysis/) and [this issue](https://github.com/esteinig/nanoq/issues/2).
+Quality scores are computed for basecalls from nanopore sequencing data, as outlined in the [technical documentation](https://community.nanoporetech.com/technical_documents/data-analysis/).
 
 ## Install
 
