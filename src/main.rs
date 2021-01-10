@@ -220,13 +220,13 @@ fn get_read_length_n50(base_pairs: &u64, read_lengths: &mut Vec<u64>) -> u64 {
     let mut _cum_sum: u64 = 0;
     for x in read_lengths.iter().rev() {
         _cum_sum += x;
-        println!("{} {}", x, _cum_sum);
         if _cum_sum >= _stop {
             n50 += x;
             break
         }
     }
 
+    println!("{} {}", n50, _cum_sum);
     return n50
 
 }
