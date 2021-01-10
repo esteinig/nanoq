@@ -2,7 +2,7 @@ use clap::{Arg, ArgMatches, App};
 use std::cmp::Ordering;
 use std::process;
 use libm::log10;
-use needletail::{parse_fastx_file};
+use needletail::{parse_fastx_file,parse_fastx_stdin};
 
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
@@ -22,6 +22,12 @@ fn main() {
  
     let fastx = cli.value_of("fastx").unwrap_or("-").parse::<String>().unwrap();
 
+    let mut reader = if fastx == "-".to_string() {
+        parse_fastx_stdin().expect("valid file/path"); 
+    } else {
+        parse_fastx_file(fastx).expect("valid file/path"); 
+    }
+
     let _min_length: u64 = cli.value_of("length").unwrap_or("0").parse().unwrap();
     let _min_quality: f64 = cli.value_of("quality").unwrap_or("0").parse().unwrap();
     
@@ -31,7 +37,6 @@ fn main() {
     let mut read_lengths: Vec<u64> = Vec::new();
     let mut read_qualities: Vec<f64> = Vec::new();
 
-    let mut reader = parse_fastx_file(fastx).expect("valid file/path"); 
     while let Some(record) = reader.next() {
         let seqrec = record.expect("invalid record");
         let seqlen = seqrec.seq().len() as u64;
