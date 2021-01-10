@@ -72,7 +72,7 @@ fn main() -> Result<(), Error> {
 
 // Main functions
 
-fn crab_cast(fastx: String, output: String, min_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<u64>), Error>  {
+fn crab_cast(fastx: String, output: String, min_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error>  {
 
     let input_handle: Box<dyn Read> = if fastx == "-".to_string(){
         Box::new(BufReader::new(io::stdin()))
@@ -89,7 +89,7 @@ fn crab_cast(fastx: String, output: String, min_length: u64, min_quality: f64) -
     let reader = fastq::Reader::new(input_handle);
     let mut writer = fastq::Writer::new(output_handle);
 
-    let mut basepairs: u64 = 0;
+    let mut base_pairs: u64 = 0;
     let mut reads: u64 = 0;
     let mut read_lengths: Vec<u64> = Vec::new();
     let mut read_qualities: Vec<f64> = Vec::new();
@@ -110,7 +110,7 @@ fn crab_cast(fastx: String, output: String, min_length: u64, min_quality: f64) -
             
             read_lengths.push(seq_len);
             read_qualities.push(mean_quality);            
-            basepairs += seq_len;
+            base_pairs += seq_len;
             reads += 1;
 
             if min_length > 0 || min_quality > 0.0 {
@@ -125,7 +125,7 @@ fn crab_cast(fastx: String, output: String, min_length: u64, min_quality: f64) -
 
 }
 
-fn needle_cast(fastx: String) -> Result<(u64, u64, Vec<u64>, Vec<u64>), Error> {
+fn needle_cast(fastx: String) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
 
     
     let mut reader = if fastx == "-".to_string() {
