@@ -33,10 +33,10 @@ fn main() -> Result<(), Error> {
     let needletail: bool = cli.is_present("NEEDLE");
 
     
-    if needletail {
-        let (reads, base_pairs, read_lengths, read_qualities) = needle_cast(fastx).expect("Could not run the needle cast!");
+    let (reads, base_pairs, read_lengths, read_qualities) = if needletail {
+        needle_cast(fastx).expect("Could not run the needle cast [needletail error]");
     } else {
-        let (reads, base_pairs, read_lengths, read_qualities) = crab_cast(fastx, output, min_length, min_quality).expect("Could not run the crab cast!");
+        crab_cast(fastx, output, min_length, min_quality).expect("Could not run the crab cast [rust-bio error]");
     }
 
     // Summary statistics
@@ -80,7 +80,7 @@ fn crab_cast(fastx: String, output: String, min_length: u64, min_quality: f64) -
         Box::new(File::open(&fastx)?)
     };
 
-     let output_handle: Box<dyn Write> = if output == "-".to_string(){
+    let output_handle: Box<dyn Write> = if output == "-".to_string(){
         Box::new(BufWriter::new(io::stdout()))
      } else {
         Box::new(File::create(&output)?)
