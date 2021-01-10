@@ -33,14 +33,11 @@ fn main() -> Result<(), Error> {
     let needletail: bool = cli.is_present("NEEDLE");
 
     
-    if let Ok((reads, base_pairs, read_lengths, read_qualities)) = if needletail {
+    let (reads, base_pairs, read_lengths, read_qualities) = if needletail {
         needle_cast(fastx)
     } else {
         crab_cast(fastx, output, min_length, min_quality)
-    } { 
-        eprintln!("Irredeemable error!");
-        process::exit(1); 
-    };
+    }.expect("Irreddemable error");
 
     // Summary statistics
 
