@@ -207,7 +207,7 @@ fn get_mean_read_quality(numbers: &Vec<f64>) -> f64 {
 
 }
 
-fn get_read_length_n50(base_pairs: &u64, read_lengths: &Vec<u64>) -> f64 {
+fn get_read_length_n50(base_pairs: &u64, read_lengths: &Vec<u64>) -> u64 {
     
     // Compute the read length N50 if a vector of unsigned integers
     
@@ -217,13 +217,16 @@ fn get_read_length_n50(base_pairs: &u64, read_lengths: &Vec<u64>) -> f64 {
 
     let _stop = base_pairs / 2;
 
+    let mut n50 = 0;
     let mut _cum_sum = 0;
-    for x in &read_lengths.rev() {
+    for x in &read_lengths.into_iter().rev() {
         _cum_sum += x;
         if _cum_sum >= _stop {
-
+            let n50 = x;
+            break
         }
     }
 
+    n50 as u64
 
 }
