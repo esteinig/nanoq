@@ -26,36 +26,15 @@ fn main() -> Result<(), Error> {
  
     let fastx = cli.value_of("FASTX").unwrap_or("-").parse::<String>().unwrap();
     let output = cli.value_of("OUTPUT").unwrap_or("-").parse::<String>().unwrap();
-
     let min_length: u64 = cli.value_of("LENGTH").unwrap_or("0").parse().unwrap();
     let min_quality: f64 = cli.value_of("QUALITY").unwrap_or("0").parse().unwrap();
     let needle_tail: bool = cli.is_present("NEEDLE");
 
-    let mut reader = if fastx == "-".to_string() {
-        parse_fastx_reader(stdin()).expect("invalid /dev/stdin")
+    
+    if needletail {
+        let (reads, base_pairs, read_lengths, read_qualities) = needle_cast(fastx);
     } else {
-        parse_fastx_reader(File::open(&fastx)?).expect("invalid file/path")
-    };
-
-    let mut reads: u64 = 0;
-    let mut base_pairs: u64 = 0;
-    let mut read_lengths: Vec<u64> = Vec::new();
-    let mut read_qualities: Vec<f64> = Vec::new();
-
-    while let Some(record) = reader.next() {
-        let seqrec = record.expect("invalid record");
-        let seqlen = seqrec.seq().len() as u64;
-
-        reads += 1;
-        base_pairs += seqlen;
-        read_lengths.push(seqlen);
-
-        if let Some(qual) = seqrec.qual() {
-            
-            let mean_error = get_mean_error(&qual);
-            let mean_quality: f64 = -10f64*log10(mean_error as f64);
-            read_qualities.push(mean_quality);
-        }
+        let (reads, base_pairs, read_lengths, read_qualities) = crab_cast(fastx, output, min_length, min_quality);
     }
 
     // Summary statistics
@@ -87,6 +66,95 @@ fn main() -> Result<(), Error> {
 
     Ok(())
     
+}
+
+// Main functions
+
+fn crab_cast(fastx: String, output: String, min_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<u64>), Error>  {
+
+    let input_handle: Box<dyn Read> = if fastx == "-".to_string(){
+        Box::new(BufReader::new(io::stdin()))
+    } else {
+        Box::new(File::open(&fastx)?)
+    };
+
+     let output_handle: Box<dyn Write> = if output == "-".to_string(){
+        Box::new(BufWriter::new(io::stdout()))
+     } else {
+        Box::new(File::create(&output)?)
+    };
+    
+    let reader = fastq::Reader::new(input_handle);
+    let mut writer = fastq::Writer::new(output_handle);
+
+    let mut basepairs: u64 = 0;
+    let mut reads: u64 = 0;
+    let mut read_lengths: Vec<u64> = Vec::new();
+    let mut read_qualities: Vec<f64> = Vec::new();
+
+    for result in reader.records() {
+        
+        let record = result.expect("Error: could not read record");
+
+        // Nanopore quality score computation
+
+        let quality_values: Vec<u8> = record.qual().to_vec();
+        let mean_error = get_mean_error(&quality_values);
+        let mean_quality: f64 = -10f64*log10(mean_error as f64);
+
+        let seq_len = record.seq().len() as u64;
+                
+        if seq_len >= min_length && mean_quality >= min_quality {
+            
+            read_lengths.push(seq_len);
+            read_qualities.push(mean_quality);            
+            basepairs += seq_len;
+            reads += 1;
+
+            if min_length > 0 || min_quality > 0.0 {
+                // Write only when filters are set, otherwise compute stats only
+                writer.write_record(&record).expect("Error: could not write record.");
+            }
+        }           
+
+    }  
+
+    Ok((reads, base_pairs, read_lengths, read_qualities))
+
+}
+
+fn needle_cast(fastx: String) -> Result<(u64, u64, Vec<u64>, Vec<u64>), Error> {
+
+    
+    let mut reader = if fastx == "-".to_string() {
+        parse_fastx_reader(stdin()).expect("invalid /dev/stdin")
+    } else {
+        parse_fastx_reader(File::open(&fastx)?).expect("invalid file/path")
+    };
+
+    let mut reads: u64 = 0;
+    let mut base_pairs: u64 = 0;
+    let mut read_lengths: Vec<u64> = Vec::new();
+    let mut read_qualities: Vec<f64> = Vec::new();
+
+    while let Some(record) = reader.next() {
+        let seqrec = record.expect("invalid record");
+        let seqlen = seqrec.seq().len() as u64;
+
+        reads += 1;
+        base_pairs += seqlen;
+        read_lengths.push(seqlen);
+
+        if let Some(qual) = seqrec.qual() {
+            
+            let mean_error = get_mean_error(&qual);
+            let mean_quality: f64 = -10f64*log10(mean_error as f64);
+            read_qualities.push(mean_quality);
+        }
+    }
+
+    return Ok((reads, base_pairs, read_lengths, read_qualities))
+
 }
 
 // Helper functions
