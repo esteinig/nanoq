@@ -50,15 +50,15 @@ fn main() -> Result<(), Error> {
         process::exit(1);
     }
 
-    let (min_read_length, max_read_length) = get_read_length_range(&read_lengths);
 
     let mean_read_length = get_mean_read_length(&read_lengths);
     let mean_read_quality = get_mean_read_quality(&read_qualities);
-
     let median_read_length = get_median_read_length(&mut read_lengths);
     let median_read_quality = get_median_read_quality(&mut read_qualities);
 
     let read_length_n50 = get_read_length_n50(&base_pairs, &mut read_lengths);
+
+    let (min_read_length, max_read_length) = get_read_length_range(&read_lengths);
 
     eprintln!(
         "{:} {:} {:} {:} {:} {:} {:} {:.2} {:.2}",
