@@ -24,20 +24,7 @@ fn main() {
 
     let cli = command_line_interface();
  
-    // let input_handle: Box<dyn Read> = match cli.value_of("fastq") {
-    //     Some(filename) if filename != "-" => Box::new(fs::File::open(filename).unwrap()),
-    //     _ => Box::new(BufReader::new(io::stdin()))
-    // };
-
-    //  let output_handle: Box<dyn Write> = match cli.value_of("output") {
-    //     Some(filename) if filename != "-" => Box::new(fs::File::create(filename).unwrap()),
-    //     _ => Box::new(BufWriter::new(io::stdout()))
-    // };
-
     let fastx = cli.value_of("fastx").unwrap_or("-").parse::<String>().unwrap();
-
-    let mut reader = parse_fastx_file(fastx).expect("valid file/path"); 
-
 
     let _min_length: u64 = cli.value_of("length").unwrap_or("0").parse().unwrap();
     let _min_quality: f64 = cli.value_of("quality").unwrap_or("0").parse().unwrap();
@@ -48,7 +35,7 @@ fn main() {
     let mut read_lengths: Vec<u64> = Vec::new();
     let mut read_qualities: Vec<f64> = Vec::new();
 
-    
+    let mut reader = parse_fastx_file(fastx).expect("valid file/path"); 
     while let Some(record) = reader.next() {
         let seqrec = record.expect("invalid record");
         let seqlen = seqrec.seq().len() as u64;
@@ -64,39 +51,6 @@ fn main() {
             read_qualities.push(mean_quality);
         }
     }
-
-    // old code
-    
-    
-    // let reader = fastq::Reader::new(input_handle);
-    // let mut writer = fastq::Writer::new(output_handle);
-
-    // for result in reader.records() {
-        
-    //     let record = result.expect("Error: could not read record");
-
-    //     // Nanopore quality score computation
-
-    //     let quality_values: Vec<u8> = record.qual().to_vec();
-    //     let mean_error = get_mean_error(&quality_values);
-    //     let mean_quality: f64 = -10f64*log10(mean_error as f64);
-
-    //     let seq_len = record.seq().len() as u64;
-                
-    //     if seq_len >= min_length && mean_quality >= min_quality {
-            
-    //         read_lengths.push(seq_len);
-    //         read_qualities.push(mean_quality);            
-    //         basepairs += seq_len;
-    //         reads += 1;
-
-    //         if min_length > 0 || min_quality > 0.0 {
-    //             // Write only when filters are set, otherwise compute stats only
-    //             writer.write_record(&record).expect("Error: could not write record.");
-    //         }
-    //     }           
-
-    // }  
 
     // Summary statistics
 
