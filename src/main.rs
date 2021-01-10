@@ -1,6 +1,8 @@
-use clap::{Arg, ArgMatches, App, AppSettings};
+use std::io::{self, BufReader, BufWriter, Read, Write};
+use clap::{Arg, ArgMatches, App};
 use std::cmp::Ordering;
 use std::process;
+use bio::io::fastq;
 use libm::log10;
 use std::fs::File;
 use std::io::{stdin, Error};
