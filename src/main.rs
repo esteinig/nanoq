@@ -37,7 +37,7 @@ fn main() -> Result<(), Error> {
         needle_cast(fastx).expect("Could not run the needle cast [needletail error]");
     } else {
         crab_cast(fastx, output, min_length, min_quality).expect("Could not run the crab cast [rust-bio error]");
-    }
+    };
 
     // Summary statistics
 
