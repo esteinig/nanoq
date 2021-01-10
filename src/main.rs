@@ -1,10 +1,8 @@
 use clap::{Arg, ArgMatches, App};
 use std::io::{self, BufReader, BufWriter, Read, Write};
 use std::cmp::Ordering;
-use bio::io::fastq;
 use std::fs;
 use std::process;
-use libm::log10;
 use needletail::{parse_fastx_file};
 
 fn command_line_interface<'a>() -> ArgMatches<'a> {
@@ -47,13 +45,17 @@ fn main() {
     let mut reader = parse_fastx_file(&input_handle).expect("valid path/file");
     while let Some(record) = reader.next() {
         let seqrec = record.expect("invalid record");
-        
+        let seq_len = seqrec.seq().len() as u64;
+
         reads += 1;
-        base_pairs += seqrec.seq().len() as u64;
-        read_lengths.push(seqrec.seq().len() as u64);
+        base_pairs += seq_length;
+        read_lengths.push(seq_length);
 
         if let Some(qual) = seqrec.qual() {
-            read_qualities.push(qual as u64);
+            
+            let mean_error = get_mean_error(&qual);
+            let mean_quality: f64 = -10f64*log10(mean_error as f64);
+            read_qualities.push(mean_quality);
         }
     }
 
@@ -106,7 +108,7 @@ fn main() {
     eprintln!(
         "{:} {:} {:} {:} {:} {:} {:.2} {:.2}",
         reads, 
-        basepairs, 
+        base_pairs, 
         max_read_length, 
         min_read_length, 
         mean_read_length, 
