@@ -3,7 +3,7 @@ use std::cmp::Ordering;
 use std::process;
 use libm::log10;
 use std::fs::File;
-use std::io::{stdin};
+use std::io::{stdin, Error};
 use needletail::{parse_fastx_reader};
 
 fn command_line_interface<'a>() -> ArgMatches<'a> {
@@ -26,9 +26,9 @@ fn main() -> Result<(), Error> {
 
     let mut reader = if fastx == "-".to_string() {
         let stdin = stdin();
-        parse_fastx_reader(stdin)
+        parse_fastx_reader(stdin).expect("invalid /dev/stdin")
     } else {
-        parse_fastx_reader(File::open(&fastx)?)
+        parse_fastx_reader(File::open(&fastx)?).expect("invalid file/path")
     };
 
     let _min_length: u64 = cli.value_of("length").unwrap_or("0").parse().unwrap();
