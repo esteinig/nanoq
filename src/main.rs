@@ -1,17 +1,13 @@
 use clap::{Arg, ArgMatches, App};
-use std::io::{self, BufReader, BufWriter, Read, Write};
 use std::cmp::Ordering;
-use std::fs;
 use std::process;
 use libm::log10;
 use needletail::{parse_fastx_file};
 
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
-    // Sets the command line interface of the program
-
     App::new("nanoq")
-            .version("0.1.1")
+            .version("0.2.0")
             .about("\nMinimal quality control and summary statistics for nanopore reads\n")
             .arg(Arg::from_usage("-f, --fastx=[FILE] 'Input fastx file [-]'"))
             .arg(Arg::from_usage("-o, --output=[FILE] 'Output fastx file [-]'"))
