@@ -24,7 +24,7 @@ fn command_line_interface<'a>() -> ArgMatches<'a> {
 
 fn main() -> Result<(), Error> {
 
-    cli = command_line_interface();
+    let cli = command_line_interface();
  
     let fastx = cli.value_of("FASTX").unwrap_or("-").parse::<String>().unwrap();
     let output = cli.value_of("OUTPUT").unwrap_or("-").parse::<String>().unwrap();
