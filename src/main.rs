@@ -34,13 +34,10 @@ fn main() {
     //     _ => Box::new(BufWriter::new(io::stdout()))
     // };
 
-    let fastx = cli.value_of("fastx").unwrap_or("-").parse::<str>().unwrap();;
+    let fastx = cli.value_of("fastx").unwrap_or("-").parse::<String>().unwrap();;
 
-    let mut reader = if fastx == "-" {
-        parse_fastx_file(io::stdin()).expect("valid stdin"); 
-    } else {
-        parse_fastx_file(fastq).expect("valid file/path"); 
-    }
+    let mut reader = parse_fastx_file(fastx).expect("valid file/path"); 
+
 
     let _min_length: u64 = cli.value_of("length").unwrap_or("0").parse().unwrap();
     let _min_quality: f64 = cli.value_of("quality").unwrap_or("0").parse().unwrap();
