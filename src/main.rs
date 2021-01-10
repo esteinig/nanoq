@@ -135,7 +135,7 @@ fn compare_f64(a: &f64, b: &f64) -> Ordering {
     Ordering::Equal
 }
 
-fn get_mean_error(quality_bytes: &Vec<u8>) -> f32 {
+fn get_mean_error(quality_bytes: &[u8]) -> f32 {
 
     /* Compute the mean error probability from a quality score vector
 
