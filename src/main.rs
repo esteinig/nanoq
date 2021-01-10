@@ -5,6 +5,7 @@ use bio::io::fastq;
 use std::fs;
 use std::process;
 use libm::log10;
+use needletail::{parse_fastx_file}
 
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
@@ -33,44 +34,61 @@ fn main() {
         Some(filename) if filename != "-" => Box::new(fs::File::create(filename).unwrap()),
         _ => Box::new(BufWriter::new(io::stdout()))
     };
-
-    let min_length: u64 = cli.value_of("length").unwrap_or("0").parse().unwrap();
-    let min_quality: f64 = cli.value_of("quality").unwrap_or("0").parse().unwrap();
+    let _min_length: u64 = cli.value_of("length").unwrap_or("0").parse().unwrap();
+    let _min_quality: f64 = cli.value_of("quality").unwrap_or("0").parse().unwrap();
     
-    let reader = fastq::Reader::new(input_handle);
-    let mut writer = fastq::Writer::new(output_handle);
 
-    let mut basepairs: u64 = 0;
     let mut reads: u64 = 0;
+    let mut base_pairs: u64 = 0;
     let mut read_lengths: Vec<u64> = Vec::new();
     let mut read_qualities: Vec<f64> = Vec::new();
 
-    for result in reader.records() {
+    let mut reader = parse_fastx_file(&input_handle).expect("valid path/file");
+    while let Some(record) = reader.next() {
+        let seqrec = record.expect("invalid record");
         
-        let record = result.expect("Error: could not read record");
+        reads += 1;
+        base_pairs += seqrec.seq().len() as u64;
+        read_lengths.push(seqrec.seq().len() as u64);
 
-        // Nanopore quality score computation
+        if let Some(qual) = seqrec.qual() {
+            read_qualities.push(qual as u64);
+        }
+        
+    }
 
-        let quality_values: Vec<u8> = record.qual().to_vec();
-        let mean_error = get_mean_error(&quality_values);
-        let mean_quality: f64 = -10f64*log10(mean_error as f64);
+    // old code
+    
+    
+    // let reader = fastq::Reader::new(input_handle);
+    // let mut writer = fastq::Writer::new(output_handle);
 
-        let seq_len = record.seq().len() as u64;
+    // for result in reader.records() {
+        
+    //     let record = result.expect("Error: could not read record");
+
+    //     // Nanopore quality score computation
+
+    //     let quality_values: Vec<u8> = record.qual().to_vec();
+    //     let mean_error = get_mean_error(&quality_values);
+    //     let mean_quality: f64 = -10f64*log10(mean_error as f64);
+
+    //     let seq_len = record.seq().len() as u64;
                 
-        if seq_len >= min_length && mean_quality >= min_quality {
+    //     if seq_len >= min_length && mean_quality >= min_quality {
             
-            read_lengths.push(seq_len);
-            read_qualities.push(mean_quality);            
-            basepairs += seq_len;
-            reads += 1;
+    //         read_lengths.push(seq_len);
+    //         read_qualities.push(mean_quality);            
+    //         basepairs += seq_len;
+    //         reads += 1;
 
-            if min_length > 0 || min_quality > 0.0 {
-                // Write only when filters are set, otherwise compute stats only
-                writer.write_record(&record).expect("Error: could not write record.");
-            }
-        }           
+    //         if min_length > 0 || min_quality > 0.0 {
+    //             // Write only when filters are set, otherwise compute stats only
+    //             writer.write_record(&record).expect("Error: could not write record.");
+    //         }
+    //     }           
 
-    }  
+    // }  
 
     // Summary statistics
 
