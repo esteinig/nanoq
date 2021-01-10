@@ -219,7 +219,7 @@ fn get_read_length_n50(base_pairs: &u64, read_lengths: &Vec<u64>) -> u64 {
 
     let mut n50 = 0;
     let mut _cum_sum = 0;
-    for x in read_lengths.rev().iter() {
+    for x in read_lengths.iter().rev() {
         _cum_sum += x;
         if _cum_sum >= _stop {
             let n50 = x;
