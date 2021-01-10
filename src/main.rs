@@ -33,7 +33,7 @@ fn main() -> Result<(), Error> {
     let needletail: bool = cli.is_present("NEEDLE");
 
     
-    let (reads, base_pairs, read_lengths, read_qualities) = if needletail {
+    let (reads, base_pairs, mut read_lengths, mut read_qualities) = if needletail {
         needle_cast(fastx)
     } else {
         crab_cast(fastx, output, min_length, min_quality)
