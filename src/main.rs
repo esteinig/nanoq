@@ -13,8 +13,8 @@ fn command_line_interface<'a>() -> ArgMatches<'a> {
     App::new("nanoq")
             .version("0.1.1")
             .about("\nMinimal quality control and summary statistics for nanopore reads\n")
-            .arg(Arg::from_usage("-f, --fastq=[FILE] 'Input fastq file [-]'"))
-            .arg(Arg::from_usage("-o, --output=[FILE] 'Output fastq file [-]'"))
+            .arg(Arg::from_usage("-f, --fastx=[FILE] 'Input fastx file [-]'"))
+            .arg(Arg::from_usage("-o, --output=[FILE] 'Output fastx file [-]'"))
             .arg(Arg::from_usage("-l, --length=[INT] 'Minimum read length [0]'"))
             .arg(Arg::from_usage("-q, --quality=[INT] 'Minimum read quality [0]'"))
             .get_matches()
@@ -33,9 +33,11 @@ fn main() {
     //     Some(filename) if filename != "-" => Box::new(fs::File::create(filename).unwrap()),
     //     _ => Box::new(BufWriter::new(io::stdout()))
     // };
-    
-    let mut reader = if cli.value_of("fastq").or_else("-") == "-" {
-        parse_fastx_file(BufReader::new(io::stdin())).expect("valid stdin"); 
+
+    let fastx = cli.value_of("fastx").or_else("-");
+
+    let mut reader = if fastx = Some("-") {
+        parse_fastx_file(io::stdin()).expect("valid stdin"); 
     } else {
         parse_fastx_file(fastq).expect("valid file/path"); 
     }
