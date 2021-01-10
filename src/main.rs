@@ -74,9 +74,10 @@ fn main() -> Result<(), Error> {
     let read_length_n50 = get_read_length_n50(&base_pairs, &read_lengths);
 
     eprintln!(
-        "{:} {:} {:} {:} {:} {:} {:.2} {:.2}",
+        "{:} {:} {:} {:} {:} {:} {:} {:.2} {:.2}",
         reads, 
         base_pairs, 
+        read_length_n50,
         max_read_length, 
         min_read_length, 
         mean_read_length, 
