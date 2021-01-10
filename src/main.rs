@@ -3,6 +3,7 @@ use std::io::{self, BufReader, BufWriter, Read, Write};
 use std::cmp::Ordering;
 use std::fs;
 use std::process;
+use libm::log10;
 use needletail::{parse_fastx_file};
 
 fn command_line_interface<'a>() -> ArgMatches<'a> {
@@ -45,11 +46,11 @@ fn main() {
     let mut reader = parse_fastx_file(&input_handle).expect("valid path/file");
     while let Some(record) = reader.next() {
         let seqrec = record.expect("invalid record");
-        let seq_len = seqrec.seq().len() as u64;
+        let seqlen = seqrec.seq().len() as u64;
 
         reads += 1;
-        base_pairs += seq_length;
-        read_lengths.push(seq_length);
+        base_pairs += seqlen;
+        read_lengths.push(seqlen);
 
         if let Some(qual) = seqrec.qual() {
             
