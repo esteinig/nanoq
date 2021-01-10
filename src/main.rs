@@ -2,7 +2,9 @@ use clap::{Arg, ArgMatches, App};
 use std::cmp::Ordering;
 use std::process;
 use libm::log10;
-use needletail::{parse_fastx_file,parse_fastx_stdin};
+use std::fs::File;
+use std::io::{stdin};
+use needletail::{parse_fastx_reader};
 
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
@@ -16,16 +18,17 @@ fn command_line_interface<'a>() -> ArgMatches<'a> {
             .get_matches()
 }
 
-fn main() {
+fn main() -> Result<()> {
 
     let cli = command_line_interface();
  
     let fastx = cli.value_of("fastx").unwrap_or("-").parse::<String>().unwrap();
 
     let mut reader = if fastx == "-".to_string() {
-        parse_fastx_stdin().expect("valid file/path"); 
+        parse_fastx_reader(File::open(&path)?)
     } else {
-        parse_fastx_file(fastx).expect("valid file/path"); 
+        let stdin = stdin();
+        parse_fastx_reader(stdin)
     };
 
     let _min_length: u64 = cli.value_of("length").unwrap_or("0").parse().unwrap();
@@ -77,6 +80,8 @@ fn main() {
         mean_read_quality, 
         median_read_quality
     );
+
+    Ok(())
     
 }
 
