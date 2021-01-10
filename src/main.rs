@@ -24,15 +24,23 @@ fn main() {
 
     let cli = command_line_interface();
  
-    let input_handle: Box<dyn Read> = match cli.value_of("fastq") {
-        Some(filename) if filename != "-" => Box::new(fs::File::open(filename).unwrap()),
-        _ => Box::new(BufReader::new(io::stdin()))
-    };
+    // let input_handle: Box<dyn Read> = match cli.value_of("fastq") {
+    //     Some(filename) if filename != "-" => Box::new(fs::File::open(filename).unwrap()),
+    //     _ => Box::new(BufReader::new(io::stdin()))
+    // };
 
-     let output_handle: Box<dyn Write> = match cli.value_of("output") {
-        Some(filename) if filename != "-" => Box::new(fs::File::create(filename).unwrap()),
-        _ => Box::new(BufWriter::new(io::stdout()))
-    };
+    //  let output_handle: Box<dyn Write> = match cli.value_of("output") {
+    //     Some(filename) if filename != "-" => Box::new(fs::File::create(filename).unwrap()),
+    //     _ => Box::new(BufWriter::new(io::stdout()))
+    // };
+    
+    let fastq = match cli.value_of("fastq").or_else("-");
+
+    let mut reader = if fastq == "-" {
+        parse_fastx_file(BufReader::new(io::stdin())).expect("valid stdin"); 
+    } else {
+        parse_fastx_file(fastq).expect("valid file/path"); 
+    }
 
     let _min_length: u64 = cli.value_of("length").unwrap_or("0").parse().unwrap();
     let _min_quality: f64 = cli.value_of("quality").unwrap_or("0").parse().unwrap();
@@ -43,7 +51,7 @@ fn main() {
     let mut read_lengths: Vec<u64> = Vec::new();
     let mut read_qualities: Vec<f64> = Vec::new();
 
-    let mut reader = parse_fastx_file(&input_handle).expect("valid path/file");
+    
     while let Some(record) = reader.next() {
         let seqrec = record.expect("invalid record");
         let seqlen = seqrec.seq().len() as u64;
