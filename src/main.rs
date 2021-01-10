@@ -9,23 +9,32 @@ use needletail::{parse_fastx_reader};
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
     App::new("nanoq")
-    .setting(AppSettings::SubcommandRequiredElseHelp)
-    .setting(AppSettings::DisableHelpSubcommand)
-    .version("0.2.0")
-    .about("\nFast quality control and summary statistics for nanopore reads\n")
-    .arg(Arg::with_name("FASTX").short("f").long("fastx").takes_value(true).help("Fastx path or STDIN [-]"))
-    .arg(Arg::with_name("OUTPUT").short("o").long("output").takes_value(true).help("Output path or STDOUT [-]"))
-    .arg(Arg::with_name("LENGTH").short("l").long("min_length").takes_value(true).help("Minimum sequence length [0]"))
-    .arg(Arg::with_name("QUALITY").short("q").long("min_quality").takes_value(true).help("Minimum sequence quality [0]"))
-    .arg(Arg::with_name("NEEDLE").short("n").long("needletail").takes_value(false).help("Use needletail as read parser [0]"))
+        .setting(AppSettings::SubcommandRequiredElseHelp)
+        .setting(AppSettings::DisableHelpSubcommand)
+        .version("0.2.0")
+        .about("\nFast quality control and summary statistics for nanopore reads\n")
+        .arg(Arg::with_name("FASTX").short("f").long("fastx").takes_value(true).help("Fastx path or STDIN [-]"))
+        .arg(Arg::with_name("OUTPUT").short("o").long("output").takes_value(true).help("Output path or STDOUT [-]"))
+        .arg(Arg::with_name("LENGTH").short("l").long("min_length").takes_value(true).help("Minimum sequence length [0]"))
+        .arg(Arg::with_name("QUALITY").short("q").long("min_quality").takes_value(true).help("Minimum sequence quality [0]"))
+        .arg(Arg::with_name("NEEDLE").short("n").long("needletail").takes_value(false).help("Use needletail as read parser [0]"))
     .get_matches()
+
 }
 
 fn main() -> Result<(), Error> {
 
-    let cli = command_line_interface();
+    cli = command_line_interface();
  
     let fastx = cli.value_of("FASTX").unwrap_or("-").parse::<String>().unwrap();
+    let output = cli.value_of("OUTPUT").unwrap_or("-").parse::<String>().unwrap();
+
+    let min_length: u64 = cli.value_of("LENGTH").unwrap_or("0").parse().unwrap();
+    let min_quality: f64 = cli.value_of("QUALITY").unwrap_or("0").parse().unwrap();
+
+    let needle_tail: bool = cli.is_present("NEEDLE");
+
+    println!("{:}", fastx);
 
     let mut reader = if fastx == "-".to_string() {
         let stdin = stdin();
@@ -34,8 +43,6 @@ fn main() -> Result<(), Error> {
         parse_fastx_reader(File::open(&fastx)?).expect("invalid file/path")
     };
 
-    let _min_length: u64 = cli.value_of("LENGTH").unwrap_or("0").parse().unwrap();
-    let _min_quality: f64 = cli.value_of("QUALITY").unwrap_or("0").parse().unwrap();
     
 
     let mut reads: u64 = 0;
