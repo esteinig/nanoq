@@ -1,12 +1,12 @@
 use std::io::{self, BufReader, BufWriter, Read, Write};
 use clap::{Arg, ArgMatches, App};
+use needletail::{parse_fastx_reader};
 use std::cmp::Ordering;
 use std::process;
 use bio::io::fastq;
 use libm::log10;
 use std::fs::File;
 use std::io::{stdin, Error};
-use needletail::{parse_fastx_reader};
 
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
@@ -18,9 +18,9 @@ fn command_line_interface<'a>() -> ArgMatches<'a> {
         .arg(Arg::with_name("MINLEN").short("l").long("min_length").takes_value(true).help("Minimum sequence length [0]"))
         .arg(Arg::with_name("MAXLEN").short("m").long("max_length").takes_value(true).help("Maximum sequence length [0]"))
         .arg(Arg::with_name("QUALITY").short("q").long("min_quality").takes_value(true).help("Minimum sequence quality [0]"))
-        .arg(Arg::with_name("KEEP").short("k").long("keep_percent").takes_value(true).help("Keep best percent quality bases (2-pass) [0]"))
-        .arg(Arg::with_name("TARGET").short("t").long("target_bases").takes_value(true).help("Remove the worst reads (2-pass) [0]"))
-        .arg(Arg::with_name("NEEDLE").short("n").long("needlecast").takes_value(false).help("Use needletail parser, supports Fasta [false]"))
+        .arg(Arg::with_name("KEEP").short("k").long("keep_percent").takes_value(true).help("Keep best percent quality bases with reads (2-pass) [0]"))
+        .arg(Arg::with_name("TARGET").short("t").long("target_bases").takes_value(true).help("Remove the worst bases with reads (2-pass) [0]"))
+        .arg(Arg::with_name("CRAB").short("c").long("crab").takes_value(false).help("Use rust-bio parser [false]"))
     .get_matches()
 
 }
@@ -34,13 +34,13 @@ fn main() -> Result<(), Error> {
     let min_length: u64 = cli.value_of("MINLEN").unwrap_or("0").parse().unwrap();
     let max_length: u64 = cli.value_of("MAXLEN").unwrap_or("0").parse().unwrap();
     let min_quality: f64 = cli.value_of("QUALITY").unwrap_or("0").parse().unwrap();
-    let needletail: bool = cli.is_present("NEEDLE");
+    let crab: bool = cli.is_present("CRAB");
 
     
-    let (reads, base_pairs, mut read_lengths, mut read_qualities) = if needletail {
-        needlecast(fastx)
-    } else {
+    let (reads, base_pairs, mut read_lengths, mut read_qualities) = if crab {
         crabcast(fastx, output, min_length, min_quality)
+    } else {
+        needlecast(fastx)
     }.expect("Irreddemable error encountered - what the crab?");
 
     // Summary statistics
