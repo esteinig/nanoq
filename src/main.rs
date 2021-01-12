@@ -144,10 +144,10 @@ fn needlecast(fastx: String, output: String, min_length: u64, min_quality: u64) 
         parse_fastx_reader(File::open(&fastx)?).expect("invalid file/path")
     };
 
-    let mut writer = if output == "-".to_string() {
-        BufWriter::new(stdout())
-    } else {
-        File::create(&output)?
+    let output_handle: Box<dyn Write> = if output == "-".to_string(){
+        Box::new(BufWriter::new(stdout()))
+     } else {
+        Box::new(File::create(&output)?)
     };
 
     let mut reads: u64 = 0;
@@ -172,7 +172,7 @@ fn needlecast(fastx: String, output: String, min_length: u64, min_quality: u64) 
 
         if min_length > 0 || min_quality > 0.0 {
             // Write only when filters are set, otherwise compute stats only
-            seqrec.write(&writer, None)
+            seqrec.write(&output_handle, None);
         }
     }
 
