@@ -18,7 +18,7 @@ fn command_line_interface<'a>() -> ArgMatches<'a> {
         .arg(Arg::with_name("QUALITY").short("q").long("min_quality").takes_value(true).help("Minimum sequence quality [0]"))
         .arg(Arg::with_name("KEEP").short("k").long("keep_percent").takes_value(true).help("Keep best percent quality bases with reads (2-pass) [0]"))
         .arg(Arg::with_name("TARGET").short("t").long("target_bases").takes_value(true).help("Remove the worst bases with reads (2-pass) [0]"))
-        .arg(Arg::with_name("CRAB").short("c").long("crab").takes_value(false).help("Rust-Bio crab-casting (fastq) [false]"))
+        .arg(Arg::with_name("CRAB").short("c").long("crab").takes_value(false).help("Use the rust-bio parser (fastq) [false]"))
     .get_matches()
 
 }
