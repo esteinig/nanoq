@@ -41,7 +41,7 @@ fn main() -> Result<(), Error> {
         crabcast(fastx, output, min_length, min_quality)
     } else {
         needlecast(fastx, output, min_length, min_quality)
-    }.expect("Irreddemable error encountered - what the crab?");
+    }.expect("Carcinised error encountered - what the crab?");
 
     // Summary statistics
 
@@ -134,7 +134,7 @@ fn crabcast(fastx: String, output: String, min_length: u64, min_quality: f64) ->
 
 }
 
-fn needlecast(fastx: String, output: String, min_length: u64, min_quality: u64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
+fn needlecast(fastx: String, output: String, min_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
 
     // Needletail parser 
     
@@ -144,7 +144,7 @@ fn needlecast(fastx: String, output: String, min_length: u64, min_quality: u64) 
         parse_fastx_reader(File::open(&fastx)?).expect("invalid file/path")
     };
 
-    let output_handle: Box<dyn Write> = if output == "-".to_string(){
+    let mut output_handle: Box<dyn Write> = if output == "-".to_string(){
         Box::new(BufWriter::new(stdout()))
      } else {
         Box::new(File::create(&output)?)
