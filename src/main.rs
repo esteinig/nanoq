@@ -144,10 +144,10 @@ fn needlecast(fastx: String, output: String, min_length: u64, min_quality: f64) 
         parse_fastx_reader(File::open(&fastx)?).expect("invalid file/path")
     };
 
-    let mut output_handle: mut Box<dyn Write> = if output == "-".to_string(){
-        Box::new(BufWriter::new(stdout()))
+    let mut output_handle: dyn Write = if output == "-".to_string(){
+        BufWriter::new(stdout())
      } else {
-        Box::new(File::create(&output)?)
+        File::create(&output)?
     };
 
     let mut reads: u64 = 0;
