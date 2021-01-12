@@ -113,13 +113,13 @@ fn crabcast(fastx: String, output: String, min_length: u64, min_quality: f64) ->
         let mean_error = get_mean_error(&quality_values);
         let mean_quality: f64 = -10f64*log10(mean_error as f64);
 
-        let seq_len = record.seq().len() as u64;
+        let seqlen = record.seq().len() as u64;
                 
-        if seq_len >= min_length && mean_quality >= min_quality {
+        if seqlen >= min_length && mean_quality >= min_quality {
             
-            read_lengths.push(seq_len);
+            read_lengths.push(seqlen);
             read_qualities.push(mean_quality);            
-            base_pairs += seq_len;
+            base_pairs += seqlen;
             reads += 1;
 
             if min_length > 0 || min_quality > 0.0 {
@@ -159,22 +159,27 @@ fn needlecast(fastx: String, output: String, min_length: u64, min_quality: f64) 
     while let Some(record) = reader.next() {
         let seqrec = record.expect("invalid record");
         let seqlen = seqrec.seq().len() as u64;
-
-        reads += 1;
-        base_pairs += seqlen;
-        read_lengths.push(seqlen);
-
-        if let Some(qual) = seqrec.qual() {
+        
+        
+        if seqlen >= min_length && mean_quality >= min_quality {
             
-            let mean_error = get_mean_error(&qual);
-            let mean_quality: f64 = -10f64*log10(mean_error as f64);
-            read_qualities.push(mean_quality);
+            reads += 1;
+            base_pairs += seqlen;
+            read_lengths.push(seqlen);
+
+            if let Some(qual) = seqrec.qual() {
+                
+                let mean_error = get_mean_error(&qual);
+                let mean_quality: f64 = -10f64*log10(mean_error as f64);
+                read_qualities.push(mean_quality);
+            }
+
+            if min_length > 0 || min_quality > 0.0 {
+                // Write only when filters are set, otherwise compute stats only
+                seqrec.write(&output_handle, None);
+            }
         }
 
-        if min_length > 0 || min_quality > 0.0 {
-            // Write only when filters are set, otherwise compute stats only
-            seqrec.write(&mut output_handle, None);
-        }
     }
 
     return Ok((reads, base_pairs, read_lengths, read_qualities))
