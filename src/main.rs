@@ -40,7 +40,7 @@ fn main() -> Result<(), Error> {
     let (reads, base_pairs, mut read_lengths, mut read_qualities) = if crab {
         crabcast(fastx, output, min_length, min_quality)
     } else {
-        needlecast(fastx)
+        needlecast(fastx, output, min_length, min_quality)
     }.expect("Irreddemable error encountered - what the crab?");
 
     // Summary statistics
@@ -134,7 +134,7 @@ fn crabcast(fastx: String, output: String, min_length: u64, min_quality: f64) ->
 
 }
 
-fn needlecast(fastx: String, output: String) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
+fn needlecast(fastx: String, output: String, min_length: u64, min_quality: u64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
 
     // Needletail parser 
     
@@ -172,7 +172,7 @@ fn needlecast(fastx: String, output: String) -> Result<(u64, u64, Vec<u64>, Vec<
 
         if min_length > 0 || min_quality > 0.0 {
             // Write only when filters are set, otherwise compute stats only
-            seqrec.write(&writer)
+            seqrec.write(&writer, None)
         }
     }
 
