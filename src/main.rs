@@ -40,7 +40,7 @@ fn main() -> Result<(), Error> {
     let (reads, base_pairs, mut read_lengths, mut read_qualities) = if crab {
         crabcast(fastx, output, min_length, min_quality)
     } else {
-        if min_length >= 0 || min_quality >= 0.0 {
+        if min_length > 0 || min_quality > 0.0 {
             needlecast_filter(fastx, output, min_length, min_quality)
         } else {
             needlecast_stats(fastx)
