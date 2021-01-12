@@ -1,4 +1,4 @@
-use std::io::{self, BufReader, BufWriter, Read, Write};
+use std::io::{BufReader, BufWriter, Read, Write};
 use clap::{Arg, ArgMatches, App};
 use needletail::{parse_fastx_reader};
 use std::cmp::Ordering;
@@ -144,7 +144,7 @@ fn needlecast(fastx: String, output: String, min_length: u64, min_quality: f64) 
         parse_fastx_reader(File::open(&fastx)?).expect("invalid file/path")
     };
 
-    let mut output_handle: Box<dyn Write> = if output == "-".to_string(){
+    let mut output_handle: Box<mut dyn Write> = if output == "-".to_string(){
         Box::new(BufWriter::new(stdout()))
      } else {
         Box::new(File::create(&output)?)
