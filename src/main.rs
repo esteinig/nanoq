@@ -13,8 +13,6 @@ fn command_line_interface<'a>() -> ArgMatches<'a> {
     App::new("nanoq")
         .version("0.2.0")
         .about("\nFast quality control and summary statistics for nanopore reads\n")
-        .arg(Arg::with_name("FASTQ").short("f").long("fastq").takes_value(true).help("Fastq path or STDIN [-]"))
-        .arg(Arg::with_name("OUTPUT").short("o").long("output").takes_value(true).help("Output path or STDOUT [-]"))
         .arg(Arg::with_name("MINLEN").short("l").long("min_length").takes_value(true).help("Minimum sequence length [0]"))
         .arg(Arg::with_name("MAXLEN").short("m").long("max_length").takes_value(true).help("Maximum sequence length [0]"))
         .arg(Arg::with_name("QUALITY").short("q").long("min_quality").takes_value(true).help("Minimum sequence quality [0]"))
@@ -29,8 +27,6 @@ fn main() -> Result<(), Error> {
 
     let cli = command_line_interface();
  
-    let fastx = cli.value_of("FASTX").unwrap_or("-").parse::<String>().unwrap();
-    let output = cli.value_of("OUTPUT").unwrap_or("-").parse::<String>().unwrap();
     let min_length: u64 = cli.value_of("MINLEN").unwrap_or("0").parse().unwrap();
     let max_length: u64 = cli.value_of("MAXLEN").unwrap_or("0").parse().unwrap();
     let min_quality: f64 = cli.value_of("QUALITY").unwrap_or("0").parse().unwrap();
@@ -38,12 +34,12 @@ fn main() -> Result<(), Error> {
 
     
     let (reads, base_pairs, mut read_lengths, mut read_qualities) = if crab {
-        crabcast(fastx, output, min_length, min_quality)
+        crabcast(min_length, min_quality)
     } else {
         if min_length > 0 || min_quality > 0.0 {
-            needlecast_filter(fastx, output, min_length, min_quality)
+            needlecast_filter(min_length, min_quality)
         } else {
-            needlecast_stats(fastx)
+            needlecast_stats()
         }
     }.expect("Carcinised error encountered - what the crab?");
 
@@ -83,9 +79,12 @@ fn main() -> Result<(), Error> {
 
 // Main functions
 
-fn crabcast(fastq: String, output: String, min_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error>  {
+fn crabcast(min_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error>  {
 
     // Rust-Bio parser, Fastq only
+
+    let fastq = "-".to_string();  // always stdin
+    let output = "-".to_string(); // always stdout
 
     let input_handle: Box<dyn Read> = if fastq == "-".to_string(){
         Box::new(BufReader::new(stdin()))
@@ -138,10 +137,13 @@ fn crabcast(fastq: String, output: String, min_length: u64, min_quality: f64) ->
 
 }
 
-fn needlecast_filter(fastx: String, output: String, min_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
+fn needlecast_filter(min_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
 
     // Needletail parser, with output and filters
     
+    let fastx = "-".to_string();  // always stdin
+    let output = "-".to_string(); // always stdout
+
     let mut reader = if fastx == "-".to_string() {
         parse_fastx_reader(stdin()).expect("invalid /dev/stdin")
     } else {
@@ -192,10 +194,12 @@ fn needlecast_filter(fastx: String, output: String, min_length: u64, min_quality
 
 }
 
-fn needlecast_stats(fastx: String) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
+fn needlecast_stats() -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
 
     // Needletail parser jsut for stats, no filters or output for slight speedup (?)
     
+    let fastx = "-".to_string();  // always stdin
+
     let mut reader = if fastx == "-".to_string() {
         parse_fastx_reader(stdin()).expect("invalid /dev/stdin")
     } else {
