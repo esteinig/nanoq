@@ -17,7 +17,7 @@ fn command_line_interface<'a>() -> ArgMatches<'a> {
         .arg(Arg::with_name("MAXLEN").short("m").long("max_length").takes_value(true).help("Maximum sequence length [0]"))
         .arg(Arg::with_name("QUALITY").short("q").long("min_quality").takes_value(true).help("Minimum sequence quality [0]"))
         .arg(Arg::with_name("KEEP").short("k").long("keep_percent").takes_value(true).help("Keep best percent quality bases with reads (2-pass) [0]"))
-        .arg(Arg::with_name("TARGET").short("t").long("target_bases").takes_value(true).help("Remove the worst bases with reads (2-pass) [0]"))
+        .arg(Arg::with_name("TARGET").short("t").long("target_bases").takes_value(true).help("Remove worst quality bases with reads (2-pass) [0]"))
         .arg(Arg::with_name("CRAB").short("c").long("crab").takes_value(false).help("Use the rust-bio parser (fastq) [false]"))
     .get_matches()
 
@@ -32,12 +32,12 @@ fn main() -> Result<(), Error> {
     let min_quality: f64 = cli.value_of("QUALITY").unwrap_or("0").parse().unwrap();
     let crab: bool = cli.is_present("CRAB");
 
-    
+        
     let (reads, base_pairs, mut read_lengths, mut read_qualities) = if crab {
-        crabcast(min_length, min_quality)
+        crabcast(min_length, max_length, min_quality)
     } else {
-        if min_length > 0 || min_quality > 0.0 {
-            needlecast_filter(min_length, min_quality)
+        if min_length > 0 || min_quality > 0.0 || max_length > 0 {
+            needlecast_filter(min_length, max_length, min_quality)
         } else {
             needlecast_stats()
         }
@@ -79,7 +79,7 @@ fn main() -> Result<(), Error> {
 
 // Main functions
 
-fn crabcast(min_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error>  {
+fn crabcast(min_length: u64, max_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error>  {
 
     // Rust-Bio parser, Fastq only
 
@@ -98,6 +98,12 @@ fn crabcast(min_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Ve
         Box::new(File::create(&output)?)
     };
     
+    let max_length = if max_length <= 0 {
+        u64::MAX
+    } else {
+        max_length
+    };
+
     let reader = fastq::Reader::new(input_handle);
     let mut writer = fastq::Writer::new(output_handle);
 
@@ -118,7 +124,7 @@ fn crabcast(min_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Ve
 
         let seqlen = record.seq().len() as u64;
                 
-        if seqlen >= min_length && mean_quality >= min_quality {
+        if seqlen >= min_length && mean_quality >= min_quality && seqlen <= max_length {
             
             read_lengths.push(seqlen);
             read_qualities.push(mean_quality);            
@@ -137,7 +143,7 @@ fn crabcast(min_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Ve
 
 }
 
-fn needlecast_filter(min_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
+fn needlecast_filter(min_length: u64, max_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
 
     // Needletail parser, with output and filters
     
@@ -156,6 +162,12 @@ fn needlecast_filter(min_length: u64, min_quality: f64) -> Result<(u64, u64, Vec
         Box::new(File::create(&output)?)
     };
 
+    let max_length = if max_length <= 0 {
+        u64::MAX
+    } else {
+        max_length
+    };
+
     let mut reads: u64 = 0;
     let mut base_pairs: u64 = 0;
     let mut read_lengths: Vec<u64> = Vec::new();
@@ -171,7 +183,7 @@ fn needlecast_filter(min_length: u64, min_quality: f64) -> Result<(u64, u64, Vec
             let mean_error = get_mean_error(&qual);
             let mean_quality: f64 = -10f64*log10(mean_error as f64);
             // Fastq filter
-            if seqlen >= min_length && mean_quality >= min_quality{
+            if seqlen >= min_length && mean_quality >= min_quality && seqlen <= max_length {
                 reads += 1;
                 base_pairs += seqlen;
                 read_lengths.push(seqlen);
