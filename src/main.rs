@@ -6,7 +6,7 @@ use std::process;
 use bio::io::fastq;
 use libm::log10;
 use std::fs::File;
-use std::io::{stdin, Error};
+use std::io::{stdin, stdout, Error};
 
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
@@ -84,13 +84,13 @@ fn crabcast(fastx: String, output: String, min_length: u64, min_quality: f64) ->
     // Rust-Bio parser
 
     let input_handle: Box<dyn Read> = if fastx == "-".to_string(){
-        Box::new(BufReader::new(io::stdin()))
+        Box::new(BufReader::new(stdin()))
     } else {
         Box::new(File::open(&fastx)?)
     };
 
     let output_handle: Box<dyn Write> = if output == "-".to_string(){
-        Box::new(BufWriter::new(io::stdout()))
+        Box::new(BufWriter::new(stdout()))
      } else {
         Box::new(File::create(&output)?)
     };
@@ -134,7 +134,7 @@ fn crabcast(fastx: String, output: String, min_length: u64, min_quality: f64) ->
 
 }
 
-fn needlecast(fastx: String) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
+fn needlecast(fastx: String, output: String) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
 
     // Needletail parser 
     
@@ -142,6 +142,12 @@ fn needlecast(fastx: String) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
         parse_fastx_reader(stdin()).expect("invalid /dev/stdin")
     } else {
         parse_fastx_reader(File::open(&fastx)?).expect("invalid file/path")
+    };
+
+    let mut writer = if output == "-".to_string() {
+        BufWriter::new(stdout())
+    } else {
+        File::create(&output)?
     };
 
     let mut reads: u64 = 0;
@@ -162,6 +168,11 @@ fn needlecast(fastx: String) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
             let mean_error = get_mean_error(&qual);
             let mean_quality: f64 = -10f64*log10(mean_error as f64);
             read_qualities.push(mean_quality);
+        }
+
+        if min_length > 0 || min_quality > 0.0 {
+            // Write only when filters are set, otherwise compute stats only
+            seqrec.write(&writer)
         }
     }
 
