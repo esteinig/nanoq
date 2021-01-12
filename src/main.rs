@@ -144,7 +144,6 @@ fn needlecast(fastx: String, output: String, min_length: u64, min_quality: f64) 
         parse_fastx_reader(File::open(&fastx)?).expect("invalid file/path")
     };
 
-    
     let mut output_handle: Box<dyn Write> = if output == "-".to_string(){
         Box::new(BufWriter::new(stdout()))
      } else {
@@ -157,26 +156,37 @@ fn needlecast(fastx: String, output: String, min_length: u64, min_quality: f64) 
     let mut read_qualities: Vec<f64> = Vec::new();
 
     while let Some(record) = reader.next() {
-        let seqrec = record.expect("invalid record");
+        
+        let seqrec = record.expect("invalid sequence record");
         let seqlen = seqrec.seq().len() as u64;
         
-        
-        if seqlen >= min_length && mean_quality >= min_quality {
-            
-            reads += 1;
-            base_pairs += seqlen;
-            read_lengths.push(seqlen);
+        // Quality scores in Fastq:
+        if let Some(qual) = seqrec.qual() {
+            let mean_error = get_mean_error(&qual);
+            let mean_quality: f64 = -10f64*log10(mean_error as f64);
 
-            if let Some(qual) = seqrec.qual() {
-                
-                let mean_error = get_mean_error(&qual);
-                let mean_quality: f64 = -10f64*log10(mean_error as f64);
+            // Fastq filter
+            if seqlen >= min_length && mean_quality >= min_quality{
+                reads += 1;
+                base_pairs += seqlen;
+                read_lengths.push(seqlen);
                 read_qualities.push(mean_quality);
+                if min_length > 0 || min_quality > 0.0 {
+                    // Write only when filters are set, otherwise compute stats only
+                    seqrec.write(&output_handle, None);
+                }
             }
 
-            if min_length > 0 || min_quality > 0.0 {
-                // Write only when filters are set, otherwise compute stats only
-                seqrec.write(&output_handle, None);
+        } else {
+            // Fasta filter
+            if seqlen >= min_length {
+                reads += 1;
+                base_pairs += seqlen;
+                read_lengths.push(seqlen);
+                if min_length > 0 || min_quality > 0.0 {
+                    // Write only when filters are set, otherwise compute stats only
+                    seqrec.write(&output_handle, None);
+                }
             }
         }
 
