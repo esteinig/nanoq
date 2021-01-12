@@ -40,7 +40,11 @@ fn main() -> Result<(), Error> {
     let (reads, base_pairs, mut read_lengths, mut read_qualities) = if crab {
         crabcast(fastx, output, min_length, min_quality)
     } else {
-        needlecast(fastx, output, min_length, min_quality)
+        if min_length >= 0 || min_quality >= 0.0 {
+            needlecast_filter(fastx, output, min_length, min_quality)
+        } else {
+            needlecast_stats(fastx)
+        }
     }.expect("Carcinised error encountered - what the crab?");
 
     // Summary statistics
@@ -79,14 +83,14 @@ fn main() -> Result<(), Error> {
 
 // Main functions
 
-fn crabcast(fastx: String, output: String, min_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error>  {
+fn crabcast(fastq: String, output: String, min_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error>  {
 
-    // Rust-Bio parser
+    // Rust-Bio parser, Fastq only
 
-    let input_handle: Box<dyn Read> = if fastx == "-".to_string(){
+    let input_handle: Box<dyn Read> = if fastq == "-".to_string(){
         Box::new(BufReader::new(stdin()))
     } else {
-        Box::new(File::open(&fastx)?)
+        Box::new(File::open(&fastq)?)
     };
 
     let output_handle: Box<dyn Write> = if output == "-".to_string(){
@@ -134,9 +138,9 @@ fn crabcast(fastx: String, output: String, min_length: u64, min_quality: f64) ->
 
 }
 
-fn needlecast(fastx: String, output: String, min_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
+fn needlecast_filter(fastx: String, output: String, min_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
 
-    // Needletail parser 
+    // Needletail parser, with output and filters
     
     let mut reader = if fastx == "-".to_string() {
         parse_fastx_reader(stdin()).expect("invalid /dev/stdin")
@@ -160,39 +164,72 @@ fn needlecast(fastx: String, output: String, min_length: u64, min_quality: f64) 
         let seqrec = record.expect("invalid sequence record");
         let seqlen = seqrec.seq().len() as u64;
         
-        // Quality scores:
+        // Quality scores present:
         if let Some(qual) = seqrec.qual() {
             let mean_error = get_mean_error(&qual);
             let mean_quality: f64 = -10f64*log10(mean_error as f64);
-            read_qualities.push(mean_quality);
-        }
-        if seqlen >= min_length && mean_quality >= min_quality{
-            reads += 1;
-            base_pairs += seqlen;
-            read_lengths.push(seqlen);
-            if min_length > 0 || min_quality > 0.0 {
-                // Write only when filters are set, otherwise compute stats only
+            // Fastq filter
+            if seqlen >= min_length && mean_quality >= min_quality{
+                reads += 1;
+                base_pairs += seqlen;
+                read_lengths.push(seqlen);
+                read_qualities.push(mean_quality);
+                seqrec.write(&mut output_handle, None).expect("invalid record write");
+            }
+        } else {
+            // Fasta filter
+            if seqlen >= min_length {
+                reads += 1;
+                base_pairs += seqlen;
+                read_lengths.push(seqlen);
                 seqrec.write(&mut output_handle, None).expect("invalid record write");
             }
         }
+
     }
 
     return Ok((reads, base_pairs, read_lengths, read_qualities))
 
 }
 
-// else {
-//     // Fasta filter
-//     if seqlen >= min_length {
-//         reads += 1;
-//         base_pairs += seqlen;
-//         read_lengths.push(seqlen);
-//         if min_length > 0 || min_quality > 0.0 {
-//             // Write only when filters are set, otherwise compute stats only
-//             seqrec.write(&mut output_handle, None).expect("invalid record write");
-//         }
-//     }
-// }
+fn needlecast_stats(fastx: String) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
+
+    // Needletail parser jsut for stats, no filters or output for speedup
+    
+    let mut reader = if fastx == "-".to_string() {
+        parse_fastx_reader(stdin()).expect("invalid /dev/stdin")
+    } else {
+        parse_fastx_reader(File::open(&fastx)?).expect("invalid file/path")
+    };
+
+    let mut reads: u64 = 0;
+    let mut base_pairs: u64 = 0;
+    let mut read_lengths: Vec<u64> = Vec::new();
+    let mut read_qualities: Vec<f64> = Vec::new();
+
+    while let Some(record) = reader.next() {
+        
+        let seqrec = record.expect("invalid sequence record");
+        let seqlen = seqrec.seq().len() as u64;
+        
+        // Quality scores:
+        if let Some(qual) = seqrec.qual() {
+            let mean_error = get_mean_error(&qual);
+            let mean_quality: f64 = -10f64*log10(mean_error as f64);
+            read_qualities.push(mean_quality);
+        } 
+
+        reads += 1;
+        base_pairs += seqlen;
+        read_lengths.push(seqlen);
+
+    }
+
+    return Ok((reads, base_pairs, read_lengths, read_qualities))
+
+}
+
+// 
 
 // Helper functions
 
