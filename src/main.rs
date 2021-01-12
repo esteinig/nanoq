@@ -173,7 +173,7 @@ fn needlecast(fastx: String, output: String, min_length: u64, min_quality: f64) 
                 read_qualities.push(mean_quality);
                 if min_length > 0 || min_quality > 0.0 {
                     // Write only when filters are set, otherwise compute stats only
-                    seqrec.write(&mut output_handle, None);
+                    seqrec.write(&mut output_handle, None).expect("invalid record write");
                 }
             }
 
@@ -185,7 +185,7 @@ fn needlecast(fastx: String, output: String, min_length: u64, min_quality: f64) 
                 read_lengths.push(seqlen);
                 if min_length > 0 || min_quality > 0.0 {
                     // Write only when filters are set, otherwise compute stats only
-                    seqrec.write(&mut output_handle, None);
+                    seqrec.write(&mut output_handle, None).expect("invalid record write");
                 }
             }
         }
