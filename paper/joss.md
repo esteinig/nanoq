@@ -25,13 +25,13 @@ Nanopore sequencing is now routinely applied to a variety of genomic application
 
 # Methodology
 
-`Nanoq` is implemented in `Rust` using the fastq parsers from [`rust-bio`]() and [`needletail`]. `Nanoq` by accepts a stream of sequence reads (fasta/fastq, gzipped) and outputs summary statistics for to `stderr`:
+`Nanoq` is implemented in `Rust` using the fastq parsers from [`rust-bio`](https://github.com/rust-bio/rust-bio) and [`needletail`](https://github.com/onecodex/needletail). `Nanoq` by accepts a stream of sequence reads (`fast{a/q}`, `.gz`) and outputs summary statistics to `stderr`:
 
 ```
 cat test.fq | nanoq
 ```
 
-Filtered by read length and mean read quality:
+Filtered by read length and mean read quality, reads are outout to `stdout`:
 
 ```
 cat test.fq | nanoq -l 1000 -q 10 > filtered_reads.fq 
@@ -43,7 +43,7 @@ Advanced filtering analogous to `Filtlong` with a two-pass filter:
 cat test.fq | nanoq --keep_percent 80 --target_bases 500000 > filtered_reads.fq 
 ```
 
-
+# Summary statistics
 
 | output field    |  specification `v0.2.0`                                           |
 | -------------   | ----------------------------------|
@@ -102,7 +102,7 @@ While the `rust-bio` parser is slightly faster in these benchmarks for these spe
 
 # Acknowledgements
 
-My backyard monitor lizard, P. Hanson, a cold-blooded reptilian scavenging for scraps.
+My backyard monitor lizard, Hanson, a cold-blooded reptilian scavenging for scraps.
 
 # References
 
