@@ -83,26 +83,10 @@ fn crabcast(min_length: u64, max_length: u64, min_quality: f64) -> Result<(u64, 
 
     // Rust-Bio parser, Fastq only
 
-    let fastq = "-".to_string();  // always stdin
-    let output = "-".to_string(); // always stdout
-
-    let input_handle: Box<dyn Read> = if fastq == "-".to_string(){
-        Box::new(BufReader::new(stdin()))
-    } else {
-        Box::new(File::open(&fastq)?)
-    };
-
-    let output_handle: Box<dyn Write> = if output == "-".to_string(){
-        Box::new(BufWriter::new(stdout()))
-     } else {
-        Box::new(File::create(&output)?)
-    };
+    let input_handle: Box<dyn Read> = Box::new(BufReader::new(stdin()));
+    let output_handle: Box<dyn Write> = Box::new(BufWriter::new(stdout()));
     
-    let max_length = if max_length <= 0 {
-        u64::MAX
-    } else {
-        max_length
-    };
+    let max_length = if max_length <= 0 { u64::MAX } else { max_length };
 
     let reader = fastq::Reader::new(input_handle);
     let mut writer = fastq::Writer::new(output_handle);
@@ -147,26 +131,10 @@ fn needlecast_filter(min_length: u64, max_length: u64, min_quality: f64) -> Resu
 
     // Needletail parser, with output and filters
     
-    let fastx = "-".to_string();  // always stdin
-    let output = "-".to_string(); // always stdout
+    let mut reader parse_fastx_reader(stdin()).expect("invalid stdin")
+    let mut output_handle: Box<dyn Write> = Box::new(BufWriter::new(stdout()));
 
-    let mut reader = if fastx == "-".to_string() {
-        parse_fastx_reader(stdin()).expect("invalid /dev/stdin")
-    } else {
-        parse_fastx_reader(File::open(&fastx)?).expect("invalid file/path")
-    };
-
-    let mut output_handle: Box<dyn Write> = if output == "-".to_string(){
-        Box::new(BufWriter::new(stdout()))
-     } else {
-        Box::new(File::create(&output)?)
-    };
-
-    let max_length = if max_length <= 0 {
-        u64::MAX
-    } else {
-        max_length
-    };
+    let max_length = if max_length <= 0 { u64::MAX } else { max_length };
 
     let mut reads: u64 = 0;
     let mut base_pairs: u64 = 0;
@@ -210,14 +178,8 @@ fn needlecast_stats() -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
 
     // Needletail parser jsut for stats, no filters or output for slight speedup (?)
     
-    let fastx = "-".to_string();  // always stdin
-
-    let mut reader = if fastx == "-".to_string() {
-        parse_fastx_reader(stdin()).expect("invalid /dev/stdin")
-    } else {
-        parse_fastx_reader(File::open(&fastx)?).expect("invalid file/path")
-    };
-
+    let mut reader = parse_fastx_reader(stdin()).expect("invalid stdin");
+    
     let mut reads: u64 = 0;
     let mut base_pairs: u64 = 0;
     let mut read_lengths: Vec<u64> = Vec::new();
@@ -364,7 +326,7 @@ fn get_mean_read_quality(numbers: &Vec<f64>) -> f64 {
 
 fn get_read_length_n50(base_pairs: &u64, read_lengths: &mut Vec<u64>) -> u64 {
     
-    // Compute the read length N50 if a vector of unsigned integers
+    // Compute the read length N50 of a vector of unsigned integers
     
     read_lengths.sort_by(compare_u64_descending);
 

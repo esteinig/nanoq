@@ -1,0 +1,28 @@
+FROM continuumio/miniconda3
+
+LABEL name="nanoq-benchmarks"
+LABEL version="0.1.0"
+LABEL author="esteinig"
+
+RUN apt-get update && apt-get install curl build-essential git -y
+
+ENV CONDA_DIR=/opt/conda
+
+ENV NANOQ_VERSION=v0.2.0
+ENV PATH=/opt/conda/bin:/rust/.cargo/bin:$PATH
+ENV CARGO_HOME=/rust/.cargo
+ENV RUSTUP_HOME=/rust/.rustup
+
+RUN mkdir /data
+
+ADD run_benchmarks.sh /usr/local/bin 
+ADD plot_benchmarks.py /usr/local/bin
+ADD test.fq.gz /data
+
+RUN conda install -c conda-forge -c bioconda -c esteinig --yes nanostat nanofilt filtlong
+    
+RUN mkdir /rust && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+
+RUN git clone -b $NANOQ_VERSION --single-branch https://github.com/esteinig/nanoq.git
+RUN cd ./nanoq && cargo build --release && mv target/release/nanoq /usr/local/bin
+
