@@ -131,7 +131,7 @@ fn needlecast_filter(min_length: u64, max_length: u64, min_quality: f64) -> Resu
 
     // Needletail parser, with output and filters
     
-    let mut reader parse_fastx_reader(stdin()).expect("invalid stdin")
+    let mut reader = parse_fastx_reader(stdin()).expect("invalid stdin")
     let mut output_handle: Box<dyn Write> = Box::new(BufWriter::new(stdout()));
 
     let max_length = if max_length <= 0 { u64::MAX } else { max_length };
