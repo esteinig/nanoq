@@ -37,20 +37,8 @@ cat test.fq | nanoq
 
 ```
 
-| output field    | description `v0.2.0`                                           |
-| -------------   | ----------------------------------|
-| reads           | number of sequence reads          | 
-| bases           | number of bases (bp)              | 
-| n50             | n50 if read lenghts               | 
-| longest         | longest read in read set          | 
-| shortest        | shortest read in read set         | 
-| mean length     | average length of read set        | 
-| median length   | median length of read set         | 
-| mean q          | mean nanopore quality score       | 
-| median q        | median quality score              | 
 
-
-Detailed summary output analogous to `NanoStat`:
+Detailed summary output analogous to `NanoStat`. Top summary block describes order of fields in `stderr` output above:
 
 ```
 cat test.fq | nanoq -d
@@ -67,14 +55,21 @@ Median length:
 Mean Q score:
 Median Q score:
 
-Longest:
+Read thresholds:
   1. 
   2.
   3.
   4.
   5.
 
-Quality:
+Longest reads:
+  1. 
+  2.
+  3.
+  4.
+  5.
+
+Quality reads:
   1.
   2.
   3.
@@ -137,7 +132,7 @@ While the `rust-bio` parser is slightly faster in these benchmarks for these spe
 
 # Acknowledgements
 
-My backyard monitor lizard, Hanson, a cold-blooded reptilian scavenging for scraps.
+Nameless server #1
 
 # References
 
