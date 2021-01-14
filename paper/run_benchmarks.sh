@@ -54,10 +54,6 @@ FILTLONG_COMMAND="filtlong --min_length 5000 test.fq > /dev/null"
 
 TIMEFORMAT="%R"
 
-tm() {
-    time $@
-}
-
 for i in 1..$REPLICATES; do
 
     # Gzipped time replicate iteration

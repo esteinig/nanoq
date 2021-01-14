@@ -1,19 +1,19 @@
 ---
 title: 'Nanoq: fast summary and quality control for nanopore reads'
 tags:
-  - Nanopore
-  - Oxford Nanopore Technologies
+  - nanopore
   - filter 
   - fastq
   - reads
   - length
   - quality
+  - ont
 authors:
  - name: Eike Steinig
    orcid: 
    affiliation: 
 affiliations:
- - name: Australian Institute of Tropical Health and Medicine, Townsville, Queensland, Australia
+ - name: The Peter Doherty Institute for Infection and Immunity, Melbourne University, Australia
    index: 1
 date: 11 July 2020
 bibliography: paper.bib
@@ -21,31 +21,23 @@ bibliography: paper.bib
 
 # Summary
 
-Nanopore sequencing is now routinely applied to a variety of genomic applications, ranging from whole genome assembly to real-time, genome-informed infectious disease surveillance. As a consequence, the amount of nanopore sequence data in the public domain has increased rapidly in the last few years. One of the first steps during and after sequencing is to assess the quality of sequence reads and obtain basic summary statistics after basecalling raw signal, and if necessary filter spuriously low quality reads. A common practice for quality control and filtering of reads for length and quality is to use the basecalling summary file as index to accelerate iteration over millions of individual reads and their quality scores. With increasing throughput on nanopore platforms like the PromethION, fast processing of sequence reads and the ability to quickly generate summary statistics of read files are required. `NanoStat`, `NanoFilt`, and `Filtlong` are classic Python tools (wrapping C libraries `kseq`) commonly used to filter and obtain summary statistics from nanopore data. We implement `nanoq`, a fast but minimal summary and quality control tool for nanopore reads in `Rust`. `Nanoq` can be efficiently applied on sequence read data from public domain where basecalling summaries are unavailable, as part of automated pipelines processing nay nanopore read data, or directly from the command line to check on statistics of currently active sequencing runs.
+Nanopore sequencing is now routinely applied to a variety of genomic applications, ranging from whole genome assembly [`Human ONT CITATION`] to real-time, genome-informed infectious disease surveillance [`Loman Gardy CITATION`, `Estee CITATION`]. As a consequence, the amount of nanopore sequence data in the public domain has increased rapidly in the last few years. One of the first steps during and after sequencing is to assess the quality of sequence reads and obtain basic summary statistics after basecalling raw signal, and to filter low quality reads. A common practice for quality control and filtering of reads for length and quality is to use the basecalling summary file as index to accelerate iteration over millions of individual reads and their quality scores (requiring access to the signal level data or shared files). With increasing throughput on scalable nanopore platforms, fast processing of sequence reads and the ability to generate summary statistics of sequence read files without access to their indices are required. [`NanoStat`](https://github.com/wdecoster/nanostat), [`NanoFilt`](https://github.com/wdecoster/nanofilt) (using the `biopython` backend) [`NANOPACK CITATION`, `BIOPYTHON CITATION`] and [`Filtlong`](https://github.com/rrwick/Filtlong) (using the [`Klib`](https://github.com/attractivechaos/klib/) backend in C) are classic tools used to filter and obtain summary statistics from nanopore data. Here, we implement `nanoq`, a minimal but fast summary and quality control tool for nanopore reads in Rust. `Nanoq` is highly competitive in iteration over sequence reads and can be effectively applied to nanopore data from the public domain, where basecalling indices are unavailable, as part of automated pipelines processing, or directly from the command line to check on statistics of active sequencing runs.
 
 # Methodology
 
-`Nanoq` is implemented in `Rust` using the fastq parsers from [`rust-bio`](https://github.com/rust-bio/rust-bio) and [`needletail`](https://github.com/onecodex/needletail). `Nanoq` by accepts a stream of sequence reads (`fast{a/q}`, `.gz`) and outputs summary statistics to `stderr`:
+`Nanoq` is implemented in Rust using the `fast{a/q}` parsers from the [`Rust-Bio`](https://github.com/rust-bio/rust-bio) [`RUSTBIO CITATION`] and [`needletail`](https://github.com/onecodex/needletail) libraries, which is used by `nanoq` by default and accepts a stream of sequence reads (`fast{a/q}`, `.gz`) with ouput of summary statistics to `stderr`:
+
+### Summary statistics
 
 ```
 cat test.fq | nanoq
 ```
 
-Filtered by read length and mean read quality, reads are outout to `stdout`:
-
-```
-cat test.fq | nanoq -l 1000 -q 10 > filtered_reads.fq 
 ```
 
-Advanced filtering analogous to `Filtlong` with a two-pass filter:
-
-```
-cat test.fq | nanoq --keep_percent 80 --target_bases 500000 > filtered_reads.fq 
 ```
 
-# Summary statistics
-
-| output field    |  specification `v0.2.0`                                           |
+| output field    | description `v0.2.0`                                           |
 | -------------   | ----------------------------------|
 | reads           | number of sequence reads          | 
 | bases           | number of bases (bp)              | 
@@ -58,8 +50,54 @@ cat test.fq | nanoq --keep_percent 80 --target_bases 500000 > filtered_reads.fq
 | median q        | median quality score              | 
 
 
-# Other Applications
+Detailed summary output analogous to `NanoStat`:
 
+```
+cat test.fq | nanoq -d
+```
+
+```
+Reads:
+Bases:
+N50:
+Longest:
+Shortest:
+Mean length:
+Median length:
+Mean Q score:
+Median Q score:
+
+Longest:
+  1. 
+  2.
+  3.
+  4.
+  5.
+
+Quality:
+  1.
+  2.
+  3.
+  4.
+  5.
+
+```
+
+### Read filters
+
+Filtered by minimum read length (`-l`) and quality (`-q`), reads are output to `stdout`:
+
+```
+cat test.fq | nanoq -l 1000 -q 10 > filtered_reads.fq 
+```
+
+Advanced filtering analogous to `Filtlong` with a two-pass filter on 80% of the best quality bases, as well as removing the worst quality reads until 500 Mbp of bases remain:
+
+```
+cat test.fq | nanoq --percent_bases 80 --bases 500000000  > filtered_reads.fq 
+```
+
+# Other Applications
 
 Live sequencing run checks:
 
@@ -86,12 +124,9 @@ done
 
 Benchmarks evaluate processing speed of a long-read filter and computation of summary statistics on 100,000 reads of the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) ( `GridION`) using the `Benchmark` Docker image running comparisons to [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong).
 
-Filter commands:
-
-
-
 Summary statistic commands:
 
+Filter commands:
 
 
 While the `rust-bio` parser is slightly faster in these benchmarks for these specific applications than `needletail`, the default mode for `nanoq` uses `needletail` due to its native capacity to parse gzipped and fasta type input formats.
