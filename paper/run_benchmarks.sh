@@ -2,8 +2,8 @@
 
 cd /data
 
-if [ ! -f "/data/test.fq"]; then
-    if [ ! -f "/data/test.fq.gz"]; then
+if [ ! -f "/data/test.fq" ]; then
+    if [ ! -f "/data/test.fq.gz" ]; then
         echo "test.fq.gz is missing!"
         exit 1
     fi
@@ -13,7 +13,7 @@ fi
 REPLICATES=100
 TIMEFORMAT="%R"
 
-for i in 1..$REPLICATES; do
+for i in $(seq 1 $REPLICATES); do
 
     # Gzipped time replicate iteration
     echo "Replicate timer: $i"
