@@ -29,7 +29,7 @@ fn main() -> Result<(), Error> {
  
     let min_length: u64 = cli.value_of("MINLEN").unwrap_or("0").parse().unwrap();
     let max_length: u64 = cli.value_of("MAXLEN").unwrap_or("0").parse().unwrap();
-    let min_quality: f32 = cli.value_of("QUALITY").unwrap_or("0").parse().unwrap();
+    let min_quality: f64 = cli.value_of("QUALITY").unwrap_or("0").parse().unwrap();
     let crab: bool = cli.is_present("CRAB");
 
         
@@ -79,7 +79,7 @@ fn main() -> Result<(), Error> {
 
 // Main functions
 
-fn crabcast(min_length: u64, max_length: u64, min_quality: f32) -> Result<(u64, u64, Vec<u64>, Vec<f32>), Error>  {
+fn crabcast(min_length: u64, max_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error>  {
 
     // Rust-Bio parser, Fastq only
 
@@ -94,7 +94,7 @@ fn crabcast(min_length: u64, max_length: u64, min_quality: f32) -> Result<(u64, 
     let mut base_pairs: u64 = 0;
     let mut reads: u64 = 0;
     let mut read_lengths: Vec<u64> = Vec::new();
-    let mut read_qualities: Vec<f32> = Vec::new();
+    let mut read_qualities: Vec<f64> = Vec::new();
 
     for result in reader.records() {
         
@@ -103,8 +103,8 @@ fn crabcast(min_length: u64, max_length: u64, min_quality: f32) -> Result<(u64, 
         // Nanopore quality score computation
 
         let quality_values: Vec<u8> = record.qual().to_vec();
-        let mean_error: f32 = get_mean_error(&quality_values);
-        let mean_quality: f32 = (-10f64*log10(mean_error as f64)) as f32;
+        let mean_error = get_mean_error(&quality_values);
+        let mean_quality: f64 = -10f64*log10(mean_error as f64);
 
         let seqlen = record.seq().len() as u64;
                 
@@ -126,7 +126,7 @@ fn crabcast(min_length: u64, max_length: u64, min_quality: f32) -> Result<(u64, 
 
 }
 
-fn needlecast_filter(min_length: u64, max_length: u64, min_quality: f32) -> Result<(u64, u64, Vec<u64>, Vec<f32>), Error> {
+fn needlecast_filter(min_length: u64, max_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
 
     // Needletail parser, with output and filters
     
@@ -138,7 +138,7 @@ fn needlecast_filter(min_length: u64, max_length: u64, min_quality: f32) -> Resu
     let mut reads: u64 = 0;
     let mut base_pairs: u64 = 0;
     let mut read_lengths: Vec<u64> = Vec::new();
-    let mut read_qualities: Vec<f32> = Vec::new();
+    let mut read_qualities: Vec<f64> = Vec::new();
 
     while let Some(record) = reader.next() {
         
@@ -147,8 +147,8 @@ fn needlecast_filter(min_length: u64, max_length: u64, min_quality: f32) -> Resu
         
         // Quality scores present:
         if let Some(qual) = seqrec.qual() {
-            let mean_error: f32 = get_mean_error(&qual);
-            let mean_quality: f32 = (-10f64*log10(mean_error as f64)) as f32;
+            let mean_error = get_mean_error(&qual);
+            let mean_quality: f64 = -10f64*log10(mean_error as f64);
             // Fastq filter
             if seqlen >= min_length && mean_quality >= min_quality && seqlen <= max_length {
                 reads += 1;
@@ -173,7 +173,7 @@ fn needlecast_filter(min_length: u64, max_length: u64, min_quality: f32) -> Resu
 
 }
 
-fn needlecast_stats() -> Result<(u64, u64, Vec<u64>, Vec<f32>), Error> {
+fn needlecast_stats() -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
 
     // Needletail parser jsut for stats, no filters or output for slight speedup (?)
     
@@ -182,7 +182,7 @@ fn needlecast_stats() -> Result<(u64, u64, Vec<u64>, Vec<f32>), Error> {
     let mut reads: u64 = 0;
     let mut base_pairs: u64 = 0;
     let mut read_lengths: Vec<u64> = Vec::new();
-    let mut read_qualities: Vec<f32> = Vec::new();
+    let mut read_qualities: Vec<f64> = Vec::new();
 
     while let Some(record) = reader.next() {
         
@@ -191,8 +191,8 @@ fn needlecast_stats() -> Result<(u64, u64, Vec<u64>, Vec<f32>), Error> {
         
         // Quality scores:
         if let Some(qual) = seqrec.qual() {
-            let mean_error: f32 = get_mean_error(&qual);
-            let mean_quality: f32 = (-10f64*log10(mean_error as f64)) as f32;
+            let mean_error = get_mean_error(&qual);
+            let mean_quality: f64 = -10f64*log10(mean_error as f64);
             read_qualities.push(mean_quality);
         } 
 
@@ -208,7 +208,7 @@ fn needlecast_stats() -> Result<(u64, u64, Vec<u64>, Vec<f32>), Error> {
 
 // Helper functions
 
-fn compare_f32_ascending(a: &f32, b: &f32) -> Ordering {
+fn compare_f64_ascending(a: &f64, b: &f64) -> Ordering {
 
     // Will get killed with NAN (R.I.P)
     // but we should also never see NAN
@@ -298,28 +298,28 @@ fn get_mean_read_length(numbers: &Vec<u64>) -> u64 {
 }
 
 
-fn get_median_read_quality(numbers: &mut Vec<f32>) -> f32 {
+fn get_median_read_quality(numbers: &mut Vec<f64>) -> f64 {
 
     // Compute the median of a vector of double-precision floats
 
-    numbers.sort_by(compare_f32_ascending);
+    numbers.sort_by(compare_f64_ascending);
 
     let mid = numbers.len() / 2;
     if numbers.len() % 2 == 0 {
-        get_mean_read_quality(&vec![numbers[mid - 1], numbers[mid]]) as f32
+        get_mean_read_quality(&vec![numbers[mid - 1], numbers[mid]]) as f64
     } else {
         numbers[mid]
     }
 
 }
 
-fn get_mean_read_quality(numbers: &Vec<f32>) -> f32 {
+fn get_mean_read_quality(numbers: &Vec<f64>) -> f64 {
 
     // Compute the mean of a vector of double-precision floats
 
-    let sum: f32 = numbers.iter().sum();
+    let sum: f64 = numbers.iter().sum();
 
-    sum as f32 / numbers.len() as f32
+    sum as f64 / numbers.len() as f64
 
 }
 
