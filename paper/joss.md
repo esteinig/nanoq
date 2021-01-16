@@ -9,13 +9,16 @@ tags:
   - quality
   - ont
 authors:
- - name: Eike Steinig
-   orcid: 
-   affiliation: 
+  - name: Eike Steinig
+    orcid: 
+    affiliation: 1
+  - name: Lachlan Coin
+    orcid: 
+    affiliation: 1
 affiliations:
- - name: The Peter Doherty Institute for Infection and Immunity, Melbourne University, Australia
-   index: 1
-date: 11 July 2020
+  - name: The Peter Doherty Institute for Infection and Immunity, Melbourne University, Australia
+    index: 1
+date: 11 January 2021
 bibliography: paper.bib
 ---
 
@@ -29,22 +32,22 @@ Nanopore sequencing is now routinely applied to a variety of genomic application
 
 ### Summary statistics
 
-```
+```bash
 cat test.fq | nanoq
 ```
 
-```
+```bash
 
 ```
 
 
-Detailed summary output analogous to `NanoStat`. Top summary block describes order of fields in `stderr` output above:
+Result fields are the same as in the top block of the detailed summary output analogous to `NanoStat`:
 
-```
+```bash
 cat test.fq | nanoq -d
 ```
 
-```
+```bash
 Reads:
 Bases:
 N50:
@@ -54,13 +57,6 @@ Mean length:
 Median length:
 Mean Q score:
 Median Q score:
-
-Read thresholds:
-  1. 
-  2.
-  3.
-  4.
-  5.
 
 Longest reads:
   1. 
@@ -76,20 +72,27 @@ Quality reads:
   4.
   5.
 
+Read thresholds:
+  1. 
+  2.
+  3.
+  4.
+  5.
+
 ```
 
 ### Read filters
 
 Filtered by minimum read length (`-l`) and quality (`-q`), reads are output to `stdout`:
 
-```
+```bash
 cat test.fq | nanoq -l 1000 -q 10 > filtered_reads.fq 
 ```
 
-Advanced filtering analogous to `Filtlong` with a two-pass filter on 80% of the best quality bases, as well as removing the worst quality reads until 500 Mbp of bases remain:
+Advanced filtering analogous to `Filtlong` with a two-pass filter removing the worst 20% of bases by reads, as well as removing the worst quality reads until 500 Mbp remain:
 
-```
-cat test.fq | nanoq --percent_bases 80 --bases 500000000  > filtered_reads.fq 
+```bash
+cat test.fq | nanoq --keep_percent 80 --keep_bases 500000000  > filtered_reads.fq 
 ```
 
 # Other Applications
@@ -124,15 +127,15 @@ Summary statistic commands:
 Filter commands:
 
 
-While the `rust-bio` parser is slightly faster in these benchmarks for these specific applications than `needletail`, the default mode for `nanoq` uses `needletail` due to its native capacity to parse gzipped and fasta type input formats.
+While the `rust-bio` parser is slightly faster in these specific quality control benchmarks than `needletail`, the default mode in `nanoq` uses `needletail` due to its wrapped `gz` and `fasta` input capability.
 
 # Availability
 
-`Nanoq` is open-source on GitHub (https://github.com/esteinig/nanoq) and available through Cargo (`cargo install nanoq`), as Docker (`docker pull esteinig/nanoq`) or Singularity container (`singularity pull docker://esteinig/nanoq`) or through BioConda (`conda install -c bioconda nanoq`).
+`Nanoq` is open-source on GitHub (https://github.com/esteinig/nanoq) and available through Cargo (`cargo install nanoq`), as Docker image (`docker pull esteinig/nanoq`) or Singularity container (`singularity pull docker://esteinig/nanoq`) or through BioConda (`conda install -c bioconda nanoq`).
 
 # Acknowledgements
 
-Nameless server #1
+We would like to thank the `Rust-Bio` and `OneCodex` teams for developing the read parsers and making them available to the bioinformatics community.
 
 # References
 
