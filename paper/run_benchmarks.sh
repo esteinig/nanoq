@@ -12,10 +12,9 @@ if [ ! -f "/data/test.fq" ]; then
     zcat test.fq.gz > test.fq
 fi
 
-REPLICATES=100
 TIMEFORMAT="%R"
 
-for i in $(seq 1 $REPLICATES); do
+for i in $(seq 1 100); do
 
     # Gzipped time replicate iteration
     echo "Replicate timer: $i"
