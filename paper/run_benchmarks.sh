@@ -37,10 +37,10 @@ for i in $(seq 1 100); do
     tail -1 ${i}_nanostat_gz_stat >> nanostat_gz_stat
 
     # test file filt nanofilt
-    (time NanoFilt test.fq -l 5000 > /dev/null) 2> ${i}_nanofilt_filt
+    (time cat test.fq | NanoFilt -l 5000 > /dev/null) 2> ${i}_nanofilt_filt
     tail -1 ${i}_nanofilt_filt >> nanofilt_fq_filt
     # test file filt gzipped nanofilt
-    (time NanoFilt test.fq.gz -l 5000 > /dev/null) 2> ${i}_nanofilt_gz_filt
+    (time zcat test.fq.gz | NanoFilt -l 5000 > /dev/null) 2> ${i}_nanofilt_gz_filt
     tail -1 ${i}_nanofilt_gz_filt >> nanofilt_gz_filt
 
     # test file filt nanoq
@@ -49,8 +49,8 @@ for i in $(seq 1 100); do
     # test file filt gzipped nanoq
     (time cat test.fq.gz | nanoq -l 5000 > /dev/null) 2> ${i}_nanoq_gz_filt
     tail -1 ${i}_nanoq_gz_filt >> nanoq_gz_filt 
-    # test file filt gzipped nanoq crab cast
-    (time cat test.fq.gz | nanoq -l 5000 -c > /dev/null) 2> ${i}_nanoq_crab_filt
+    # test file filt gzipped nanoq crab cast (no native gz support)
+    (time zcat test.fq.gz | nanoq -l 5000 -c > /dev/null) 2> ${i}_nanoq_crab_filt
     tail -1 ${i}_nanoq_crab_filt >> nanoq_crab_filt
 
      # test file filt filtlong
