@@ -36,11 +36,6 @@ def plot_data(data: pandas.DataFrame) -> None:
     filter_data = data[data['mode'] == 'filt']
     stats_data = data[data['mode'] == 'stat']
 
-    print(data)
-
-    print(filter_data)
-    print(stats_data)
-
     seaborn.violinplot(
         y='time', x='ftype', hue='tool', data=filter_data,
         ax=axes[0], palette="Greens"
