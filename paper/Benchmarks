@@ -19,7 +19,8 @@ ADD run_benchmarks.sh /usr/local/bin
 ADD plot_benchmarks.py /usr/local/bin
 ADD test.fq.gz /data
 
-RUN conda install -c conda-forge -c bioconda -c esteinig --yes nanostat nanofilt filtlong
+RUN conda install -c conda-forge -c bioconda -c esteinig --yes \
+    nanostat nanofilt filtlong pandas seaborn
     
 RUN mkdir /rust && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 

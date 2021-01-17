@@ -3,17 +3,18 @@ title: 'Nanoq: fast summary and quality control for nanopore reads'
 tags:
   - nanopore
   - filter 
-  - fastq
+  - summary
+  - statistics
   - reads
   - length
   - quality
   - ont
 authors:
   - name: Eike Steinig
-    orcid: 
+    orcid: 0000-0001-5399-5353
     affiliation: 1
   - name: Lachlan Coin
-    orcid: 
+    orcid: 0000-0002-4300-455X
     affiliation: 1
 affiliations:
   - name: The Peter Doherty Institute for Infection and Immunity, Melbourne University, Australia
@@ -24,75 +25,56 @@ bibliography: paper.bib
 
 # Summary
 
-Nanopore sequencing is now routinely applied to a variety of genomic applications, ranging from whole genome assembly [`Human ONT CITATION`] to real-time, genome-informed infectious disease surveillance [`Loman Gardy CITATION`, `Estee CITATION`]. As a consequence, the amount of nanopore sequence data in the public domain has increased rapidly in the last few years. One of the first steps during and after sequencing is to assess the quality of sequence reads and obtain basic summary statistics after basecalling raw signal, and to filter low quality reads. A common practice for quality control and filtering of reads for length and quality is to use the basecalling summary file as index to accelerate iteration over millions of individual reads and their quality scores (requiring access to the signal level data or shared files). With increasing throughput on scalable nanopore platforms, fast processing of sequence reads and the ability to generate summary statistics of sequence read files without access to their indices are required. [`NanoStat`](https://github.com/wdecoster/nanostat), [`NanoFilt`](https://github.com/wdecoster/nanofilt) (using the `biopython` backend) [`NANOPACK CITATION`, `BIOPYTHON CITATION`] and [`Filtlong`](https://github.com/rrwick/Filtlong) (using the [`Klib`](https://github.com/attractivechaos/klib/) backend in C) are classic tools used to filter and obtain summary statistics from nanopore data. Here, we implement `nanoq`, a minimal but fast summary and quality control tool for nanopore reads in Rust. `Nanoq` is highly competitive in iteration over sequence reads and can be effectively applied to nanopore data from the public domain, where basecalling indices are unavailable, as part of automated pipelines processing, or directly from the command line to check on statistics of active sequencing runs.
+Nanopore sequencing is now routinely integrated in a variety of genomics applications, including whole genome assembly [@human_genome] and real-time infectious disease surveillance [@covid]. As a consequence, the amount of nanopore sequence data in the public domain has increased rapidly in the last few years. One of the first steps in any workflow is to assess the quality of reads and obtain basic summary statistics after basecalling raw nanopore signal, and to filter low quality reads. [`NanoPack`](https://github.com/wdecoster/nanopack) (backend: `biopython` ) [@nanopack] [@biopython], [`Filtlong`](https://github.com/rrwick/Filtlong) (backend: [`Klib`](https://github.com/attractivechaos/klib)) and [`MinIONQC`](https://github.com/roblanf/minion_qc/blob/master/README.md) (backend: sequencing summary file) [@minionqc] are common tools used to filter and obtain summary statistics from nanopore reads. However, these tools can be relatively slow due to bottlenecks in read parsing (`NanoPack`, `Filtlong`) or not immediately usable due to reliance on a sequencing summary file (`MinIONQC`). We therefore implement `nanoq`, a fast summary and quality control tool for nanopore reads in Rust. 
+
+# Statement of Need
+
+A common practice for quality control and filtering of reads for length and quality is to use a sequencing summary file as index to accelerate iteration and computation of statistics over millions of individual reads and their precomputed summary metrics from basecalling, requiring access to the signal level data or shared summary files. With increasing throughput on scalable nanopore platforms like GridION or PromethION, fast quality control of sequence reads and the ability to generate summary statistics on-the-fly are required. `Nanoq` is highly competitive in processing speed (see benchmarks) and can be effectively applied to nanopore data from the public domain, where basecalling indices are unavailable, as part of automated pipelines processing, in streaming applications, or directly from the command line to check on the progress of active sequencing runs.
 
 # Methodology
 
-`Nanoq` is implemented in Rust using the `fast{a/q}` parsers from the [`Rust-Bio`](https://github.com/rust-bio/rust-bio) [`RUSTBIO CITATION`] and [`needletail`](https://github.com/onecodex/needletail) libraries, which is used by `nanoq` by default and accepts a stream of sequence reads (`fast{a/q}`, `.gz`) with ouput of summary statistics to `stderr`:
+`Nanoq` is implemented in Rust using the `fast{a/q}` backends from [`needletail`](https://github.com/onecodex/needletail) and [`Rust-Bio`](https://github.com/rust-bio/rust-bio) [@rustbio]. Tests can be run within the repository:
 
-### Summary statistics
+```
+cargo test
+```
+
+`Nanoq` accepts a stream of sequence reads (`fast{a/q}`, `.gz`) with ouput of summary statistics to `stderr`:
 
 ```bash
 cat test.fq | nanoq
 ```
 
-```bash
+Output statistics are in order: 
 
+* number of reads
+* number of base pairs
+* N50 read length
+* longest and shorted reads
+* mean and median read length
+* mean and median read quality 
+
+```bash
+100000 400398234 5154 44888 5 4003 3256 8.90 9.49
 ```
 
-
-Result fields are the same as in the top block of the detailed summary output analogous to `NanoStat`:
+Extended output analogous to `NanoStat` can be obtained using the `--detail` flag:
 
 ```bash
 cat test.fq | nanoq -d
 ```
 
+
+Reads filtered by minimum read length (`--length`) and mean read quality (`--quality`)  are output to `stdout`:
+
 ```bash
-Reads:
-Bases:
-N50:
-Longest:
-Shortest:
-Mean length:
-Median length:
-Mean Q score:
-Median Q score:
-
-Longest reads:
-  1. 
-  2.
-  3.
-  4.
-  5.
-
-Quality reads:
-  1.
-  2.
-  3.
-  4.
-  5.
-
-Read thresholds:
-  1. 
-  2.
-  3.
-  4.
-  5.
-
+cat test.fq | nanoq -l 1000 -q 10 > reads.fq 
 ```
 
-### Read filters
-
-Filtered by minimum read length (`-l`) and quality (`-q`), reads are output to `stdout`:
+Advanced filtering analogous to `Filtlong` removes the worst 20% of bases by reads (`--keep_percent`) and the worst quality reads (`--keep_bases`) until 500 Mbp remain:
 
 ```bash
-cat test.fq | nanoq -l 1000 -q 10 > filtered_reads.fq 
-```
-
-Advanced filtering analogous to `Filtlong` with a two-pass filter removing the worst 20% of bases by reads, as well as removing the worst quality reads until 500 Mbp remain:
-
-```bash
-cat test.fq | nanoq --keep_percent 80 --keep_bases 500000000  > filtered_reads.fq 
+cat test.fq | nanoq -p 80 -b 500000000  > reads.fq 
 ```
 
 # Other Applications
@@ -100,7 +82,7 @@ cat test.fq | nanoq --keep_percent 80 --keep_bases 500000000  > filtered_reads.f
 Live sequencing run checks:
 
 ```bash
-RUN=/nanopore/data/run
+RUN=/data/nanopore/run
 ```
 
 Check total run statistics:
@@ -109,33 +91,42 @@ Check total run statistics:
 find $RUN -name *.fastq -print0 | xargs -0 cat | nanoq
 ```
 
-Check per-barcode statistics during a live run:
+Check per-barcode statistics:
 
 ```bash
 for i in {01..12}; do
-  find $RUN -name *barcode${i}*.fastq -print0 | xargs -0 cat | nanoq
+  find $RUN -name barcode${i}.fastq -print0 | xargs -0 cat | nanoq
 done
 ```
 
 # Benchmarks
 
 
-Benchmarks evaluate processing speed of a long-read filter and computation of summary statistics on 100,000 reads of the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) ( `GridION`) using the `Benchmark` Docker image running comparisons to [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong).
+Benchmarks evaluate processing speed of a simple read-length filter and computation of summary statistics on the first 100,000 reads of the [Zymo mock community](https://github.com/LomanLab/mockcommunity) [@zymo] running comparisons to [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong).
 
 Summary statistic commands:
+
 
 Filter commands:
 
 
-While the `rust-bio` parser is slightly faster in these specific quality control benchmarks than `needletail`, the default mode in `nanoq` uses `needletail` due to its wrapped `gz` and `fasta` input capability.
+While the `rust-bio` parser is slightly faster than `needletail` in these specific benchmarks, `needletail` is the default mode as it supports `gz` and `fasta` formats natively.
 
 # Availability
 
-`Nanoq` is open-source on GitHub (https://github.com/esteinig/nanoq) and available through Cargo (`cargo install nanoq`), as Docker image (`docker pull esteinig/nanoq`) or Singularity container (`singularity pull docker://esteinig/nanoq`) or through BioConda (`conda install -c bioconda nanoq`).
+`Nanoq` is open-source on GitHub (https://github.com/esteinig/nanoq) and available through:
+
+* Cargo: `cargo install nanoq`
+* Docker: `docker pull esteinig/nanoq`
+* BioConda: `conda install -c bioconda nanoq`
+* Singularity: `singularity pull docker://esteinig/nanoq`
+
+`Nanoq` is currently integrated into pipelines servicing [Queensland Genomics](https://github.com/np-core) projects using nanopore sequencing to detect infectious agents in sepsis patients, conduct regional surveillance of bacterial diseases, and reconstruct their transmission dynamics.
 
 # Acknowledgements
 
-We would like to thank the `Rust-Bio` and `OneCodex` teams for developing the read parsers and making them available to the bioinformatics community.
+We would like to thank the `Rust-Bio` and `OneCodex` teams for developing the read parsers and making them available to the bioinformatics community. ES was funded by Queensland Genomics and a joint grant by HOT NORTH and the Center for Policy Relevant Infectious Disease Simulation and Mathematical Modelling  (NHMRC: #1131932)
+
 
 # References
 

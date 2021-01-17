@@ -1,7 +1,7 @@
 [package]
 name = "nanoq"
 version = "0.2.0"
-authors = ["esteinig <eikejoachim.steinig@my.jcu.edu.au>"]
+authors = ["esteinig <eike.steinig@unimelb.edu.au>"]
 description = "Minimal but speedy quality control for nanopore reads"
 documentation = "https://github.com/esteinig/nanoq"
 homepage = "https://github.com/esteinig/nanoq"
