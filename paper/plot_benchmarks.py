@@ -34,7 +34,7 @@ def plot_data(data: pandas.DataFrame) -> None:
     )
 
     filter_data = data[data['mode'] == 'filt']
-    stats_data = data[data['mode'] == 'stats']
+    stats_data = data[data['mode'] == 'stat']
 
     print(data)
 
