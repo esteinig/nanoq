@@ -13,7 +13,7 @@ def main():
 def read_data() -> pandas.DataFrame:
 
     data = []
-    for f in Path('/data/replicate_benchmarks').glob("*"):
+    for f in Path('replicate_benchmarks').glob("*"):
         df = pandas.read_csv(f, header=None, sep="\t", names=['time'])
 
         tool, ftype, mode = f.name.split("_")
@@ -38,7 +38,7 @@ def plot_data(data: pandas.DataFrame) -> None:
 
     seaborn.violinplot(
         y='time', x='ftype', hue='tool', data=filter_data,
-        color="0.8", ax=axes[0], palette="Greens"
+        ax=axes[0], palette="Greens"
     )
     seaborn.stripplot(
         y='time', x='ftype', hue='tool', data=filter_data, jitter=True,
@@ -47,7 +47,7 @@ def plot_data(data: pandas.DataFrame) -> None:
 
     seaborn.violinplot(
         y='time', x='ftype', hue='tool', data=stats_data,
-        color="0.8", ax=axes[1], palette="Greens"
+        ax=axes[1], palette="Greens"
     )
     seaborn.stripplot(
         y='time', x='ftype', hue='tool', data=stats_data, jitter=True,
