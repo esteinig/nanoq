@@ -261,12 +261,12 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
 
 fn eprint_stats(reads: u64, base_pairs: u64, read_lengths: Vec<u64>, read_qualities: Vec<f64>) -> Result<(), Error> {
 
-    let mean_read_length = get_mean_read_length(read_lengths);
-    let mean_read_quality = get_mean_read_quality(read_qualities);
-    let median_read_length = get_median_read_length(read_lengths);
-    let median_read_quality = get_median_read_quality(read_qualities);
-    let read_length_n50 = get_read_length_n50(base_pairs, read_lengths);
-    let (min_read_length, max_read_length) = get_read_length_range(read_lengths);
+    let mean_read_length = get_mean_read_length(&read_lengths);
+    let mean_read_quality = get_mean_read_quality(&read_qualities);
+    let median_read_length = get_median_read_length(&read_lengths);
+    let median_read_quality = get_median_read_quality(&read_qualities);
+    let read_length_n50 = get_read_length_n50(&base_pairs, &read_lengths);
+    let (min_read_length, max_read_length) = get_read_length_range(&read_lengths);
 
     eprintln!(
         "{:} {:} {:} {:} {:} {:} {:} {:.2} {:.2}",
@@ -366,18 +366,18 @@ fn get_mean_error(quality_bytes: &[u8]) -> f32 {
 
 // Read length range
 
-fn get_read_length_range(numbers: Vec<u64>) -> (u64, u64) {
+fn get_read_length_range(numbers: &Vec<u64>) -> (&u64, &u64) {
 
-    let min_read_length = numbers.iter().min().expect("could not determine minimum read length");
-    let max_read_length = numbers.iter().max().expect("could not determine maximum read length");
+    let min_read_length = numbers.iter().min().expect("Could not determine minimum read length");
+    let max_read_length = numbers.iter().max().expect("Could not determine maximum read length");
     
-    return (*min_read_length, *max_read_length)
+    return (min_read_length, max_read_length)
 
 }
 
 // Mean and medians for different numeric types
 
-fn get_median_read_length(numbers: Vec<u64>) -> u64 {
+fn get_median_read_length(numbers: &Vec<u64>) -> u64 {
     
     // Compute the median of a vector of unsigned integers
 
@@ -385,14 +385,14 @@ fn get_median_read_length(numbers: Vec<u64>) -> u64 {
 
     let mid = numbers.len() / 2;
     if numbers.len() % 2 == 0 {
-        get_mean_read_length(vec![numbers[mid - 1], numbers[mid]]) as u64
+        get_mean_read_length(&vec![numbers[mid - 1], numbers[mid]]) as u64
     } else {
         numbers[mid]
     }
 
 }
 
-fn get_mean_read_length(numbers: Vec<u64>) -> u64 {
+fn get_mean_read_length(numbers: &Vec<u64>) -> u64 {
 
     // Compute the mean of a vector of unsigned integers
 
@@ -403,7 +403,7 @@ fn get_mean_read_length(numbers: Vec<u64>) -> u64 {
 }
 
 
-fn get_median_read_quality(numbers: Vec<f64>) -> f64 {
+fn get_median_read_quality(numbers: &Vec<f64>) -> f64 {
 
     // Compute the median of a vector of double-precision floats
 
@@ -411,14 +411,14 @@ fn get_median_read_quality(numbers: Vec<f64>) -> f64 {
 
     let mid = numbers.len() / 2;
     if numbers.len() % 2 == 0 {
-        get_mean_read_quality(vec![numbers[mid - 1], numbers[mid]]) as f64
+        get_mean_read_quality(&vec![numbers[mid - 1], numbers[mid]]) as f64
     } else {
         numbers[mid]
     }
 
 }
 
-fn get_mean_read_quality(numbers: Vec<f64>) -> f64 {
+fn get_mean_read_quality(numbers: &Vec<f64>) -> f64 {
 
     // Compute the mean of a vector of double-precision floats
 
@@ -428,7 +428,7 @@ fn get_mean_read_quality(numbers: Vec<f64>) -> f64 {
 
 }
 
-fn get_read_length_n50(base_pairs: u64, read_lengths: Vec<u64>) -> u64 {
+fn get_read_length_n50(base_pairs: &u64, read_lengths: &Vec<u64>) -> u64 {
     
     // Compute the read length N50 of a vector of unsigned integers
     
