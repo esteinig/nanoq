@@ -299,7 +299,7 @@ fn is_fastq(fastx: &String) -> Result<bool, Error> {
 
     if read_format == "Fastq".to_string(){
         Ok(true)
-    } else read_format == "Fasta".to_string(){
+    } else {
         Ok(false)
     } 
 }
