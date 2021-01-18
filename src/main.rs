@@ -245,19 +245,14 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
     // First pass, get read stats:
     let (reads, base_pairs, mut read_lengths, mut read_qualities) = needlecast_stats(fastx).expect("failed stats pass");
 
-    // Intermission, get sorted and filtered read indices:
-    let quality_sorter = permutation::sort_by(&read_qualities[..], compare_f64_ascending);
-
     let indices: Vec<usize> = Vec::new();
-    for (i, _) in read_qualities.iter().enumerate() {
+    for (i, _) in &read_qualities.iter().enumerate() {
         indices.push(i);
     }
 
-    let sorted_quality = quality_sorter.apply_slice(&read_qualities[..]);
-    let sorted_lengths = quality_sorter.apply_slice(&read_lengths[..]);
-    let sorted_indices = quality_sorter.apply_slice(&indices[..]);
+    let sorted_quality = read_qualities.sort_by(compare_f64_descending);
 
-    println!("{:?} {:?} {:?}", &sorted_quality[1..5], &sorted_lengths[1..5], &sorted_indices[1..5]);
+    println!("{:?}", &sorted_quality[1..5]);
 
 
 }
