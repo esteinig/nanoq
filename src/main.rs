@@ -245,7 +245,7 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
 
     let mut _qualities: Vec<(usize, f64)> = Vec::new();
     for (i, q) in read_qualities.iter().enumerate() {
-        indices.push((i, *q));
+        _qualities.push((i, *q));
     }
 
     println!("{:?}", &_qualities[1..5]);
