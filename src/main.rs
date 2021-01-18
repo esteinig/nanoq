@@ -249,7 +249,7 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
     }
 
     for p in _qualities {
-        println!("{:}", p);
+        println!("{:?}", p);
     }
 
     // read_qualities.sort_by(|a, b| compare_f64_ascending(a[1], b[1]));
