@@ -8,7 +8,7 @@ use std::process;
 use libm::log10;
 use std::fs::File;
 use permutation::sort;
-use needletail::parser::utils::{Format};
+use needletail::utils::{Format};
 
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
