@@ -94,7 +94,7 @@ fn crabcast(fastx: String, output: String, min_length: u64, max_length: u64, min
         fastq::Reader::new(File::open(&fastx)?);
     };
 
-    let mut writer: Box<Write> = if output == "-".to_string(){
+    let mut writer: Box<dyn Write> = if output == "-".to_string(){
         Box::new(fastq::Writer::new(stdout()))
      } else {
         Box::new(fastq::Writer::new(File::create(&output)?))
