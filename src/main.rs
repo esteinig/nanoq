@@ -47,7 +47,7 @@ fn main() -> Result<(), Error> {
         // Advanced mode
 
         if min_length > 0 || min_quality > 0.0 || max_length > 0 {
-            eprintln!("Cannot specify length or quality filters with two-pass filters")
+            eprintln!("Cannot specify length or quality filters with two-pass filters");
             process::exit(1);
         }
 
@@ -232,7 +232,7 @@ fn needlecast_stats(fastx: String) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Err
 
 }
 
-fn two_pass_filter(fastx: String, keep_percent: usize, keep_bases: usize){
+fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
 
     // Advanced filters that require a single pass for stats, 
     // a second pass to output filtered reads; needs file input
@@ -257,7 +257,7 @@ fn two_pass_filter(fastx: String, keep_percent: usize, keep_bases: usize){
     let sorted_lengths = quality_sorter.apply_slice(&read_lengths[..]);
     let sorted_indices = quality_sorter.apply_slice(&indices[..]);
 
-    println!("{:} {:} {:}", &sorted_quality[1..5], &sorted_lengths[1..5], &sorted_indices[1..5]);
+    println!("{:?} {:?} {:?}", &sorted_quality[1..5], &sorted_lengths[1..5], &sorted_indices[1..5]);
 
 
 }
