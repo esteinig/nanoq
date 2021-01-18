@@ -7,8 +7,6 @@ use bio::io::fastq;
 use std::process;
 use libm::log10;
 use std::fs::File;
-use permutation::sort;
-use needletail::utils::{Format};
 
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
@@ -246,13 +244,13 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
     let (reads, base_pairs, mut read_lengths, mut read_qualities) = needlecast_stats(fastx).expect("failed stats pass");
 
     let indices: Vec<usize> = Vec::new();
-    for (i, _) in &read_qualities.iter().enumerate() {
+    for (i, _) in read_qualities.iter().enumerate() {
         indices.push(i);
     }
 
-    let sorted_quality = read_qualities.sort_by(compare_f64_descending);
+    read_qualities.sort_by(compare_f64_descending);
 
-    println!("{:?}", &sorted_quality[1..5]);
+    println!("{:?}", &read_qualities[1..5]);
 
 
 }
@@ -295,7 +293,7 @@ fn is_fastq(fastx: String) -> Result<bool, Error> {
 
     let first_read = reader.next();
 
-    println("{:?}", first_read);
+    println!("{:?}", first_read);
 
     Ok(true)
 }
