@@ -126,12 +126,21 @@ fn crabcast(min_length: u64, max_length: u64, min_quality: f64) -> Result<(u64, 
 
 }
 
-fn needlecast_filter(min_length: u64, max_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
+fn needlecast_filter(fastx: String, output: String, min_length: u64, max_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
 
     // Needletail parser, with output and filters
     
-    let mut reader = parse_fastx_reader(stdin()).expect("invalid stdin");
-    let mut output_handle: Box<dyn Write> = Box::new(BufWriter::new(stdout()));
+    let mut reader = if fastx == "-".to_string() {
+        parse_fastx_reader(stdin()).expect("invalid stdin")
+    } else {
+        parse_fastx_reader(File::open(&fastx)?).expect("invalid file")
+    };
+
+    let output_handle: Box<dyn Write> = if output == "-".to_string(){
+        Box::new(BufWriter::new(stdout()))
+     } else {
+        Box::new(File::create(&output)?)
+     };
 
     let max_length = if max_length <= 0 { u64::MAX } else { max_length };
 
@@ -173,11 +182,15 @@ fn needlecast_filter(min_length: u64, max_length: u64, min_quality: f64) -> Resu
 
 }
 
-fn needlecast_stats() -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
+fn needlecast_stats(fastx: String) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
 
-    // Needletail parser jsut for stats, no filters or output for slight speedup (?)
+    // Needletail parser just for stats, no filters or output, slight speed-up
     
-    let mut reader = parse_fastx_reader(stdin()).expect("invalid stdin");
+    let mut reader = if fastx == "-".to_string() {
+        parse_fastx_reader(stdin()).expect("invalid stdin")
+    } else {
+        parse_fastx_reader(File::open(&fastx)?).expect("invalid file")
+    };
     
     let mut reads: u64 = 0;
     let mut base_pairs: u64 = 0;
@@ -206,7 +219,7 @@ fn needlecast_stats() -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
 
 }
 
-// Helper functions
+// Base functions
 
 fn compare_f64_ascending(a: &f64, b: &f64) -> Ordering {
 
