@@ -66,39 +66,16 @@ fn main() -> Result<(), Error> {
                 needlecast_stats(fastx)
             }
         }.expect("Carcinised error encountered - what the crab?");
+
+        if reads == 0 {
+            eprintln!("No reads");
+            process::exit(1);
+        }
+
+        eprint_stats(reads, base_pairs, read_lengths, read_qualities).expect("failed to collect stats");
+
     }
 
-    
-
-    // Summary statistics
-
-    if reads == 0 {
-        eprintln!("No reads");
-        process::exit(1);
-    }
-
-
-    let mean_read_length = get_mean_read_length(&read_lengths);
-    let mean_read_quality = get_mean_read_quality(&read_qualities);
-    let median_read_length = get_median_read_length(&mut read_lengths);
-    let median_read_quality = get_median_read_quality(&mut read_qualities);
-
-    let read_length_n50 = get_read_length_n50(&base_pairs, &mut read_lengths);
-
-    let (min_read_length, max_read_length) = get_read_length_range(&read_lengths);
-
-    eprintln!(
-        "{:} {:} {:} {:} {:} {:} {:} {:.2} {:.2}",
-        reads, 
-        base_pairs, 
-        read_length_n50,
-        max_read_length, 
-        min_read_length, 
-        mean_read_length, 
-        median_read_length, 
-        mean_read_quality, 
-        median_read_quality
-    );
 
     Ok(())
     
@@ -266,7 +243,7 @@ fn two_pass_filter(fastx: String, keep_percent: usize, keep_bases: usize){
     }
 
     // First pass, get read stats:
-    let (reads, base_pairs, mut read_lengths, mut read_qualities) = needlecast_stats(fastx).expect("failed stats pass")
+    let (reads, base_pairs, mut read_lengths, mut read_qualities) = needlecast_stats(fastx).expect("failed stats pass");
 
     // Intermission, get sorted and filtered read indices:
     let quality_sorter = permutation::sort(&read_qualities[..]);
@@ -287,7 +264,33 @@ fn two_pass_filter(fastx: String, keep_percent: usize, keep_bases: usize){
 
 // Base functions
 
-fn is_fastq(fastx: String) -> bool {
+fn eprint_stats(reads: u64, base_pairs: u64, read_lengths: Vec<u64>, read_qualities: Vec<f64>) -> Result<(), Error> {
+
+    let mean_read_length = get_mean_read_length(&read_lengths);
+    let mean_read_quality = get_mean_read_quality(&read_qualities);
+    let median_read_length = get_median_read_length(&mut read_lengths);
+    let median_read_quality = get_median_read_quality(&mut read_qualities);
+    let read_length_n50 = get_read_length_n50(&base_pairs, &mut read_lengths);
+    let (min_read_length, max_read_length) = get_read_length_range(&read_lengths);
+
+    eprintln!(
+        "{:} {:} {:} {:} {:} {:} {:} {:.2} {:.2}",
+        reads, 
+        base_pairs, 
+        read_length_n50,
+        max_read_length, 
+        min_read_length, 
+        mean_read_length, 
+        median_read_length, 
+        mean_read_quality, 
+        median_read_quality
+    );
+
+    Ok(())
+
+}
+
+fn is_fastq(fastx: String) -> Result<bool, Error> {
     
     let mut reader = if fastx == "-".to_string() {
         parse_fastx_reader(stdin()).expect("invalid stdin")
