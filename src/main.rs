@@ -95,9 +95,10 @@ fn crabcast(fastx: String, output: String, min_length: u64, max_length: u64, min
     };
 
     let mut writer = if output == "-".to_string() {
-        fastq::Writer::new(stdout())
+        let handle = BufWriter::new(stdout());
+        fastq::Writer::new(handle)
     } else {
-        let handle = BufWriter::new(File::create(&output)?) 
+        let handle = BufWriter::new(File::create(&output)?);
         fastq::Writer::new(handle)
     };
     
