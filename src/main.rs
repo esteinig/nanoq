@@ -103,7 +103,7 @@ fn crabcast(fastx: String, output: String, min_length: u64, max_length: u64, min
     let mut read_lengths: Vec<u64> = Vec::new();
     let mut read_qualities: Vec<f64> = Vec::new();
 
-    for result in reader.records() {
+    for result in reader {
         
         let record = result.expect("invalid sequence record");
 
