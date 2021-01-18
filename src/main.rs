@@ -6,12 +6,15 @@ use std::cmp::Ordering;
 use bio::io::fastq;
 use std::process;
 use libm::log10;
+use std::fs::File;
 
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
     App::new("nanoq")
         .version("0.2.0")
         .about("\nFast quality control and summary statistics for nanopore reads\n")
+        .arg(Arg::with_name("FASTX").short("f").long("fastx").takes_value(true).help("Fastx input file [-]"))
+        .arg(Arg::with_name("OUTPUT").short("o").long("output").takes_value(true).help("Fastx output file [-]"))
         .arg(Arg::with_name("MINLEN").short("l").long("min_length").takes_value(true).help("Minimum sequence length [0]"))
         .arg(Arg::with_name("MAXLEN").short("m").long("max_length").takes_value(true).help("Maximum sequence length [0]"))
         .arg(Arg::with_name("QUALITY").short("q").long("min_quality").takes_value(true).help("Minimum sequence quality [0]"))
@@ -26,7 +29,9 @@ fn command_line_interface<'a>() -> ArgMatches<'a> {
 fn main() -> Result<(), Error> {
 
     let cli = command_line_interface();
- 
+
+    let fastx: String = cli.value_of("FASTX").unwrap_or("-").parse().unwrap();
+    let output: String = cli.value_of("OUTPUT").unwrap_or("-").parse().unwrap();
     let min_length: u64 = cli.value_of("MINLEN").unwrap_or("0").parse().unwrap();
     let max_length: u64 = cli.value_of("MAXLEN").unwrap_or("0").parse().unwrap();
     let min_quality: f64 = cli.value_of("QUALITY").unwrap_or("0").parse().unwrap();
@@ -37,9 +42,9 @@ fn main() -> Result<(), Error> {
         crabcast(min_length, max_length, min_quality)
     } else {
         if min_length > 0 || min_quality > 0.0 || max_length > 0 {
-            needlecast_filter(min_length, max_length, min_quality)
+            needlecast_filter(fastx, output, min_length, max_length, min_quality)
         } else {
-            needlecast_stats()
+            needlecast_stats(fastx)
         }
     }.expect("Carcinised error encountered - what the crab?");
 
