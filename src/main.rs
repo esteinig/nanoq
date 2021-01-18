@@ -7,6 +7,8 @@ use bio::io::fastq;
 use std::process;
 use libm::log10;
 use std::fs::File;
+use permutation::sort;
+use needletail::parser::utils::{Format};
 
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
@@ -18,8 +20,8 @@ fn command_line_interface<'a>() -> ArgMatches<'a> {
         .arg(Arg::with_name("MINLEN").short("l").long("min_length").takes_value(true).help("Minimum sequence length [0]"))
         .arg(Arg::with_name("MAXLEN").short("m").long("max_length").takes_value(true).help("Maximum sequence length [0]"))
         .arg(Arg::with_name("QUALITY").short("q").long("min_quality").takes_value(true).help("Minimum sequence quality [0]"))
-        .arg(Arg::with_name("PERCENT").short("p").long("percent").takes_value(true).help("Keep best percent quality bases on reads (0 - 100) [0]"))
-        .arg(Arg::with_name("BASES").short("b").long("bases").takes_value(true).help("Keep reads with best quality number of bases [0]"))
+        .arg(Arg::with_name("PERCENT").short("p").long("keep_percent").takes_value(true).help("Keep best percent quality bases on reads (0 - 100) [0]"))
+        .arg(Arg::with_name("BASES").short("b").long("keep_bases").takes_value(true).help("Keep reads with best quality number of bases [0]"))
         .arg(Arg::with_name("DETAIL").short("d").long("detail").takes_value(false).help("Pretty print dtailed stats [false]"))
         .arg(Arg::with_name("CRAB").short("c").long("crab").takes_value(false).help("Use the rust-bio parser (fastq) [false]"))
     .get_matches()
@@ -35,18 +37,38 @@ fn main() -> Result<(), Error> {
     let min_length: u64 = cli.value_of("MINLEN").unwrap_or("0").parse().unwrap();
     let max_length: u64 = cli.value_of("MAXLEN").unwrap_or("0").parse().unwrap();
     let min_quality: f64 = cli.value_of("QUALITY").unwrap_or("0").parse().unwrap();
+    let keep_percent: f64 = cli.value_of("PERCENT").unwrap_or("0").parse().unwrap();
+    let keep_bases: usize = cli.value_of("BASES").unwrap_or("0").parse().unwrap();
     let crab: bool = cli.is_present("CRAB");
+    let detail: bool = cli.is_present("DETAIL");
+    
+    if keep_percent > 0.0 || keep_bases > 0 {
 
-        
-    let (reads, base_pairs, mut read_lengths, mut read_qualities) = if crab {
-        crabcast(fastx, output, min_length, max_length, min_quality)
-    } else {
+        // Advanced mode
+
         if min_length > 0 || min_quality > 0.0 || max_length > 0 {
-            needlecast_filter(fastx, output, min_length, max_length, min_quality)
-        } else {
-            needlecast_stats(fastx)
+            eprintln!("Cannot specify length or quality filters with two-pass filters")
+            process::exit(1);
         }
-    }.expect("Carcinised error encountered - what the crab?");
+
+        two_pass_filter(fastx, keep_percent, keep_bases);
+
+    } else {
+        
+        // Standard mode
+         
+        let (reads, base_pairs, mut read_lengths, mut read_qualities) = if crab {
+            crabcast(fastx, output, min_length, max_length, min_quality)
+        } else {
+            if min_length > 0 || min_quality > 0.0 || max_length > 0 {
+                needlecast_filter(fastx, output, min_length, max_length, min_quality)
+            } else {
+                needlecast_stats(fastx)
+            }
+        }.expect("Carcinised error encountered - what the crab?");
+    }
+
+    
 
     // Summary statistics
 
@@ -233,7 +255,52 @@ fn needlecast_stats(fastx: String) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Err
 
 }
 
+fn two_pass_filter(fastx: String, keep_percent: usize, keep_bases: usize){
+
+    // Advanced filters that require a single pass for stats, 
+    // a second pass to output filtered reads; needs file input
+
+    if !is_fastq(fastx).expect("invalid file input") {
+        eprintln!("Two pass filter requires fastq format with quality scores");
+        process::exit(1);
+    }
+
+    // First pass, get read stats:
+    let (reads, base_pairs, mut read_lengths, mut read_qualities) = needlecast_stats(fastx).expect("failed stats pass")
+
+    // Intermission, get sorted and filtered read indices:
+    let quality_sorter = permutation::sort(&read_qualities[..]);
+
+    let indices: Vec<usize> = Vec::new();
+    for (i, _) in read_qualities.iter().enumerate() {
+        indices.push(i);
+    }
+
+    let sorted_quality = quality_sorter.apply_slice(&read_qualities[..]);
+    let sorted_lengths = quality_sorter.apply_slice(&read_lengths[..]);
+    let sorted_indices = quality_sorter.apply_slice(&indices[..]);
+
+    println!("{:} {:} {:}", &sorted_quality[1..5], &sorted_lengths[1..5], &sorted_indices[1..5]);
+
+
+}
+
 // Base functions
+
+fn is_fastq(fastx: String) -> bool {
+    
+    let mut reader = if fastx == "-".to_string() {
+        parse_fastx_reader(stdin()).expect("invalid stdin")
+    } else {
+        parse_fastx_reader(File::open(&fastx)?).expect("invalid file")
+    };
+
+    if reader.next().format() == Format::Fastq {
+        Ok(true)
+    } else {
+        Ok(false)
+    }
+}
 
 fn compare_f64_ascending(a: &f64, b: &f64) -> Ordering {
 

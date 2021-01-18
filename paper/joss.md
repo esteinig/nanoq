@@ -39,7 +39,7 @@ A common practice for quality control and filtering of reads for length and qual
 cargo test
 ```
 
-`Nanoq` accepts a stream of sequence reads (`fast{a/q}`, `gz`) on `stdin`:
+`Nanoq` accepts a file or stream of sequence reads (`fast{a/q}`, `gz`) on `stdin`:
 
 ```bash
 cat test.fq | nanoq
@@ -70,25 +70,25 @@ Reads filtered by minimum read length (`--length`) and mean read quality (`--qua
 cat test.fq | nanoq -l 1000 -q 10 > reads.fq 
 ```
 
-Advanced two-pass filtering options analogous to `Filtlong` removes the worst 20% of bases by reads (`--keep_percent`) and the worst quality reads (`--keep_bases`) until 500 Mbp remain, must read from file:
+Advanced two-pass filtering options analogous to `Filtlong` removes the worst 20% of bases (using reads) by quality (`--keep_percent`) and / or the worst quality reads until 500 Mbp remain (`--keep_bases`): 
 
 ```bash
 nanoq -f test.fq -p 80 -b 500000000  > reads.fq 
 ```
 
-Live sequencing run checks:
+Live sequencing run data directory:
 
 ```bash
 RUN=/data/nanopore/run
 ```
 
-Check total run statistics:
+Check total run statistics of active run:
 
 ```bash
 find $RUN -name *.fastq -print0 | xargs -0 cat | nanoq
 ```
 
-Check per-barcode statistics:
+Check per-barcode statistics of active run:
 
 ```bash
 for i in {01..12}; do
@@ -97,7 +97,6 @@ done
 ```
 
 # Benchmarks
-
 
 Benchmarks evaluate processing speed of a simple read-length filter and computation of summary statistics on the first 100,000 reads of the [Zymo mock community](https://github.com/LomanLab/mockcommunity) (Release 2 Even, GridION) [@zymo] running comparisons to [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong).
 
@@ -118,11 +117,11 @@ While `rust-bio` is slightly faster than `needletail` in these specific benchmar
 * BioConda: `conda install -c bioconda nanoq`
 * Singularity: `singularity pull docker://esteinig/nanoq`
 
-`Nanoq` is integrated with pipelines servicing [Queensland Genomics](https://github.com/np-core) research projects using nanopore sequencing to detect infectious agents in septic patients, reconstruct transmission dynamics of bacterial pathogens, and conduct outbreak sequencing at the Townsville University Hospital (QLD, Australia).
+`Nanoq` is integrated with pipelines servicing research projects at [Queensland Genomics](https://queenslandgenomics.org/clinical-projects-3/north-queensland/) using nanopore sequencing to detect infectious agents in septic patients, reconstruct transmission dynamics of bacterial pathogens, and conduct outbreak sequencing at the Townsville University Hospital (QLD, Australia).
 
 # Acknowledgements
 
-We would like to thank the `Rust-Bio` community and `OneCodex` team for developing the read parsers. ES was funded by the Queensland Genomics Far North Queensland project and a joint grant by HOT NORTH and the Center for Policy Relevant Infectious Disease Simulation and Mathematical Modelling (NHMRC: #1131932).
+We would like to thank the `Rust-Bio` community, the [`seq_io`](https://github.com/markschl/seq_io) project and the `OneCodex` team and for developing the read parsers. ES was funded by the Queensland Genomics Far North Queensland project and a joint grant by HOT NORTH and the Center for Policy Relevant Infectious Disease Simulation and Mathematical Modelling (NHMRC: #1131932).
 
 # References
 
