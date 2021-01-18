@@ -95,9 +95,10 @@ fn crabcast(fastx: String, output: String, min_length: u64, max_length: u64, min
     };
 
     let mut writer = if output == "-".to_string() {
-        fastq::Writer::new(BufWriter::new(stdout()))
+        fastq::Writer::new(stdout())
     } else {
-        fastq::Writer::new(File::create(&output)?)
+        let handle = BufWriter::new(File::create(&output)?) 
+        fastq::Writer::new(handle)
     };
     
     let max_length = if max_length <= 0 { u64::MAX } else { max_length };
@@ -107,7 +108,7 @@ fn crabcast(fastx: String, output: String, min_length: u64, max_length: u64, min
     let mut read_lengths: Vec<u64> = Vec::new();
     let mut read_qualities: Vec<f64> = Vec::new();
 
-    for result in reader {
+    for result in reader.records() {
         
         let record = result.expect("invalid sequence record");
 
