@@ -7,7 +7,6 @@ use bio::io::fastq;
 use std::process;
 use libm::log10;
 use std::fs::File;
-use bio::io::fastq;
 
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
@@ -90,9 +89,9 @@ fn crabcast(fastx: String, output: String, min_length: u64, max_length: u64, min
     // Rust-Bio parser, Fastq only
 
     let reader = if fastx == "-".to_string(){ 
-        fastq::Reader::new(io::stdin());
+        fastq::Reader::new(stdin());
     } else {
-        fastq::Reader::new(File::open(&fastx)??);
+        fastq::Reader::new(File::open(&fastx)?);
     };
 
     let mut writer = if output == "-".to_string(){
