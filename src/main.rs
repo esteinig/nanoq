@@ -141,7 +141,7 @@ fn needlecast_filter(fastx: String, output: String, min_length: u64, max_length:
         parse_fastx_reader(File::open(&fastx)?).expect("invalid file")
     };
 
-    let output_handle: Box<dyn Write> = if output == "-".to_string(){
+    let mut output_handle: Box<dyn Write> = if output == "-".to_string(){
         Box::new(BufWriter::new(stdout()))
      } else {
         Box::new(File::create(&output)?)
@@ -169,7 +169,7 @@ fn needlecast_filter(fastx: String, output: String, min_length: u64, max_length:
                 base_pairs += seqlen;
                 read_lengths.push(seqlen);
                 read_qualities.push(mean_quality);
-                seqrec.write(&mut output_handle, None).expect("invalid record write");
+                seqrec.write(&output_handle, None).expect("invalid record write");
             }
         } else {
             // Fasta filter
@@ -177,7 +177,7 @@ fn needlecast_filter(fastx: String, output: String, min_length: u64, max_length:
                 reads += 1;
                 base_pairs += seqlen;
                 read_lengths.push(seqlen);
-                seqrec.write(&mut output_handle, None).expect("invalid record write");
+                seqrec.write(&output_handle, None).expect("invalid record write");
             }
         }
 
