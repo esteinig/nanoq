@@ -1,4 +1,4 @@
-use std::io::{BufWriter, BufReader, Write};
+use std::io::{BufWriter, BufReader, Write, Read};
 use std::io::{stdin, stdout, Error};
 use needletail::{parse_fastx_reader};
 use clap::{Arg, ArgMatches, App};
@@ -88,7 +88,7 @@ fn crabcast(fastx: String, output: String, min_length: u64, max_length: u64, min
 
     // Rust-Bio parser, Fastq only
 
-    let input_handle: Box<dyn Write> = if fastx == "-".to_string(){ 
+    let input_handle: Box<dyn Read> = if fastx == "-".to_string(){ 
         Box::new(BufReader::new(stdin()))
     } else {
         Box::new(File::open(&fastx)?)
