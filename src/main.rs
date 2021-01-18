@@ -293,11 +293,11 @@ fn is_fastq(fastx: String) -> Result<bool, Error> {
         parse_fastx_reader(File::open(&fastx)?).expect("invalid file")
     };
 
-    if reader.next().format() == Format::Fastq {
-        Ok(true)
-    } else {
-        Ok(false)
-    }
+    let first_read = reader.next();
+
+    println("{:?}", first_read);
+
+    Ok(true)
 }
 
 fn compare_f64_ascending(a: &f64, b: &f64) -> Ordering {
