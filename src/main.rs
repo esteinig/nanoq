@@ -44,12 +44,12 @@ fn main() -> Result<(), Error> {
 
         // Advanced mode
         if fastx == "-".to_string() {
-            eprintln!("Cannot reead from STDIN with two-pass filters");
+            eprintln!("Cannot read from STDIN with two-pass filters!");
             process::exit(1);
         }
 
         if min_length > 0 || min_quality > 0.0 || max_length > 0 {
-            eprintln!("Cannot specify length or quality filters with two-pass filters");
+            eprintln!("Cannot specify length or quality filters with two-pass filters!");
             process::exit(1);
         }
 
