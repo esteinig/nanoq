@@ -246,7 +246,7 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
     let (reads, base_pairs, mut read_lengths, mut read_qualities) = needlecast_stats(fastx).expect("failed stats pass");
 
     // Intermission, get sorted and filtered read indices:
-    let quality_sorter = permutation::sort(&read_qualities[..]);
+    let quality_sorter = permutation::sort_by(&read_qualities[..], compare_f64_ascending);
 
     let indices: Vec<usize> = Vec::new();
     for (i, _) in read_qualities.iter().enumerate() {
@@ -314,6 +314,19 @@ fn compare_f64_ascending(a: &f64, b: &f64) -> Ordering {
         return Ordering::Less;
     } else if a > b {
         return Ordering::Greater;
+    }
+    Ordering::Equal
+}
+
+fn compare_f64_descending(a: &f64, b: &f64) -> Ordering {
+
+    // Will get killed with NAN (R.I.P)
+    // but we should never see NAN
+
+    if a < b {
+        return Ordering::Greater;
+    } else if a > b {
+        return Ordering::Less;
     }
     Ordering::Equal
 }
