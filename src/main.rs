@@ -371,7 +371,7 @@ fn get_read_length_range(numbers: Vec<u64>) -> (u64, u64) {
     let min_read_length = numbers.iter().min().expect("could not determine minimum read length");
     let max_read_length = numbers.iter().max().expect("could not determine maximum read length");
     
-    return (min_read_length, max_read_length)
+    return (*min_read_length, *max_read_length)
 
 }
 
@@ -385,7 +385,7 @@ fn get_median_read_length(numbers: Vec<u64>) -> u64 {
 
     let mid = numbers.len() / 2;
     if numbers.len() % 2 == 0 {
-        get_mean_read_length(&vec![numbers[mid - 1], numbers[mid]]) as u64
+        get_mean_read_length(vec![numbers[mid - 1], numbers[mid]]) as u64
     } else {
         numbers[mid]
     }
@@ -411,7 +411,7 @@ fn get_median_read_quality(numbers: Vec<f64>) -> f64 {
 
     let mid = numbers.len() / 2;
     if numbers.len() % 2 == 0 {
-        get_mean_read_quality(&vec![numbers[mid - 1], numbers[mid]]) as f64
+        get_mean_read_quality(vec![numbers[mid - 1], numbers[mid]]) as f64
     } else {
         numbers[mid]
     }
