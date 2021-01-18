@@ -248,7 +248,9 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
         _qualities.push((i, *q));
     }
 
-    println!("{:?}", &_qualities[1..5]);
+    for p in _qualities {
+        println!("{:}", p);
+    }
 
     // read_qualities.sort_by(|a, b| compare_f64_ascending(a[1], b[1]));
 
