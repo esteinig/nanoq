@@ -297,9 +297,11 @@ fn is_fastq(fastx: &String) -> Result<bool, Error> {
     let first_read = reader.next().unwrap().unwrap();
     let read_format = first_read.format();
 
-    println!("{:?}", read_format);
-
-    Ok(true)
+    if read_format == "Fastq".to_string(){
+        Ok(true)
+    } else read_format == "Fasta".to_string(){
+        Ok(false)
+    } 
 }
 
 fn compare_f64_ascending(a: &f64, b: &f64) -> Ordering {
