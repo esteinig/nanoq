@@ -285,7 +285,7 @@ fn eprint_stats(reads: u64, base_pairs: u64, read_lengths: Vec<u64>, read_qualit
 
 fn is_fastq(fastx: &String) -> Result<bool, Error> {
     
-    let mut reader = if fastx == "-".to_string() {
+    let mut reader = if fastx == &"-".to_string() {
         parse_fastx_reader(stdin()).expect("invalid stdin")
     } else {
         parse_fastx_reader(File::open(&fastx)?).expect("invalid file")
