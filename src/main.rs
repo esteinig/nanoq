@@ -294,8 +294,8 @@ fn is_fastq(fastx: &String) -> Result<bool, Error> {
         parse_fastx_reader(File::open(&fastx)?).expect("invalid file")
     };
 
-    let first_read = reader.iter().nth(0)?;
-    let read_format = first_read.unwrap().format();
+    let first_read = reader.next().unwrap().unwrap();
+    let read_format = first_read.format();
 
     println!("{:?}", read_format);
 
