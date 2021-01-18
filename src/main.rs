@@ -366,7 +366,7 @@ fn get_mean_error(quality_bytes: &[u8]) -> f32 {
 
 // Read length range
 
-fn get_read_length_range(numbers: Vec<u64>) -> (&u64, &u64) {
+fn get_read_length_range(numbers: Vec<u64>) -> (u64, u64) {
 
     let min_read_length = numbers.iter().min().expect("Could not determine minimum read length");
     let max_read_length = numbers.iter().max().expect("Could not determine maximum read length");
