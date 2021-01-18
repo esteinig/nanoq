@@ -243,10 +243,10 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
     // First pass, get read stats:
     let (reads, base_pairs, mut read_lengths, mut read_qualities) = needlecast_stats(fastx).expect("failed stats pass");
 
-    let mut _qualities: Vec<(usize, f64)> = Vec::new();
-    for (i, q) in read_qualities.iter().enumerate() {
-        _qualities.push((i, *q));
-    }
+    // let mut _qualities: Vec<(usize, f64)> = Vec::new();
+    // for (i, q) in read_qualities.iter().enumerate() {
+    //     _qualities.push((i, *q));
+    // }
 
     // read_qualities.sort_by(|a, b| compare_f64_ascending(a[1], b[1]));
 
