@@ -169,7 +169,7 @@ fn needlecast_filter(fastx: String, output: String, min_length: u64, max_length:
                 base_pairs += seqlen;
                 read_lengths.push(seqlen);
                 read_qualities.push(mean_quality);
-                seqrec.write(&output_handle, None).expect("invalid record write");
+                seqrec.write(&mut output_handle, None).expect("invalid record write");
             }
         } else {
             // Fasta filter
@@ -177,7 +177,7 @@ fn needlecast_filter(fastx: String, output: String, min_length: u64, max_length:
                 reads += 1;
                 base_pairs += seqlen;
                 read_lengths.push(seqlen);
-                seqrec.write(&output_handle, None).expect("invalid record write");
+                seqrec.write(&mut output_handle, None).expect("invalid record write");
             }
         }
 
