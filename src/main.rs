@@ -94,7 +94,11 @@ fn crabcast(fastx: String, output: String, min_length: u64, max_length: u64, min
         fastq::Reader::new(File::open(&fastx)?);
     };
 
-    let mut writer <fastq::Writer> = fastq::Writer::new(File::create(&output)?);
+    let mut writer = if output == "-".to_string() {
+        fastq::Writer::new(BufWriter::new(io::stdout()))
+    } else {
+        fastq::Writer::new(File::create(&output)?)
+    };
     
     let max_length = if max_length <= 0 { u64::MAX } else { max_length };
 
