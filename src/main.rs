@@ -7,6 +7,7 @@ use bio::io::fastq;
 use std::process;
 use libm::log10;
 use std::fs::File;
+use needletail::parser::Format;
 
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
@@ -297,7 +298,7 @@ fn is_fastq(fastx: &String) -> Result<bool, Error> {
     let first_read = reader.next().unwrap().unwrap();
     let read_format = first_read.format();
 
-    if read_format == "Fastq".to_string(){
+    if read_format == Format::Fastq {
         Ok(true)
     } else {
         Ok(false)
