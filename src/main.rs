@@ -235,7 +235,7 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
     // Advanced filters that require a single pass for stats, 
     // a second pass to output filtered reads; needs file input
 
-    if !is_fastq(fastx).expect("invalid file input") {
+    if !is_fastq(&fastx).expect("invalid file input") {
         eprintln!("Two pass filter requires fastq format with quality scores");
         process::exit(1);
     }
@@ -243,12 +243,12 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
     // First pass, get read stats:
     let (reads, base_pairs, mut read_lengths, mut read_qualities) = needlecast_stats(fastx).expect("failed stats pass");
 
-    let indices: Vec<usize> = Vec::new();
-    for (i, _) in read_qualities.iter().enumerate() {
-        indices.push(i);
+    let mut indices: Vec<(usize, f64)> = Vec::new();
+    for (i, q) in read_qualities.iter().enumerate() {
+        indices.push((i, q));
     }
 
-    read_qualities.sort_by(compare_f64_descending);
+    read_qualities.sort_by(|a, b| compare_f64_ascending(a, b));
 
     println!("{:?}", &read_qualities[1..5]);
 
