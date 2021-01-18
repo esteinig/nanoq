@@ -1,4 +1,4 @@
-use std::io::{BufReader, BufWriter, Read, Write};
+use std::io::{BufWriter, Write};
 use std::io::{stdin, stdout, Error};
 use needletail::{parse_fastx_reader};
 use clap::{Arg, ArgMatches, App};
@@ -94,12 +94,15 @@ fn crabcast(fastx: String, output: String, min_length: u64, max_length: u64, min
         fastq::Reader::new(File::open(&fastx)?)
     };
 
-    let mut writer = if output == "-".to_string() {
-        fastq::Writer::new(stdout())
-    } else {
-        fastq::Writer::new(BufWriter::new(File::create(&output)?))
-    };
-    
+    let output_handle: Box<dyn Write> = if output == "-".to_string(){
+        Box::new(BufWriter::new(stdout()))
+     } else {
+        Box::new(File::create(&output)?)
+     };
+
+
+    let mut writer = fastq::Writer::new(output_handle);
+
     let max_length = if max_length <= 0 { u64::MAX } else { max_length };
 
     let mut base_pairs: u64 = 0;
@@ -235,7 +238,7 @@ fn needlecast_stats(fastx: String) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Err
 fn compare_f64_ascending(a: &f64, b: &f64) -> Ordering {
 
     // Will get killed with NAN (R.I.P)
-    // but we should also never see NAN
+    // but we should never see NAN
 
     if a < b {
         return Ordering::Less;
@@ -248,7 +251,7 @@ fn compare_f64_ascending(a: &f64, b: &f64) -> Ordering {
 fn compare_u64_descending(a: &u64, b: &u64) -> Ordering {
 
     // Will get killed with NAN (R.I.P)
-    // but we should also never see NAN
+    // but we should never see NAN
 
     if a < b {
         return Ordering::Greater;
