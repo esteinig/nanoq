@@ -248,7 +248,9 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
         indices.push((i, q));
     }
 
-    read_qualities.sort_by(|a, b| compare_f64_ascending(a, b));
+    println!("{:?}", &read_qualities[1..5]);
+
+    read_qualities.sort_by(|a, b| compare_f64_ascending(a[1], b[1]));
 
     println!("{:?}", &read_qualities[1..5]);
 
@@ -261,7 +263,7 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
 
     let mean_read_length = get_mean_read_length(&read_lengths);
     let mean_read_quality = get_mean_read_quality(&read_qualities);
-    let median_read_length = get_median_read_length(&mread_lengths);
+    let median_read_length = get_median_read_length((&read_lengths);
     let median_read_quality = get_median_read_quality(&read_qualities);
     let read_length_n50 = get_read_length_n50(&base_pairs, &read_lengths);
     let (min_read_length, max_read_length) = get_read_length_range(&read_lengths);
@@ -375,7 +377,7 @@ fn get_read_length_range(numbers: &Vec<u64>) -> (&u64, &u64) {
 
 // Mean and medians for different numeric types
 
-fn get_median_read_length(numbers: &mut Vec<u64>) -> u64 {
+fn get_median_read_length(numbers: &Vec<u64>) -> u64 {
     
     // Compute the median of a vector of unsigned integers
 
@@ -401,7 +403,7 @@ fn get_mean_read_length(numbers: &Vec<u64>) -> u64 {
 }
 
 
-fn get_median_read_quality(numbers: &mut Vec<f64>) -> f64 {
+fn get_median_read_quality(numbers: &Vec<f64>) -> f64 {
 
     // Compute the median of a vector of double-precision floats
 
@@ -426,7 +428,7 @@ fn get_mean_read_quality(numbers: &Vec<f64>) -> f64 {
 
 }
 
-fn get_read_length_n50(base_pairs: &u64, read_lengths: &mut Vec<u64>) -> u64 {
+fn get_read_length_n50(base_pairs: &u64, read_lengths: &Vec<u64>) -> u64 {
     
     // Compute the read length N50 of a vector of unsigned integers
     
