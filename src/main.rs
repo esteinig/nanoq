@@ -243,7 +243,7 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
     // First pass, get read stats:
     let (reads, base_pairs, mut read_lengths, mut read_qualities) = needlecast_stats(fastx).expect("failed stats pass");
 
-    let mut indices: Vec<(usize, f64)> = Vec::new();
+    let mut indices: Vec<(usize, &f64)> = Vec::new();
     for (i, q) in read_qualities.iter().enumerate() {
         indices.push((i, q));
     }
@@ -283,7 +283,7 @@ fn eprint_stats(reads: u64, base_pairs: u64, read_lengths: Vec<u64>, read_qualit
 
 }
 
-fn is_fastq(fastx: String) -> Result<bool, Error> {
+fn is_fastq(fastx: &String) -> Result<bool, Error> {
     
     let mut reader = if fastx == "-".to_string() {
         parse_fastx_reader(stdin()).expect("invalid stdin")
