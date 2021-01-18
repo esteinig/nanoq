@@ -1,4 +1,4 @@
-use std::io::{BufWriter, Write};
+use std::io::{BufWriter, BufReader, Write};
 use std::io::{stdin, stdout, Error};
 use needletail::{parse_fastx_reader};
 use clap::{Arg, ArgMatches, App};
@@ -88,10 +88,10 @@ fn crabcast(fastx: String, output: String, min_length: u64, max_length: u64, min
 
     // Rust-Bio parser, Fastq only
 
-    let reader = if fastx == "-".to_string(){ 
-        fastq::Reader::new(stdin())
+    let input_handle: Box<dyn Write> = if fastx == "-".to_string(){ 
+        Box::new(BufReader::new(stdin()))
     } else {
-        fastq::Reader::new(File::open(&fastx)?)
+        Box::new(File::open(&fastx)?)
     };
 
     let output_handle: Box<dyn Write> = if output == "-".to_string(){
@@ -100,7 +100,7 @@ fn crabcast(fastx: String, output: String, min_length: u64, max_length: u64, min
         Box::new(File::create(&output)?)
      };
 
-
+    let reader = fastq::Reader::new(input_handle);
     let mut writer = fastq::Writer::new(output_handle);
 
     let max_length = if max_length <= 0 { u64::MAX } else { max_length };
