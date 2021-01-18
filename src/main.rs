@@ -84,12 +84,21 @@ fn main() -> Result<(), Error> {
 
 // Main functions
 
-fn crabcast(min_length: u64, max_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error>  {
+fn crabcast(fastx: String, output: String, min_length: u64, max_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error>  {
 
     // Rust-Bio parser, Fastq only
 
-    let input_handle: Box<dyn Read> = Box::new(BufReader::new(stdin()));
-    let output_handle: Box<dyn Write> = Box::new(BufWriter::new(stdout()));
+    let input_handle: Box<dyn Read> = if fastx == "-".to_string(){ 
+        Box::new(BufReader::new(stdin()))
+    } else {
+        Box::new(File::create(&output)?)
+    };
+
+    let output_handle: Box<dyn Write> = if output == "-".to_string(){
+        Box::new(BufWriter::new(stdout()))
+     } else {
+        Box::new(File::create(&output)?)
+     };
     
     let max_length = if max_length <= 0 { u64::MAX } else { max_length };
 
