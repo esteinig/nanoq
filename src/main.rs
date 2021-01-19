@@ -245,18 +245,53 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
         process::exit(1);
     }
 
+    if !(0 < keep_percent <= 100) {
+        eprintln!("Keep percent arguments must be between 0 and 100 (%)");
+        process::exit(1);
+    }
+
+    let keep_percent: f64 = if keep_percent == 0. {
+        1.0
+    } else {
+        keep_percent / 100.
+    }
+
     // First pass, get read stats:
     let (reads, base_pairs, mut read_lengths, mut read_qualities) = needlecast_stats(fastx).expect("failed stats pass");
 
-    let mut _qualities: Vec<(usize, f64)> = Vec::new();
+    let mut indexed_qualities: Vec<(usize, f64)> = Vec::new();
     for (i, q) in read_qualities.iter().enumerate() {
-        _qualities.push((i, *q));
+        indexed_qualities.push((i, *q));
     }
 
-    _qualities.sort_by(|a, b| compare_f64_ascending_indexed_tuples(a, b));
+    indexed_qualities.sort_by(|a, b| compare_f64_ascending_indexed_tuples(a, b));
 
-    println!("{:?}", &_qualities[..]);
+    // Apply keep_percent always (if 0 -> keep all)
 
+    let _limit: usize = (indexed_qualities.len() as f64 * keep_percent) as usize;
+    let _indexed_qualities_retain = indexed_qualities[0.._limit];
+
+    println!("{:} {:?}", indexed_qualities_retain.len(), _indexed_qualities_retain[0..5]);
+    // Apply keep_bases if > 0
+
+    let mut indexed_qualities_retain: Vec<(usize, f64)> = Vec::new();
+    if keep_bases > 0 {
+        let mut bp_sum: usize = 0;
+        for qtup in _indexed_qualities_retain {
+            bp_sum += read_lengths[qtup.0 as usize] as usize;
+            if bp_sum >= keep_percent {
+                break;
+            } else {
+                indexed_qualities_retain.append(qtup);
+            }
+        }
+    } else {
+        for qtup in _indexed_qualities_retain {
+            indexed_qualities_retain.append(qtup);
+        }
+    };
+
+    println!("{:} {:?}", indexed_qualities_retain.len(), indexed_qualities_retain[0..5]);
 }
 
 // Base functions

@@ -72,7 +72,7 @@ Reads filtered by minimum read length (`--length`) and mean read quality (`--qua
 cat test.fq | nanoq -l 1000 -q 10 > reads.fq 
 ```
 
-Advanced two-pass filtering options analogous to `Filtlong` removes the worst 20% of bases (using reads) by quality (`--keep_percent`) and / or the worst quality reads until 500 Mbp remain (`--keep_bases`): 
+Advanced two-pass filtering options analogous to `Filtlong` removes the worst 20% of bases using sorted reads by quality (`--keep_percent`) or the worst quality reads until approximately 500 Mbp remain (`--keep_bases`): 
 
 ```bash
 nanoq -f test.fq -p 80 -b 500000000  > reads.fq 
