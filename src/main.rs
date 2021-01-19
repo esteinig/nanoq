@@ -543,8 +543,8 @@ fn get_read_length_n50(base_pairs: &u64, read_lengths: &mut Vec<u64>) -> u64 {
 mod tests {
     use super::*;
 
-    const U64_EMPTY: Vec<u64> = !vec[];
-    const F64_EMPTY: Vec<f64> = !vec[];
+    const U64_EMPTY: Vec<u64> = Vec::new();
+    const F64_EMPTY: Vec<f64> = Vec::new();
 
     const F64_EVEN: Vec<f64> = !vec[10., 10., 20., 30.];
     const F64_ODD: Vec<f64>  = !vec[10., 10., 20., 30., 40.];
@@ -595,4 +595,4 @@ mod tests {
     }
 
 
-?
+}
