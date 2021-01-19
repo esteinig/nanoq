@@ -253,7 +253,7 @@ fn needlecast_filt(fastx: String, output: String, indices: HashMap<usize, f64>) 
         Box::new(File::create(&output)?)
      };
     
-    for (i, record) in reader.records().enumerate() {
+    for (i, record) in reader.iter().enumerate() {
         if !indices.get_key(&i) == None {  // test if this is faster than checking if index in vec
             let seqrec = record.expect("invalid sequence record");
             seqrec.write(&mut output_handle, None).expect("invalid record write op");
