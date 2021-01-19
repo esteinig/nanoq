@@ -8,6 +8,7 @@ use std::process;
 use libm::log10;
 use std::fs::File;
 use needletail::parser::Format;
+use std::collections::HashMap;
 
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
@@ -236,7 +237,7 @@ fn needlecast_stats(fastx: String) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Err
 
 }
 
-fn needlecast_filt(fastx: String, output: String, indices: Vec<&usize>) -> Result<(), Error> {
+fn needlecast_filt(fastx: String, output: String, indices: HashMap<usize, f64>) -> Result<(), Error> {
 
     // Needletail parser just for output by read index:
     
@@ -252,8 +253,8 @@ fn needlecast_filt(fastx: String, output: String, indices: Vec<&usize>) -> Resul
         Box::new(File::create(&output)?)
      };
     
-    for (i, _) in reader {
-        if indices.contains(&i) {
+    for (i as usize, _) in reader.records().enumerate() {
+        if !indices.get_key(&i) == None {  // test if this is faster than checking if index in vec
             let seqrec = record.expect("invalid sequence record");
             seqrec.write(&mut output_handle, None).expect("invalid record write");
         }
@@ -324,7 +325,8 @@ fn two_pass_filter(fastx: String, output: String, keep_percent: f64, keep_bases:
     eprint_stats(reads, base_pairs, read_lengths, read_qualities).expect("failed to collect stats");
 
     // Second pass, filter reads to output by indices
-    let mut _indices: Vec<&f64> = indexed_qualities_retain.map(|x| x.0).collect();
+    let mut _indices: HashMap<usize, f64> = indexed_qualities_retain.iter().collect();
+
     needlecast_filt(fastx, output, _indices);
 
 }
