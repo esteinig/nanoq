@@ -236,7 +236,7 @@ fn needlecast_stats(fastx: String) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Err
 
 }
 
-fn needlecast_filt(fastx: String, output: String, indices: Vec<usize>) -> Result<(), Error> {
+fn needlecast_filt(fastx: String, output: String, indices: Vec<&usize>) -> Result<(), Error> {
 
     // Needletail parser just for output by read index:
     
@@ -253,7 +253,7 @@ fn needlecast_filt(fastx: String, output: String, indices: Vec<usize>) -> Result
      };
     
     for (i, _) in reader {
-        if i in indices {
+        if indices.contains(&i) {
             let seqrec = record.expect("invalid sequence record");
             seqrec.write(&mut output_handle, None).expect("invalid record write");
         }
