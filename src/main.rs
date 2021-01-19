@@ -269,7 +269,7 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
     // Apply keep_percent always (if 0 -> keep all)
 
     let _limit: usize = (indexed_qualities.len() as f64 * keep_percent) as usize;
-    let _indexed_qualities_retain = &indexed_qualities[0.._limit];
+    let mut _indexed_qualities_retain = &indexed_qualities[0.._limit];
 
     println!("{:} {:?}", _indexed_qualities_retain.len(), _indexed_qualities_retain[0..5]);
     // Apply keep_bases if > 0
@@ -279,7 +279,7 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
         let mut bp_sum: usize = 0;
         for qtup in _indexed_qualities_retain.iter() {
             bp_sum += read_lengths[qtup.0 as usize] as usize;
-            if bp_sum >= keep_percent {
+            if bp_sum >= keep_bases {
                 break;
             } else {
                 indexed_qualities_retain.append(qtup);
