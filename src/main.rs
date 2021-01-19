@@ -559,7 +559,7 @@ mod tests {
     #[test]
     fn test_get_mean_read_quality() {
         let mean_quality = get_mean_read_quality(&mut vec![10.0, 10.0, 20.0, 30.0]);
-        assert_eq!(mean_quality, 35 as f64);
+        assert_eq!(mean_quality, 17.5 as f64);
     }
 
     #[test]
@@ -578,20 +578,20 @@ mod tests {
 
     #[test]
     fn test_get_mean_read_length() {
-        let median_quality = get_mean_read_length(&vec![10, 10, 20, 30]);
-        assert_eq!(median_quality, 35 as u64);
+        let mean_length = get_mean_read_length(&vec![10, 10, 20, 30]);
+        assert_eq!(mean_length, 17 as u64);
     }
 
     #[test]
     fn test_get_median_read_length_even() {
-        let median_quality = get_median_read_length(&mut vec![10, 10, 20, 30]);
-        assert_eq!(median_quality, 15 as u64);
+        let median_length = get_median_read_length(&mut vec![10, 10, 20, 30]);
+        assert_eq!(median_length, 15 as u64);
     }
 
     #[test]
     fn test_get_median_read_length_odd() {
-        let median_quality = get_median_read_length(&mut vec![10, 10, 20, 30, 40]);
-        assert_eq!(median_quality, 20 as u64);
+        let median_length = get_median_read_length(&mut vec![10, 10, 20, 30, 40]);
+        assert_eq!(median_length, 20 as u64);
     }
 
     // Range
