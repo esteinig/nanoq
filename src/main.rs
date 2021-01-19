@@ -584,13 +584,13 @@ mod tests {
     #[test]
     fn test_get_mean_read_length() {
         let median_quality = get_mean_read_length(U64_EVEN);
-        assert_eq!(median_quality, 35 as f64);
+        assert_eq!(median_quality, 35 as u64);
     }
 
     #[test]
     fn test_get_median_read_length_even() {
         let median_quality = get_median_read_length(U64_EVEN);
-        assert_eq!(median_quality, 15 as f64);
+        assert_eq!(median_quality, 15 as u64);
     }
 
     #[test]
