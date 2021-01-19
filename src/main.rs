@@ -291,7 +291,7 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
         }
     };
 
-    println!("{}:?}", indexed_qualities_retain[0..5]);
+    println!("{:?}", indexed_qualities_retain[0..5]);
 }
 
 // Base functions
