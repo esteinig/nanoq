@@ -255,7 +255,7 @@ fn needlecast_filt(fastx: String, output: String, indices: HashMap<usize, f64>) 
     
      let mut read: usize = 0;
      while let Some(record) = reader.next() {
-        if indices.contains_key(&read) == Some(_) {  // test if this is faster than checking if index in vec
+        if indices.contains_key(&read) == Some(None) {  // test if this is faster than checking if index in vec
             let seqrec = record.expect("invalid sequence record");
             seqrec.write(&mut output_handle, None).expect("invalid record write op");
         }
