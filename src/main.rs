@@ -245,7 +245,7 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
         process::exit(1);
     }
 
-    if !(0 < keep_percent <= 100) {
+    if !(keep_percent >= 0. && keep_percent <= 100.) {
         eprintln!("Keep percent arguments must be between 0 and 100 (%)");
         process::exit(1);
     }
@@ -254,7 +254,7 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
         1.0
     } else {
         keep_percent / 100.
-    }
+    };
 
     // First pass, get read stats:
     let (reads, base_pairs, mut read_lengths, mut read_qualities) = needlecast_stats(fastx).expect("failed stats pass");
