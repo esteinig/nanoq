@@ -302,8 +302,6 @@ fn two_pass_filter(fastx: String, output: String, keep_percent: f64, keep_bases:
     let _limit: usize = (indexed_qualities.len() as f64 * keep_percent) as usize;
     let mut _indexed_qualities_retain = &indexed_qualities[0.._limit];
 
-    println!("{:}", &_limit);
-
     // Apply keep_bases 
     let mut indexed_qualities_retain: Vec<(usize, f64)> = Vec::new();
     if keep_bases > 0 {
@@ -316,19 +314,16 @@ fn two_pass_filter(fastx: String, output: String, keep_percent: f64, keep_bases:
                 indexed_qualities_retain.push(*qtup);
             }
         }
-        println!("{:?}", &indexed_qualities_retain);
     } else {
         for qtup in _indexed_qualities_retain.iter() {
             indexed_qualities_retain.push(*qtup);
         }
     };
 
-    
-    eprint_stats(reads, base_pairs, read_lengths, read_qualities).expect("failed to collect stats");
-
     // Second pass, filter reads to output by indices
     let mut _indices: HashMap<usize, f64> = indexed_qualities_retain.iter().cloned().collect();
-    needlecast_filt(&fastx, output, _indices);
+    needlecast_filt(&fastx, output, _indices); // TODO: check if vec contains is faster
+    
 
 }
 
