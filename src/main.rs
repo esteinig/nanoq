@@ -492,7 +492,7 @@ fn get_mean_read_length(numbers: &Vec<u64>) -> u64 {
 }
 
 
-fn (numbers: &mut Vec<f64>) -> f64 {
+fn get_median_read_quality(numbers: &mut Vec<f64>) -> f64 {
 
     // Compute the median of a vector of double-precision floats
 
