@@ -68,7 +68,7 @@ fn main() -> Result<(), Error> {
             if min_length > 0 || min_quality > 0.0 || max_length > 0 {
                 needlecast_filter(fastx, output, min_length, max_length, min_quality)
             } else {
-                needlecast_stats(fastx)
+                needlecast_stats(&fastx)
             }
         }.expect("Carcinised error encountered - what the crab?");
 
@@ -200,14 +200,14 @@ fn needlecast_filter(fastx: String, output: String, min_length: u64, max_length:
 
 }
 
-fn needlecast_stats(fastx: String) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
+fn needlecast_stats(fastx: &String) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Error> {
 
     // Needletail parser just for stats, no filters or output, slight speed-up
     
-    let mut reader = if fastx == "-".to_string() {
+    let mut reader = if fastx == &"-".to_string() {
         parse_fastx_reader(stdin()).expect("invalid stdin")
     } else {
-        parse_fastx_reader(File::open(&fastx)?).expect("invalid file")
+        parse_fastx_reader(File::open(fastx)?).expect("invalid file")
     };
     
     let mut reads: u64 = 0;
@@ -237,14 +237,14 @@ fn needlecast_stats(fastx: String) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Err
 
 }
 
-fn needlecast_filt(fastx: String, output: String, indices: HashMap<usize, f64>) -> Result<(), Error> {
+fn needlecast_filt(fastx: &String, output: String, indices: HashMap<usize, f64>) -> Result<(), Error> {
 
     // Needletail parser just for output by read index:
     
-    let mut reader = if fastx == "-".to_string() {
+    let mut reader = if fastx == &"-".to_string() {
         parse_fastx_reader(stdin()).expect("invalid stdin")
     } else {
-        parse_fastx_reader(File::open(&fastx)?).expect("invalid file")
+        parse_fastx_reader(File::open(fastx)?).expect("invalid file")
     };
 
     let mut output_handle: Box<dyn Write> = if output == "-".to_string(){
