@@ -62,7 +62,7 @@ fn main() -> Result<(), Error> {
         
         // Standard mode
          
-        let (reads, base_pairs, mut read_lengths, mut read_qualities) = if crab {
+        let (reads, base_pairs, read_lengths, read_qualities) = if crab {
             crabcast(fastx, output, min_length, max_length, min_quality)
         } else {
             if min_length > 0 || min_quality > 0.0 || max_length > 0 {
@@ -401,6 +401,7 @@ fn compare_f64_ascending(a: &f64, b: &f64) -> Ordering {
     
 }
 
+#[allow(dead_code)]
 fn compare_f64_descending(a: &f64, b: &f64) -> Ordering {
 
     // Will get killed with NAN (R.I.P)
