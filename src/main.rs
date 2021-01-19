@@ -253,7 +253,7 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
         _qualities.push((i, *q));
     }
 
-    read_qualities.sort_by(|a, b| compare_f64_ascending(a, b));
+    read_qualities.sort_by(|a, b| compare_f64_ascending_tuples(a, b));
 
     println!("{:?}", &read_qualities[1..5]);
 
