@@ -275,7 +275,7 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
 
     // Apply keep_bases if > 0
 
-    let mut indexed_qualities_retain: Vec<(usize, f64)> = Vec::new();
+    let mut indexed_qualities_retain: Vec<&(usize, f64)> = Vec::new();
     if keep_bases > 0 {
         let mut bp_sum: usize = 0;
         for qtup in _indexed_qualities_retain.iter() {
