@@ -310,12 +310,13 @@ fn compare_f64_ascending_indexed_tuples(a: &(usize, f64), b: &(usize, f64)) -> O
     // Will get killed with NAN (R.I.P)
     // but we should never see NAN
 
-    if a < b {
+    if a.1 < b.1 {
         return Ordering::Less;
-    } else if a > b {
+    } else if a.1 > b.1 {
         return Ordering::Greater;
     }
     Ordering::Equal
+   
 }
 
 fn compare_f64_ascending(a: &f64, b: &f64) -> Ordering {
@@ -323,12 +324,13 @@ fn compare_f64_ascending(a: &f64, b: &f64) -> Ordering {
     // Will get killed with NAN (R.I.P)
     // but we should never see NAN
 
-    if a.1 < b.1 {
+    if a < b {
         return Ordering::Less;
-    } else if a.1 > b.1 {
+    } else if a > b {
         return Ordering::Greater;
     }
     Ordering::Equal
+    
 }
 
 fn compare_f64_descending(a: &f64, b: &f64) -> Ordering {
