@@ -492,7 +492,7 @@ fn get_mean_read_length(numbers: &Vec<u64>) -> u64 {
 }
 
 
-fn get_median_read_quality(numbers: &mut Vec<f64>) -> f64 {
+fn (numbers: &mut Vec<f64>) -> f64 {
 
     // Compute the median of a vector of double-precision floats
 
@@ -538,3 +538,61 @@ fn get_read_length_n50(base_pairs: &u64, read_lengths: &mut Vec<u64>) -> u64 {
     return n50
 
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    let empty_u64: Vec<u64> = !vec[];
+    let empty_f64: Vec<f64> = !vec[];
+
+    let f64_values_even: Vec<f64> = !vec[10., 10., 20., 30.];
+    let f64_values_odd: Vec<f64>  = !vec[10., 10., 20., 30., 40.];
+    let u64_values_even: Vec<u64> = !vec[10, 10, 20, 30];
+    let u64_values_odd: Vec<u64>  = !vec[10, 10, 20, 30, 40];
+
+    #[test]
+    fn test_get_read_length_n50() {
+        let n50 = get_read_length_n50(70, u64_values_even);
+        assert_eq!(n50, 20 as u64);
+    }
+
+    #[test]
+    fn test_get_mean_read_quality() {
+        let mean_quality = get_mean_read_quality(f64_values_even);
+        assert_eq!(mean_quality, 35 as f64);
+    }
+
+    #[test]
+    fn test_get_median_read_quality_even() {
+        let median_quality = get_median_read_quality(f64_values_even);
+        assert_eq!(median_quality, 15 as f64);
+    }
+
+    #[test]
+    fn test_get_median_read_quality_odd() {
+        let median_quality = get_median_read_quality(f64_values_odd);
+        assert_eq!(median_quality, 20 as f64);
+    }
+
+    #[test]
+    fn test_get_median_read_length_even() {
+        let median_quality = get_median_read_quality(u64_values_even);
+        assert_eq!(median_quality, 15 as u64);
+    }
+
+    #[test]
+    fn test_get_median_read_length_odd() {
+        let median_quality = get_median_read_quality(u64_values_odd);
+        assert_eq!(median_quality, 20 as u64);
+    }
+
+    #[test]
+    fn test_get_read_length_range() {
+        let (min, max) = get_median_read_quality(u64_values_even);
+        assert_eq!(min, 10 as u64);
+        assert_eq!(max, 30 as u64);
+    }
+
+
+?
