@@ -546,7 +546,7 @@ mod tests {
     // N50
 
     #[test]
-    fn test_get_read_length_n50() {
+    fn test_read_length_n50() {
         let n50 = get_read_length_n50(&70, &mut vec![10, 10, 20, 30]);
         assert_eq!(n50, 20 as u64);
     }
@@ -554,19 +554,19 @@ mod tests {
     // Read quality
 
     #[test]
-    fn test_get_mean_read_quality() {
+    fn test_mean_read_quality() {
         let mean_quality = get_mean_read_quality(&mut vec![10.0, 10.0, 20.0, 30.0]);
         assert_eq!(mean_quality, 17.5 as f64);
     }
 
     #[test]
-    fn test_get_median_read_quality_even() {
+    fn test_median_read_quality_even() {
         let median_quality = get_median_read_quality(&mut vec![10.0, 10.0, 20.0, 30.0]);
         assert_eq!(median_quality, 15 as f64);
     }
 
     #[test]
-    fn test_get_median_read_quality_odd() {
+    fn test_median_read_quality_odd() {
         let median_quality = get_median_read_quality(&mut vec![10.0, 10.0, 20.0, 30.0, 40.0]);
         assert_eq!(median_quality, 20 as f64);
     }
@@ -574,19 +574,19 @@ mod tests {
     // Read lengths
 
     #[test]
-    fn test_get_mean_read_length() {
+    fn test_mean_read_length() {
         let mean_length = get_mean_read_length(&vec![10, 10, 20, 30]);
         assert_eq!(mean_length, 17 as u64);
     }
 
     #[test]
-    fn test_get_median_read_length_even() {
+    fn test_median_read_length_even() {
         let median_length = get_median_read_length(&mut vec![10, 10, 20, 30]);
         assert_eq!(median_length, 15 as u64);
     }
 
     #[test]
-    fn test_get_median_read_length_odd() {
+    fn test_median_read_length_odd() {
         let median_length = get_median_read_length(&mut vec![10, 10, 20, 30, 40]);
         assert_eq!(median_length, 20 as u64);
     }
@@ -594,7 +594,7 @@ mod tests {
     // Range
 
     #[test]
-    fn test_get_read_length_range() {
+    fn test_read_length_range() {
         let test_data = vec![10, 10, 20, 30];
         let (min_read_length, max_read_length) = get_read_length_range(&test_data);
         assert_eq!(*min_read_length, 10);
