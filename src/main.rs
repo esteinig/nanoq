@@ -288,7 +288,7 @@ fn two_pass_filter(fastx: String, output: String, keep_percent: f64, keep_bases:
     };
 
     // First pass, get read stats:
-    let (reads, base_pairs, mut read_lengths, mut read_qualities) = needlecast_stats(&fastx).expect("failed stats pass");
+    let (reads, base_pairs, read_lengths, read_qualities) = needlecast_stats(&fastx).expect("failed stats pass");
 
     let mut indexed_qualities: Vec<(usize, f64)> = Vec::new();
     for (i, q) in read_qualities.iter().enumerate() {
@@ -322,7 +322,7 @@ fn two_pass_filter(fastx: String, output: String, keep_percent: f64, keep_bases:
 
     // Second pass, filter reads to output by indices
     let mut _indices: HashMap<usize, f64> = indexed_qualities_retain.iter().cloned().collect();
-    needlecast_filt(&fastx, output, _indices); // TODO: check if vec contains is faster
+    needlecast_filt(&fastx, output, _indices).expect("failed output pass"); // TODO: check if vec contains is faster
     
 
 }
