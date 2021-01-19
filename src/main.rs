@@ -328,8 +328,7 @@ fn two_pass_filter(fastx: String, output: String, keep_percent: f64, keep_bases:
 
     // Second pass, filter reads to output by indices
     let mut _indices: HashMap<usize, f64> = indexed_qualities_retain.iter().cloned().collect();
-
-    needlecast_filt(fastx, output, _indices);
+    needlecast_filt(&fastx, output, _indices);
 
 }
 
