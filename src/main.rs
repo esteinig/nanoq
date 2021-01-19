@@ -271,7 +271,7 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
     let _limit: usize = (indexed_qualities.len() as f64 * keep_percent) as usize;
     let _indexed_qualities_retain = &indexed_qualities[0.._limit];
 
-    println!("{:} {:?}", indexed_qualities_retain.len(), _indexed_qualities_retain[0..5]);
+    println!("{:} {:?}", _indexed_qualities_retain.len(), _indexed_qualities_retain[0..5]);
     // Apply keep_bases if > 0
 
     let mut indexed_qualities_retain: Vec<(usize, f64)> = Vec::new();
