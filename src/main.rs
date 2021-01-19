@@ -546,10 +546,10 @@ mod tests {
     const U64_EMPTY: Vec<u64> = Vec::new();
     const F64_EMPTY: Vec<f64> = Vec::new();
 
-    const F64_EVEN: Vec<f64> = !vec[10, 10, 20, 30];
-    const F64_ODD: Vec<f64>  = !vec[10, 10, 20, 30, 40];
-    const U64_EVEN: Vec<u64> = !vec[10, 10, 20, 30];
-    const U64_ODD: Vec<u64>  = !vec[10, 10, 20, 30, 40];
+    const F64_EVEN: Vec<f64> = vec![10, 10, 20, 30];
+    const F64_ODD: Vec<f64>  = vec![10, 10, 20, 30, 40];
+    const U64_EVEN: Vec<u64> = vec![10, 10, 20, 30];
+    const U64_ODD: Vec<u64>  = vec![10, 10, 20, 30, 40];
 
     #[test]
     fn test_get_read_length_n50() {
