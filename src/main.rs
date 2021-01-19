@@ -546,32 +546,32 @@ mod tests {
     const U64_EMPTY: Vec<u64> = Vec::new();
     const F64_EMPTY: Vec<f64> = Vec::new();
 
-    const F64_EVEN: Vec<f64> = vec![10, 10, 20, 30];
-    const F64_ODD: Vec<f64>  = vec![10, 10, 20, 30, 40];
+    const F64_EVEN: Vec<f64> = vec![10.0, 10.0, 20.0, 30.0];
+    const F64_ODD: Vec<f64>  = vec![10.0, 10.0, 20.0, 30.0, 40.0];
     const U64_EVEN: Vec<u64> = vec![10, 10, 20, 30];
     const U64_ODD: Vec<u64>  = vec![10, 10, 20, 30, 40];
 
     #[test]
     fn test_get_read_length_n50() {
-        let n50 = get_read_length_n50(70, U64_EVEN);
+        let n50 = get_read_length_n50(70, &mut U64_EVEN);
         assert_eq!(n50, 20 as u64);
     }
 
     #[test]
     fn test_get_mean_read_quality() {
-        let mean_quality = get_mean_read_quality(F64_EVEN);
+        let mean_quality = get_mean_read_quality(&mut F64_EVEN);
         assert_eq!(mean_quality, 35 as f64);
     }
 
     #[test]
     fn test_get_median_read_quality_even() {
-        let median_quality = get_median_read_quality(F64_EVEN);
+        let median_quality = get_median_read_quality(&mut F64_EVEN);
         assert_eq!(median_quality, 15 as f64);
     }
 
     #[test]
     fn test_get_median_read_quality_odd() {
-        let median_quality = get_median_read_quality(F64_ODD);
+        let median_quality = get_median_read_quality(&mut F64_ODD);
         assert_eq!(median_quality, 20 as f64);
     }
 
@@ -589,9 +589,9 @@ mod tests {
 
     #[test]
     fn test_get_read_length_range() {
-        let (min, max) = get_median_read_quality(U64_EVEN);
-        assert_eq!(min, 10 as u64);
-        assert_eq!(max, 30 as u64);
+        let (min_read_length, max_read_length) = get_read_length_range(&mut U64_EVEN);
+        assert_eq!(min_read_length, 10 as u64);
+        assert_eq!(max_read_length, 30 as u64);
     }
 
 
