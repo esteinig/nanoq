@@ -43,18 +43,19 @@ fn main() -> Result<(), Error> {
     
     if keep_percent > 0.0 || keep_bases > 0 {
 
-        // Advanced mode
+        // Advanced mode (Filtlong analog)
+
         if fastx == "-".to_string() {
             eprintln!("Cannot read from STDIN with two-pass filters!");
             process::exit(1);
         }
 
         if min_length > 0 || min_quality > 0.0 || max_length > 0 {
-            eprintln!("Cannot specify length or quality filters with two-pass filters!");
+            eprintln!("Cannot specify length or quality filters with advanced two-pass filters!");
             process::exit(1);
         }
 
-        two_pass_filter(fastx, keep_percent, keep_bases);
+        two_pass_filter(fastx, output, keep_percent, keep_bases);
 
     } else {
         
@@ -235,7 +236,34 @@ fn needlecast_stats(fastx: String) -> Result<(u64, u64, Vec<u64>, Vec<f64>), Err
 
 }
 
-fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
+fn needlecast_filt(fastx: String, output: String, indices: Vec<usize>) -> Result<(), Error> {
+
+    // Needletail parser just for output by read index:
+    
+    let mut reader = if fastx == "-".to_string() {
+        parse_fastx_reader(stdin()).expect("invalid stdin")
+    } else {
+        parse_fastx_reader(File::open(&fastx)?).expect("invalid file")
+    };
+
+    let mut output_handle: Box<dyn Write> = if output == "-".to_string(){
+        Box::new(BufWriter::new(stdout()))
+     } else {
+        Box::new(File::create(&output)?)
+     };
+    
+    for (i, _) in reader {
+        if i in indices {
+            let seqrec = record.expect("invalid sequence record");
+            seqrec.write(&mut output_handle, None).expect("invalid record write");
+        }
+    }
+        
+    return Ok()
+
+}
+
+fn two_pass_filter(fastx: String, output: String, keep_percent: f64, keep_bases: usize){
 
     // Advanced filters that require a single pass for stats, 
     // a second pass to output filtered reads; needs file input
@@ -264,17 +292,16 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
         indexed_qualities.push((i, *q));
     }
 
+    // Sort (read index, qual) descending
     indexed_qualities.sort_by(|a, b| compare_f64_descending_indexed_tuples(a, b));
 
-    // Apply keep_percent always (if 0 -> keep all)
-
+    // Apply keep_percent (0 -> keep all)
     let _limit: usize = (indexed_qualities.len() as f64 * keep_percent) as usize;
     let mut _indexed_qualities_retain = &indexed_qualities[0.._limit];
 
     println!("{:}", &_limit);
 
-    // Apply keep_bases if > 0
-
+    // Apply keep_bases 
     let mut indexed_qualities_retain: Vec<&(usize, f64)> = Vec::new();
     if keep_bases > 0 {
         let mut bp_sum: usize = 0;
@@ -286,13 +313,19 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
                 indexed_qualities_retain.push(qtup);
             }
         }
-        
         println!("{:?}", &indexed_qualities_retain);
     } else {
         for qtup in _indexed_qualities_retain.iter() {
             indexed_qualities_retain.push(qtup);
         }
     };
+
+    
+    eprint_stats(reads, base_pairs, read_lengths, read_qualities).expect("failed to collect stats");
+
+    // Second pass, filter reads to output by indices
+    let mut _indices: Vec<&f64> = indexed_qualities_retain.map(|x| x.0).collect();
+    needlecast_filt(fastx, output, _indices);
 
 }
 
