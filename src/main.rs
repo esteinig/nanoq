@@ -253,14 +253,16 @@ fn needlecast_filt(fastx: String, output: String, indices: HashMap<usize, f64>) 
         Box::new(File::create(&output)?)
      };
     
-     while let (i, Some(record)) = reader.next().enumerate() {
+     _i = 0;
+     while let Some(record) = reader.next() {
         if !indices.get_key(&i) == None {  // test if this is faster than checking if index in vec
             let seqrec = record.expect("invalid sequence record");
             seqrec.write(&mut output_handle, None).expect("invalid record write op");
         }
+        _i += 1;
     }
         
-    return Ok()
+    return Ok(())
 
 }
 
@@ -303,7 +305,7 @@ fn two_pass_filter(fastx: String, output: String, keep_percent: f64, keep_bases:
     println!("{:}", &_limit);
 
     // Apply keep_bases 
-    let mut indexed_qualities_retain: Vec<&(usize, f64)> = Vec::new();
+    let mut indexed_qualities_retain: Vec<(usize, f64)> = Vec::new();
     if keep_bases > 0 {
         let mut bp_sum: usize = 0;
         for qtup in _indexed_qualities_retain.iter() {
@@ -311,13 +313,13 @@ fn two_pass_filter(fastx: String, output: String, keep_percent: f64, keep_bases:
             if bp_sum >= keep_bases {
                 break;
             } else {
-                indexed_qualities_retain.push(qtup);
+                indexed_qualities_retain.push(*qtup);
             }
         }
         println!("{:?}", &indexed_qualities_retain);
     } else {
         for qtup in _indexed_qualities_retain.iter() {
-            indexed_qualities_retain.push(qtup);
+            indexed_qualities_retain.push(*qtup);
         }
     };
 
