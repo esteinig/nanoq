@@ -264,14 +264,14 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
         indexed_qualities.push((i, *q));
     }
 
-    indexed_qualities.sort_by(|a, b| compare_f64_ascending_indexed_tuples(a, b));
+    indexed_qualities.sort_by(|a, b| compare_f64_descending_indexed_tuples(a, b));
 
     // Apply keep_percent always (if 0 -> keep all)
 
     let _limit: usize = (indexed_qualities.len() as f64 * keep_percent) as usize;
     let mut _indexed_qualities_retain = &indexed_qualities[0.._limit];
 
-    println!("{:} {:?}", _indexed_qualities_retain.len(), _indexed_qualities_retain[0..5]);
+    println!("{:?}", _indexed_qualities_retain[0..5]);
     // Apply keep_bases if > 0
 
     let mut indexed_qualities_retain: Vec<(usize, f64)> = Vec::new();
@@ -291,7 +291,7 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
         }
     };
 
-    println!("{:} {:?}", indexed_qualities_retain.len(), indexed_qualities_retain[0..5]);
+    println!("{}:?}", indexed_qualities_retain[0..5]);
 }
 
 // Base functions
@@ -340,15 +340,15 @@ fn is_fastq(fastx: &String) -> Result<bool, Error> {
     } 
 }
 
-fn compare_f64_ascending_indexed_tuples(a: &(usize, f64), b: &(usize, f64)) -> Ordering {
+fn compare_f64_descending_indexed_tuples(a: &(usize, f64), b: &(usize, f64)) -> Ordering {
 
     // Will get killed with NAN (R.I.P)
     // but we should never see NAN
 
     if a.1 < b.1 {
-        return Ordering::Less;
-    } else if a.1 > b.1 {
         return Ordering::Greater;
+    } else if a.1 > b.1 {
+        return Ordering::Less; 
     }
     Ordering::Equal
    
