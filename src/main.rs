@@ -253,9 +253,9 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
         _qualities.push((i, *q));
     }
 
-    read_qualities.sort_by(|a, b| compare_f64_ascending_tuples(a, b));
+    _qualities.sort_by(|a, b| compare_f64_ascending_indexed_tuples(a, b));
 
-    println!("{:?}", &read_qualities[1..5]);
+    println!("{:?}", &_qualities[1..5]);
 
 }
 
@@ -305,7 +305,20 @@ fn is_fastq(fastx: &String) -> Result<bool, Error> {
     } 
 }
 
-fn compare_f64_ascending_tuples(a: &(usize, f64), b: (usize, f64)) -> Ordering {
+fn compare_f64_ascending_indexed_tuples(a: &(usize, f64), b: &(usize, f64)) -> Ordering {
+
+    // Will get killed with NAN (R.I.P)
+    // but we should never see NAN
+
+    if a < b {
+        return Ordering::Less;
+    } else if a > b {
+        return Ordering::Greater;
+    }
+    Ordering::Equal
+}
+
+fn compare_f64_ascending(a: &f64, b: &f64) -> Ordering {
 
     // Will get killed with NAN (R.I.P)
     // but we should never see NAN
