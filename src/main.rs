@@ -283,14 +283,14 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
             if bp_sum >= keep_bases {
                 break;
             } else {
-                indexed_qualities_retain.append(qtup);
+                indexed_qualities_retain.push(qtup);
             }
         }
         
         println!("{:}", bp_sum);
     } else {
         for qtup in _indexed_qualities_retain.iter() {
-            indexed_qualities_retain.append(qtup);
+            indexed_qualities_retain.push(qtup);
         }
     };
 
