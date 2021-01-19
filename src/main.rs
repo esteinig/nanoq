@@ -551,11 +551,15 @@ mod tests {
     const U64_EVEN: Vec<u64> = vec![10, 10, 20, 30];
     const U64_ODD: Vec<u64>  = vec![10, 10, 20, 30, 40];
 
+    // N50
+
     #[test]
     fn test_get_read_length_n50() {
-        let n50 = get_read_length_n50(70, &mut U64_EVEN);
+        let n50 = get_read_length_n50(&70, &mut U64_EVEN);
         assert_eq!(n50, 20 as u64);
     }
+
+    // Read quality
 
     #[test]
     fn test_get_mean_read_quality() {
@@ -575,17 +579,27 @@ mod tests {
         assert_eq!(median_quality, 20 as f64);
     }
 
+    // Read lengths
+
+    #[test]
+    fn test_get_mean_read_length() {
+        let median_quality = get_mean_read_length(U64_EVEN);
+        assert_eq!(median_quality, 35 as f64);
+    }
+
     #[test]
     fn test_get_median_read_length_even() {
-        let median_quality = get_median_read_quality(U64_EVEN);
-        assert_eq!(median_quality, 15 as u64);
+        let median_quality = get_median_read_length(U64_EVEN);
+        assert_eq!(median_quality, 15 as f64);
     }
 
     #[test]
     fn test_get_median_read_length_odd() {
-        let median_quality = get_median_read_quality(U64_ODD);
+        let median_quality = get_median_read_length(U64_ODD);
         assert_eq!(median_quality, 20 as u64);
     }
+
+    // Range
 
     #[test]
     fn test_get_read_length_range() {
