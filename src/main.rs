@@ -583,19 +583,19 @@ mod tests {
 
     #[test]
     fn test_get_mean_read_length() {
-        let median_quality = get_mean_read_length(U64_EVEN);
+        let median_quality = get_mean_read_length(&U64_EVEN);
         assert_eq!(median_quality, 35 as u64);
     }
 
     #[test]
     fn test_get_median_read_length_even() {
-        let median_quality = get_median_read_length(U64_EVEN);
+        let median_quality = get_median_read_length(&mut U64_EVEN);
         assert_eq!(median_quality, 15 as u64);
     }
 
     #[test]
     fn test_get_median_read_length_odd() {
-        let median_quality = get_median_read_length(U64_ODD);
+        let median_quality = get_median_read_length(&mut U64_ODD);
         assert_eq!(median_quality, 20 as u64);
     }
 
@@ -604,8 +604,8 @@ mod tests {
     #[test]
     fn test_get_read_length_range() {
         let (min_read_length, max_read_length) = get_read_length_range(&mut U64_EVEN);
-        assert_eq!(min_read_length, 10 as u64);
-        assert_eq!(max_read_length, 30 as u64);
+        assert_eq!(min_read_length, &10 as u64);
+        assert_eq!(max_read_length, &30 as u64);
     }
 
 
