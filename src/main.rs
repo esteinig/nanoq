@@ -182,7 +182,7 @@ fn needlecast_filter(fastx: String, output: String, min_length: u64, max_length:
                 base_pairs += seqlen;
                 read_lengths.push(seqlen);
                 read_qualities.push(mean_quality);
-                seqrec.write(&mut output_handle, None).expect("invalid record write");
+                seqrec.write(&mut output_handle, None).expect("invalid record write op");
             }
         } else {
             // Fasta filter
@@ -190,7 +190,7 @@ fn needlecast_filter(fastx: String, output: String, min_length: u64, max_length:
                 reads += 1;
                 base_pairs += seqlen;
                 read_lengths.push(seqlen);
-                seqrec.write(&mut output_handle, None).expect("invalid record write");
+                seqrec.write(&mut output_handle, None).expect("invalid record write op");
             }
         }
 
@@ -253,10 +253,10 @@ fn needlecast_filt(fastx: String, output: String, indices: HashMap<usize, f64>) 
         Box::new(File::create(&output)?)
      };
     
-    for (i as usize, _) in reader.records().enumerate() {
+    for (i as usize, (record) in reader.records().enumerate() {
         if !indices.get_key(&i) == None {  // test if this is faster than checking if index in vec
             let seqrec = record.expect("invalid sequence record");
-            seqrec.write(&mut output_handle, None).expect("invalid record write");
+            seqrec.write(&mut output_handle, None).expect("invalid record write op");
         }
     }
         
