@@ -277,7 +277,7 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
     let mut indexed_qualities_retain: Vec<(usize, f64)> = Vec::new();
     if keep_bases > 0 {
         let mut bp_sum: usize = 0;
-        for qtup in _indexed_qualities_retain {
+        for qtup in _indexed_qualities_retain.iter() {
             bp_sum += read_lengths[qtup.0 as usize] as usize;
             if bp_sum >= keep_percent {
                 break;
@@ -286,7 +286,7 @@ fn two_pass_filter(fastx: String, keep_percent: f64, keep_bases: usize){
             }
         }
     } else {
-        for qtup in _indexed_qualities_retain {
+        for qtup in _indexed_qualities_retain.iter() {
             indexed_qualities_retain.append(qtup);
         }
     };
