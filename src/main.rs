@@ -604,8 +604,8 @@ mod tests {
     #[test]
     fn test_get_read_length_range() {
         let (min_read_length, max_read_length) = get_read_length_range(&mut U64_EVEN);
-        assert_eq!(min_read_length, 10);
-        assert_eq!(max_read_length, 30);
+        assert_eq!(*min_read_length, 10);
+        assert_eq!(*max_read_length, 30);
     }
 
 
