@@ -95,8 +95,8 @@ fn crabcast(fastx: String, output: String, min_length: u64, max_length: u64, min
 
     // Rust-Bio parser, Fastq only
 
-    let input_handle = get_input_handle(fastx);
-    let output_handle = get_output_handle(output);
+    let input_handle = get_input_handle(fastx).expect("failed to initiate fastx input handle");
+    let output_handle = get_output_handle(output).expect("failed to initiate fastx output handle");
 
     let reader = fastq::Reader::new(input_handle);
     let mut writer = fastq::Writer::new(output_handle);
@@ -143,7 +143,7 @@ fn needlecast_filter(fastx: String, output: String, min_length: u64, max_length:
     // Needletail parser, with output and filters
     
     let mut reader = get_needletail_reader(&fastx).expect("failed to initiate needletail reader");
-    let mut output_handle = get_output_handle(output);
+    let mut output_handle = get_output_handle(output).expect("failed to initiate fastx output handle");
 
     let max_length = if max_length <= 0 { u64::MAX } else { max_length };
 
@@ -223,7 +223,7 @@ fn needlecast_filt(fastx: &String, output: String, indices: HashMap<usize, u64>)
     // Needletail parser just for output by read index:
     
     let mut reader = get_needletail_reader(fastx).expect("failed to initiate needletail reader");
-    let mut output_handle = get_output_handle(output);
+    let mut output_handle = get_output_handle(output).expect("failed to initiate fastx output handle");
     
      let mut read: usize = 0;
      while let Some(record) = reader.next() {
@@ -349,19 +349,19 @@ fn get_needletail_reader(fastx: &String) -> Result<Box<dyn FastxReader>, Error> 
 
 }
 
-fn get_output_handle(output: String) -> Box<dyn Write> {
+fn get_output_handle(output: String) -> Result<Box<dyn Write>, Error> {
     if output == "-".to_string(){
-        Box::new(BufWriter::new(stdout()))
+        Ok(Box::new(BufWriter::new(stdout())))
     } else {
-        Box::new(File::create(&output)?)
+        Ok(Box::new(File::create(&output)?))
     }
 }
 
-fn get_input_handle(fastx: String) -> Box<dyn Read> {
+fn get_input_handle(fastx: String) -> Result<Box<dyn Read>, Error> {
     if fastx == "-".to_string(){ 
-        Box::new(BufReader::new(stdin()))
+        Ok(Box::new(BufReader::new(stdin())))
     } else {
-        Box::new(File::open(&fastx)?)
+        Ok(Box::new(File::open(&fastx)?))
     }
 }
 
@@ -546,7 +546,7 @@ mod tests {
     #[test]
     fn test_needletail_input_fq_file() {
         let test_file: String = String::from(TEST_FASTQ);
-        let mut reader = get_needletail_reader(test_file);
+        let mut reader = get_needletail_reader(&test_file);
 
         while let Some(record) = reader.next() {
             let record = record.expect("invalid sequence record");
@@ -560,7 +560,7 @@ mod tests {
     #[test]
     fn test_needletail_input_fq_gz_file() {
         let test_file: String = String::from(TEST_FASTQ_GZ);
-        let mut reader = get_needletail_reader(test_file);
+        let mut reader = get_needletail_reader(&test_file);
 
         while let Some(record) = reader.next() {
             let record = record.expect("invalid sequence record");
@@ -574,7 +574,7 @@ mod tests {
     #[test]
     fn test_needletail_input_fa_file() {
         let test_file: String = String::from(TEST_FASTA);
-        let mut reader = get_needletail_reader(test_file);
+        let mut reader = get_needletail_reader(&test_file);
 
         while let Some(record) = reader.next() {
             let record = record.expect("invalid sequence record");
@@ -587,7 +587,7 @@ mod tests {
     #[test]
     fn test_needletail_input_fa_gz_file() {
         let test_file: String = String::from(TEST_FASTA_GZ);
-        let mut reader = get_needletail_reader(test_file);
+        let mut reader = get_needletail_reader(&test_file);
 
         while let Some(record) = reader.next() {
             let record = record.expect("invalid sequence record");
