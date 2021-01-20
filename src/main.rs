@@ -541,7 +541,7 @@ mod tests {
     #[test]
     fn test_needletail_input_fq_file() {
         let test_file: String = String::from("data/test.fq");
-        let mut reader = get_needletail_reader(&test_file).unwrap();
+        let mut reader = get_needletail_reader(&test_file).expect("invalid input handle");
 
         while let Some(record) = reader.next() {
             let record = record.expect("invalid sequence record");
@@ -554,7 +554,7 @@ mod tests {
     #[test]
     fn test_needletail_input_fq_gz_file() {
         let test_file: String = String::from("data/test.fq.gz");
-        let mut reader = get_needletail_reader(&test_file).unwrap();
+        let mut reader = get_needletail_reader(&test_file).expect("invalid input handle");
 
         while let Some(record) = reader.next() {
             let record = record.expect("invalid sequence record");
@@ -567,7 +567,7 @@ mod tests {
     #[test]
     fn test_needletail_input_fa_file() {
         let test_file: String = String::from("data/test.fa");
-        let mut reader = get_needletail_reader(&test_file).unwrap();
+        let mut reader = get_needletail_reader(&test_file).expect("invalid input handle");
 
         while let Some(record) = reader.next() {
             let record = record.expect("invalid sequence record");
@@ -579,7 +579,7 @@ mod tests {
     #[test]
     fn test_needletail_input_fa_gz_file() {
         let test_file: String = String::from("data/test.fa.gz");
-        let mut reader = get_needletail_reader(&test_file).unwrap();
+        let mut reader = get_needletail_reader(&test_file).expect("invalid input handle");
 
         while let Some(record) = reader.next() {
             let record = record.expect("invalid sequence record");
@@ -594,7 +594,7 @@ mod tests {
     fn test_crabcast_input_fq_file() {
         let test_file: String = String::from("data/test.fq");
         
-        let input_handle = get_input_handle(test_file).unwrap();
+        let input_handle = get_input_handle(test_file).expect("invalid input handle");
         let reader = fastq::Reader::new(input_handle);
 
         for record in reader.records() {
@@ -611,7 +611,7 @@ mod tests {
     #[should_panic]
     fn test_crabcast_input_fqgz_file() {
         let test_file: String = String::from("data/test.fq.gz");
-        let input_handle = get_input_handle(test_file).unwrap();
+        let input_handle = get_input_handle(test_file).expect("invalid input handle");
         let reader = fastq::Reader::new(input_handle);
     }
 
@@ -619,7 +619,7 @@ mod tests {
     #[should_panic]
     fn test_crabcast_input_fa_file() {
         let test_file: String = String::from("data/test.fa");
-        let input_handle = get_input_handle(test_file).unwrap();
+        let input_handle = get_input_handle(test_file).expect("invalid input handle");
         let reader = fastq::Reader::new(input_handle);
     }
 
@@ -627,7 +627,7 @@ mod tests {
     #[should_panic]
     fn test_crabcast_input_fagz_file() {
         let test_file: String = String::from("data/test.fa.gz");
-        let input_handle = get_input_handle(test_file).unwrap();
+        let input_handle = get_input_handle(test_file).expect("invalid input handle");
         let reader = fastq::Reader::new(input_handle);
     }
 
