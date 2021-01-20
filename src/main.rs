@@ -241,7 +241,7 @@ fn two_pass_filter(fastx: String, output: String, keep_percent: f64, keep_bases:
     // First pass, get read stats:
     let (_, _, read_lengths, read_qualities) = needlecast_stats(&fastx).expect("failed stats pass");
 
-    let indexed_qualities_retain = retain_indexed_quality_reads(read_qualities, keep_percent, keep_bases).expect("failed index collect");
+    let indexed_qualities_retain = retain_indexed_quality_reads(read_qualities, read_lengths, keep_percent, keep_bases).expect("failed index collect");
 
     // Second pass, filter reads to output by indices
     let mut _indices: HashMap<usize, u64> = indexed_qualities_retain.iter().cloned().collect();
@@ -273,7 +273,7 @@ fn needlecast_filt(fastx: &String, output: String, indices: HashMap<usize, u64>)
 
 // Base functions
 
-fn retain_indexed_quality_reads(read_qualities: Vec<u64>, keep_percent: f64, keep_bases: usize) -> Result<Vec<(usize, u64)>, Error> {
+fn retain_indexed_quality_reads(read_qualities: Vec<u64>, read_lengths: Vec<u64>, keep_percent: f64, keep_bases: usize) -> Result<Vec<(usize, u64)>, Error> {
 
     // Index quality values by read amd fo;ter by kee-Percent or keep_bases
 
