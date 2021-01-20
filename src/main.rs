@@ -435,7 +435,7 @@ fn get_mean_error(quality_bytes: &[u8]) -> f32 {
 
     Quality encoding: Sanger Phred+33 --> ASCII: 33 - 126 --> Q: 0 - 93
 
-    f32 vs f64 makes a huge difference - CHECK IF THIS WILL LIMIT THE READ LENGTH
+    f32 vs f64 makes a huge difference - CHECK IF THIS WILL LIMIT READ LENGTH
 
     Computation of the base quality scores is described at:
 
@@ -543,6 +543,14 @@ fn get_read_length_n50(base_pairs: &u64, read_lengths: &mut Vec<u64>) -> u64 {
 mod tests {
     use super::*;
 
+    // Mean error read score (Q)
+
+    #[test]
+    fn test_mrean_error() {
+        let error = get_mean_error(&b"IIIIIIJJJJJJ");
+        assert_eq!(error, 20 as f64);
+    }
+
     // N50
 
     #[test]
@@ -564,7 +572,7 @@ mod tests {
     fn test_mean_read_quality_empty() {
         let mut test_data: Vec<f64> = Vec::new();
         let mean_quality = get_mean_read_quality(&test_data);
-        assert!(mean_quality.is_nan());
+        assert!(mean_quality.is_nan()); // f64 returns NaN on ZeroDivision
     }    
 
     #[test]
