@@ -40,18 +40,9 @@ def plot_data(data: pandas.DataFrame) -> None:
         y='time', x='ftype', hue='tool', data=filter_data,
         ax=axes[0], palette="Greens"
     )
-    seaborn.stripplot(
-        y='time', x='ftype', hue='tool', data=filter_data, jitter=True,
-        zorder=1, palette="Greys", linewidth=1, ax=axes[0], dodge=True
-    )
-
     seaborn.violinplot(
         y='time', x='ftype', hue='tool', data=stats_data,
         ax=axes[1], palette="Greens"
-    )
-    seaborn.stripplot(
-        y='time', x='ftype', hue='tool', data=stats_data, jitter=True,
-        zorder=1, palette="Greys", linewidth=1, ax=axes[1], dodge=True
     )
 
     plt.tight_layout()

@@ -540,7 +540,7 @@ mod tests {
 
     #[test]
     fn test_needletail_input_fq_file() {
-        let test_file: String = String::from("../data/test.fq");
+        let test_file: String = String::from("data/test.fq");
         let mut reader = get_needletail_reader(&test_file).unwrap();
 
         while let Some(record) = reader.next() {
@@ -553,7 +553,7 @@ mod tests {
 
     #[test]
     fn test_needletail_input_fq_gz_file() {
-        let test_file: String = String::from("../data/test.fq.gz");
+        let test_file: String = String::from("data/test.fq.gz");
         let mut reader = get_needletail_reader(&test_file).unwrap();
 
         while let Some(record) = reader.next() {
@@ -566,7 +566,7 @@ mod tests {
 
     #[test]
     fn test_needletail_input_fa_file() {
-        let test_file: String = String::from("../data/test.fa");
+        let test_file: String = String::from("data/test.fa");
         let mut reader = get_needletail_reader(&test_file).unwrap();
 
         while let Some(record) = reader.next() {
@@ -578,7 +578,7 @@ mod tests {
 
     #[test]
     fn test_needletail_input_fa_gz_file() {
-        let test_file: String = String::from("../data/test.fa.gz");
+        let test_file: String = String::from("data/test.fa.gz");
         let mut reader = get_needletail_reader(&test_file).unwrap();
 
         while let Some(record) = reader.next() {
@@ -592,7 +592,7 @@ mod tests {
 
     #[test]
     fn test_crabcast_input_fq_file() {
-        let test_file: String = String::from("../data/test.fq");
+        let test_file: String = String::from("data/test.fq");
         
         let input_handle = get_input_handle(test_file).unwrap();
         let reader = fastq::Reader::new(input_handle);
@@ -610,7 +610,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_crabcast_input_fqgz_file() {
-        let test_file: String = String::from("../data/test.fq.gz");
+        let test_file: String = String::from("data/test.fq.gz");
         let input_handle = get_input_handle(test_file).unwrap();
         let reader = fastq::Reader::new(input_handle);
     }
@@ -618,7 +618,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_crabcast_input_fa_file() {
-        let test_file: String = String::from("../data/test.fa");
+        let test_file: String = String::from("data/test.fa");
         let input_handle = get_input_handle(test_file).unwrap();
         let reader = fastq::Reader::new(input_handle);
     }
@@ -626,7 +626,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_crabcast_input_fagz_file() {
-        let test_file: String = String::from("../data/test.fa.gz");
+        let test_file: String = String::from("data/test.fa.gz");
         let input_handle = get_input_handle(test_file).unwrap();
         let reader = fastq::Reader::new(input_handle);
     }
