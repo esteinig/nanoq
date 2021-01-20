@@ -19,7 +19,7 @@ fn command_line_interface<'a>() -> ArgMatches<'a> {
         .arg(Arg::with_name("OUTPUT").short("o").long("output").takes_value(true).help("Fastx output file [-]"))
         .arg(Arg::with_name("MINLEN").short("l").long("min_length").takes_value(true).help("Minimum sequence length [0]"))
         .arg(Arg::with_name("MAXLEN").short("m").long("max_length").takes_value(true).help("Maximum sequence length [0]"))
-        .arg(Arg::with_name("QUALITY").short("q").long("min_quality").takes_value(true).help("Minimum sequence quality [0]"))
+        .arg(Arg::with_name("QUALITY").short("q").long("min_quality").takes_value(true).help("Minimum average seq quality [0]"))
         .arg(Arg::with_name("PERCENT").short("p").long("keep_percent").takes_value(true).help("Keep best percent quality bases on reads (0 - 100) [0]"))
         .arg(Arg::with_name("BASES").short("b").long("keep_bases").takes_value(true).help("Keep reads with best quality number of bases [0]"))
         .arg(Arg::with_name("DETAIL").short("d").long("detail").takes_value(false).help("Pretty print dtailed stats [false]"))
@@ -36,7 +36,7 @@ fn main() -> Result<(), Error> {
     let output: String = cli.value_of("OUTPUT").unwrap_or("-").parse().unwrap();
     let min_length: u64 = cli.value_of("MINLEN").unwrap_or("0").parse().unwrap();
     let max_length: u64 = cli.value_of("MAXLEN").unwrap_or("0").parse().unwrap();
-    let min_quality: f64 = cli.value_of("QUALITY").unwrap_or("0").parse().unwrap();
+    let min_quality: u64 = cli.value_of("QUALITY").unwrap_or("0").parse().unwrap();
     let keep_percent: f64 = cli.value_of("PERCENT").unwrap_or("0").parse().unwrap();
     let keep_bases: usize = cli.value_of("BASES").unwrap_or("0").parse().unwrap();
     let crab: bool = cli.is_present("CRAB");
@@ -51,7 +51,7 @@ fn main() -> Result<(), Error> {
             process::exit(1);
         }
 
-        if min_length > 0 || min_quality > 0.0 || max_length > 0 {
+        if min_length > 0 || min_quality > 0 || max_length > 0 {
             eprintln!("Cannot specify length or quality filters with advanced two-pass filters!");
             process::exit(1);
         }
@@ -66,7 +66,7 @@ fn main() -> Result<(), Error> {
         let (reads, base_pairs, read_lengths, read_qualities) = if crab {
             crabcast(fastx, output, min_length, max_length, min_quality)
         } else {
-            if min_length > 0 || min_quality > 0.0 || max_length > 0 {
+            if min_length > 0 || min_quality > 0 || max_length > 0 {
                 needlecast_filter(fastx, output, min_length, max_length, min_quality)
             } else {
                 needlecast_stats(&fastx)
@@ -90,7 +90,7 @@ fn main() -> Result<(), Error> {
 
 // Main functions
 
-fn crabcast(fastx: String, output: String, min_length: u64, max_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<u64>), Error>  {
+fn crabcast(fastx: String, output: String, min_length: u64, max_length: u64, min_quality: u64) -> Result<(u64, u64, Vec<u64>, Vec<u64>), Error>  {
 
     // Rust-Bio parser, Fastq only
 
@@ -135,7 +135,7 @@ fn crabcast(fastx: String, output: String, min_length: u64, max_length: u64, min
             base_pairs += seqlen;
             reads += 1;
 
-            if min_length > 0 || min_quality > 0.0 || max_length > 0 {
+            if min_length > 0 || min_quality > 0 || max_length > 0 {
                 writer.write_record(&record).expect("Error: could not write record");
             }
         }           
@@ -146,7 +146,7 @@ fn crabcast(fastx: String, output: String, min_length: u64, max_length: u64, min
 
 }
 
-fn needlecast_filter(fastx: String, output: String, min_length: u64, max_length: u64, min_quality: f64) -> Result<(u64, u64, Vec<u64>, Vec<u64>), Error> {
+fn needlecast_filter(fastx: String, output: String, min_length: u64, max_length: u64, min_quality: u64) -> Result<(u64, u64, Vec<u64>, Vec<u64>), Error> {
 
     // Needletail parser, with output and filters
     
@@ -239,7 +239,7 @@ fn needlecast_stats(fastx: &String) -> Result<(u64, u64, Vec<u64>, Vec<u64>), Er
 
 }
 
-fn needlecast_filt(fastx: &String, output: String, indices: HashMap<usize, f64>) -> Result<(), Error> {
+fn needlecast_filt(fastx: &String, output: String, indices: HashMap<usize, u64>) -> Result<(), Error> {
 
     // Needletail parser just for output by read index:
     
@@ -297,7 +297,7 @@ fn two_pass_filter(fastx: String, output: String, keep_percent: f64, keep_bases:
     }
 
     // Sort (read index, qual) descending
-    indexed_qualities.sort_by(|a, b| compare_f64_descending_indexed_tuples(a, b));
+    indexed_qualities.sort_by(|a, b| compare_indexed_tuples_descending(a, b));
 
     // Apply keep_percent (0 -> keep all)
     let _limit: usize = (indexed_qualities.len() as f64 * keep_percent) as usize;
@@ -374,7 +374,7 @@ fn is_fastq(fastx: &String) -> Result<bool, Error> {
     } 
 }
 
-fn compare_f64_descending_indexed_tuples(a: &(usize, f64), b: &(usize, f64)) -> Ordering {
+fn compare_indexed_tuples_descending(a: &(usize, u64), b: &(usize, u64)) -> Ordering {
 
     // Will get killed with NAN (R.I.P)
     // but we should never see NAN
