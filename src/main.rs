@@ -552,28 +552,28 @@ mod tests {
     #[test]
     fn test_is_fastq_fq_file() {
         let test_file: String = String::from("data/test.fq");
-        let is_fastq = is_fastq(&test_file);
+        let is_fastq = is_fastq(&test_file).unwrap();
         assert!(is_fastq);
     }
 
     #[test]
     fn test_is_fastq_fq_gz_file() {
         let test_file: String = String::from("data/test.fq.gz");
-        let is_fastq = is_fastq(&test_file);
+        let is_fastq = is_fastq(&test_file).unwrap();
         assert!(is_fastq);
     }
 
     #[test]
-    fn test_is_fastq_fa_gz_file() {
+    fn test_is_fastq_fa_file() {
         let test_file: String = String::from("data/test.fa");
-        let is_fastq = is_fastq(&test_file);
+        let is_fastq = is_fastq(&test_file).unwrap();
         assert!(!is_fastq);
     }
 
     #[test]
     fn test_is_fastq_fa_gz_file() {
         let test_file: String = String::from("data/test.fa.gz");
-        let is_fastq = is_fastq(&test_file);
+        let is_fastq = is_fastq(&test_file).unwrap();
         assert!(!is_fastq);
     }
 
