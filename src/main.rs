@@ -553,7 +553,7 @@ mod tests {
 
     #[test]
     fn test_mean_error_qscore() {
-        let mean_error = get_mean_error(b"???");
+        let mean_error = get_mean_error(b"IIIIIIJJJJJJ");
         let mean_quality: f64 = -10f64*log10(mean_error as f64);
         assert_eq!(mean_quality, 30 as f64);
     }
