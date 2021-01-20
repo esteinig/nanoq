@@ -544,7 +544,7 @@ fn get_read_length_n50(base_pairs: &u64, read_lengths: &mut Vec<u64>) -> u64 {
 mod tests {
     use super::*;
 
-    // Mean error read score (Q)
+    // Mean read error
 
     #[test]
     fn test_mean_error_function() {
@@ -552,9 +552,12 @@ mod tests {
         assert_eq!(mean_error, 0.001 as f32);
     }
 
+    // Mean read q-score
+
     #[test]
     fn test_mean_error_qscore() {
         let mean_error = get_mean_error(b"IIIIIIJJJJJJ");
+        let mean_quality: u64 = (-10f64*log10(mean_error as f64)) as u64;
         assert_eq!(mean_quality, 40 as u64);
     }
 
