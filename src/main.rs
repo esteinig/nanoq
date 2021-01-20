@@ -142,7 +142,7 @@ fn needlecast_filter(fastx: String, output: String, min_length: u64, max_length:
 
     // Needletail parser, with output and filters
     
-    let mut reader = get_needletail_reader(fastx);
+    let mut reader = get_needletail_reader(&fastx).expect("failed to initiate needletail reader");
     let mut output_handle = get_output_handle(output);
 
     let max_length = if max_length <= 0 { u64::MAX } else { max_length };
@@ -189,7 +189,7 @@ fn needlecast_stats(fastx: &String) -> Result<(u64, u64, Vec<u64>, Vec<u64>), Er
 
     // Needletail parser just for stats, no filters or output, slight speed-up
     
-    let mut reader = get_needletail_reader(fastx);
+    let mut reader = get_needletail_reader(fastx).expect("failed to initiate needletail reader");
     
     let mut reads: u64 = 0;
     let mut base_pairs: u64 = 0;
@@ -222,7 +222,7 @@ fn needlecast_filt(fastx: &String, output: String, indices: HashMap<usize, u64>)
 
     // Needletail parser just for output by read index:
     
-    let mut reader = get_needletail_reader(fastx);
+    let mut reader = get_needletail_reader(fastx).expect("failed to initiate needletail reader");
     let mut output_handle = get_output_handle(output);
     
      let mut read: usize = 0;
@@ -328,7 +328,7 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
 
 fn is_fastq(fastx: &String) -> Result<bool, Error> {
     
-    let mut reader = get_needletail_reader(fastx);
+    let mut reader = get_needletail_reader(fastx).expect("failed to initiate needletail reader");
 
     let first_read = reader.next().unwrap().unwrap();
     let read_format = first_read.format();
@@ -340,12 +340,13 @@ fn is_fastq(fastx: &String) -> Result<bool, Error> {
     } 
 }
 
-fn get_needletail_reader(fastx: &String) -> Box<dyn FastxReader> {
+fn get_needletail_reader(fastx: &String) -> Result<(Box<dyn FastxReader, Error)> {
     if fastx == &"-".to_string() {
-        parse_fastx_reader(stdin()).expect("invalid stdin")
+        Ok(parse_fastx_reader(stdin()).expect("invalid stdin"))
     } else {
-        parse_fastx_reader(File::open(&fastx)?).expect("invalid file")
+        Ok(parse_fastx_reader(File::open(&fastx)?).expect("invalid file"))
     }
+
 }
 
 fn get_output_handle(output: String) -> Box<dyn Write> {
