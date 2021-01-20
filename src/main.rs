@@ -8,6 +8,7 @@ use std::process;
 use libm::log10;
 use std::fs::File;
 use needletail::parser::Format;
+use needletail::parser::FastxReader;
 use std::collections::HashMap;
 
 fn command_line_interface<'a>() -> ArgMatches<'a> {
@@ -547,7 +548,7 @@ mod tests {
         let mut reader = get_needletail_reader(test_file);
 
         while let Some(record) = reader.next() {
-            let record = result.expect("invalid sequence record");
+            let record = record.expect("invalid sequence record");
             assert!(record.is_ok());
             assert_eq!(&record.id(), b"id");
             assert_eq!(&record.raw_seq(), b"ACCGTAGGCTGA");
@@ -561,7 +562,7 @@ mod tests {
         let mut reader = get_needletail_reader(test_file);
 
         while let Some(record) = reader.next() {
-            let record = result.expect("invalid sequence record");
+            let record = record.expect("invalid sequence record");
             assert!(record.is_ok());
             assert_eq!(&record.id(), b"id");
             assert_eq!(&record.raw_seq(), b"ACCGTAGGCTGA");
@@ -575,7 +576,7 @@ mod tests {
         let mut reader = get_needletail_reader(test_file);
 
         while let Some(record) = reader.next() {
-            let record = result.expect("invalid sequence record");
+            let record = record.expect("invalid sequence record");
             assert!(record.is_ok());
             assert_eq!(&record.id(), b"id");
             assert_eq!(&record.raw_seq(), b"ACCGTAGGCTGA");
@@ -588,7 +589,7 @@ mod tests {
         let mut reader = get_needletail_reader(test_file);
 
         while let Some(record) = reader.next() {
-            let record = result.expect("invalid sequence record");
+            let record = record.expect("invalid sequence record");
             assert!(record.is_ok());
             assert_eq!(&record.id(), b"id");
             assert_eq!(&record.raw_seq(), b"ACCGTAGGCTGA");
@@ -605,7 +606,7 @@ mod tests {
         let reader = fastq::Reader::new(input_handle);
 
         for result in reader.records() {
-            let record = result.expect("invalid sequence record");
+            let record = record.expect("invalid sequence record");
             assert_eq!(record.check(), Ok(()));
             assert_eq!(record.id(), "id");
             assert_eq!(record.desc(), Some("desc"));
@@ -642,7 +643,7 @@ mod tests {
 
     #[test]
     fn test_compare_indexed_tuples_descending() {
-        let test_data: Vec<(usize, u64))> = vec![(0, 30), (1, 10), (2, 50)];
+        let test_data: Vec<(usize, u64)> = vec![(0, 30), (1, 10), (2, 50)];
         assert_eq!(test_data.sort_by(compare_indexed_tuples_descending), vec![(1, 10), (0, 30), (2, 50)]);
     }
     
