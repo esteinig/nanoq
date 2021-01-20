@@ -554,8 +554,8 @@ mod tests {
     #[test]
     fn test_mean_error_qscore() {
         let mean_error = get_mean_error(b"IIIIIIJJJJJJ");
-        let mean_quality: u64 = -10f64*log10(mean_error as f64) as u64;
-        assert_eq!(mean_quality, 40 as f64);
+        let mean_quality: u64 = (-10f64*log10(mean_error as f64)) as u64;
+        assert_eq!(mean_quality, 40 as u64);
     }
 
     // N50
