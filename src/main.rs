@@ -515,7 +515,6 @@ fn get_mean_read_quality(numbers: &Vec<f64>) -> f64 {
 
     sum as f64 / numbers.len() as f64
 
-
 }
 
 fn get_read_length_n50(base_pairs: &u64, read_lengths: &mut Vec<u64>) -> u64 {
@@ -565,7 +564,7 @@ mod tests {
     fn test_mean_read_quality_empty() {
         let mut test_data: Vec<f64> = Vec::new();
         let mean_quality = get_mean_read_quality(&test_data);
-        assert_eq!(mean_quality, None);
+        assert_eq!(mean_quality, NaN);
     }    
 
     #[test]

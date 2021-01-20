@@ -25,7 +25,7 @@ bibliography: paper.bib
 
 # Summary
 
-Nanopore sequencing is now routinely integrated in a variety of genomics applications, including whole genome assembly[@human_genome] and real-time infectious disease surveillance [@covid]. As a consequence, the amount of nanopore sequence data in the public domain has increased rapidly in the last few years. One of the first steps in any workflow is to assess the quality of reads and obtain basic summary statistics after basecalling raw nanopore signal, and to filter low quality reads. [`NanoPack`](https://github.com/wdecoster/nanopack) (backend: `biopython` ) [@nanopack; @biopython], [`Filtlong`](https://github.com/rrwick/Filtlong) (backend: [`Klib`](https://github.com/attractivechaos/klib)) and [`MinIONQC`](https://github.com/roblanf/minion_qc/blob/master/README.md) (backend: sequencing summary file) [@minionqc] are common tools used to filter and obtain summary statistics from nanopore reads. However, these tools can be relatively slow due to bottlenecks in read parsing (`NanoPack`, `Filtlong`), are not immediately usable due to reliance on sequencing summary files (`MinIONQC`) or focus on data exploration and visualization. We therefore implement `nanoq`, a command line tool to accelerate summary and quality control for nanopore reads in *Rust*. 
+Nanopore sequencing is now routinely integrated in a variety of genomics applications, including whole genome assembly[@human_genome] and real-time infectious disease surveillance [@covid]. As a consequence, the amount of nanopore sequence data in the public domain has increased rapidly in the last few years. One of the first steps in any workflow is to assess the quality of reads and obtain basic summary statistics after basecalling raw nanopore signal, and to filter low quality reads. [`NanoPack`](https://github.com/wdecoster/nanopack) (`biopython` parser) [@nanopack; @biopython], [`Filtlong`](https://github.com/rrwick/Filtlong) ([`Klib`](https://github.com/attractivechaos/klib) parser) and [`MinIONQC`](https://github.com/roblanf/minion_qc/blob/master/README.md) (summary file parser) [@minionqc] are common tools used to filter and obtain summary statistics from nanopore reads. However, these tools can be relatively slow due to bottlenecks in read parsing (`NanoPack`, `Filtlong`), i.e. iteration speed over the reads while extracting relevant information, are not immediately usable due to reliance on summary files (`MinIONQC`), or focus on data exploration and visualization. We therefore implement `nanoq`, a command line tool to accelerate summary and quality control for nanopore reads in *Rust*. 
 
 # Statement of Need
 
@@ -33,7 +33,7 @@ A common practice for quality control and filtering of reads for length and qual
 
 # Applications
 
-`Nanoq` is implemented in *Rust* using the read parsing backends from [`needletail`](https://github.com/onecodex/needletail) and [`Rust-Bio`](https://github.com/rust-bio/rust-bio) [@rustbio].
+`Nanoq` is implemented in *Rust* using the read parsers from [`needletail`](https://github.com/onecodex/needletail) and [`Rust-Bio`](https://github.com/rust-bio/rust-bio) [@rustbio].
 
 Tests can be run within the repository:
 
@@ -41,13 +41,13 @@ Tests can be run within the repository:
 cargo test
 ```
 
-`Nanoq` accepts a file or stream of sequence reads (`fast{a/q}`, `gz`) on `stdin`:
+`Nanoq` accepts a file or stream of sequence reads in `fast{a/q}` and compressed formats on `stdin`:
 
 ```bash
 cat test.fq | nanoq
 ```
 
-Summary statistics are output to `stderr`: 
+Basic summary statistics are output to `stderr`: 
 
 ```bash
 100000 400398234 5154 44888 5 4003 3256 8.90 9.49
@@ -72,7 +72,7 @@ Reads filtered by minimum read length (`--length`) and mean read quality (`--qua
 cat test.fq | nanoq -l 1000 -q 10 > reads.fq 
 ```
 
-Advanced two-pass filtering options analogous to `Filtlong` removes the worst 20% of bases using sorted reads by quality (`--keep_percent`) or the worst quality reads until approximately 500 Mbp remain (`--keep_bases`): 
+Advanced two-pass filtering analogous to `Filtlong` removes the worst 20% of bases using sorted reads by quality (`--keep_percent`) or the worst quality reads until approximately 500 Mbp remain (`--keep_bases`): 
 
 ```bash
 nanoq -f test.fq -p 80 -b 500000000  > reads.fq 
@@ -119,7 +119,7 @@ While `rust-bio` is slightly faster than `needletail` in these specific benchmar
 * BioConda: `conda install -c bioconda nanoq`
 * Singularity: `singularity pull docker://esteinig/nanoq`
 
-`Nanoq` is integrated with [pipelines](https://github.com/np-core) servicing research projects at [Queensland Genomics](https://queenslandgenomics.org/clinical-projects-3/north-queensland/) using nanopore sequencing to detect infectious agents in septic patients, reconstruct transmission dynamics of bacterial pathogens, and conduct outbreak sequencing at the Townsville University Hospital (QLD, Australia).
+`Nanoq` is integrated with [pipelines servicing research projects](https://github.com/np-core) at [Queensland Genomics](https://queenslandgenomics.org/clinical-projects-3/north-queensland/) using nanopore sequencing to detect infectious agents in septic patients, reconstruct transmission dynamics of bacterial pathogens, and conduct outbreak sequencing at the Townsville University Hospital (QLD, Australia).
 
 # Acknowledgements
 
