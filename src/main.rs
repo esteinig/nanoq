@@ -546,9 +546,16 @@ mod tests {
     // Mean error read score (Q)
 
     #[test]
-    fn test_mean_error() {
-        let error = get_mean_error(b"???");
-        assert_eq!(error, 0.001 as f32);
+    fn test_mean_error_function() {
+        let mean_error = get_mean_error(b"???");
+        assert_eq!(mean_error, 0.001 as f32);
+    }
+
+    #[test]
+    fn test_mean_error_qscore() {
+        let mean_error = get_mean_error(b"???");
+        let mean_quality: f64 = -10f64*log10(mean_error as f64);
+        assert_eq!(mean_quality, 30 as f64);
     }
 
     // N50
