@@ -641,13 +641,15 @@ mod tests {
     #[test]
     fn test_compare_indexed_tuples_descending() {
         let test_data: Vec<(usize, u64)> = vec![(0, 30), (1, 10), (2, 50)];
-        assert_eq!(test_data.sort_by(compare_indexed_tuples_descending), vec![(1, 10), (0, 30), (2, 50)]);
+        test_data.sort_by(compare_indexed_tuples_descending);
+        assert_eq!(test-Data, vec![(1, 10), (0, 30), (2, 50)]);
     }
     
     #[test]
     fn test_compare_u64_descending() {
         let test_data: Vec<u64> = vec![1,5,2];
-        assert_eq!(test_data.sort_by(compare_u64_descending), vec![1,2,5]);
+        test_data.sort_by(compare_u64_descending);
+        assert_eq!(test_data, vec![1,2,5]);
     }
 
     // Mean read error
