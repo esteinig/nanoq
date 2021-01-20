@@ -340,7 +340,7 @@ fn is_fastq(fastx: &String) -> Result<bool, Error> {
     } 
 }
 
-fn get_needletail_reader(fastx: &String) -> Box<dyn FastxReader + 'a> {
+fn get_needletail_reader(fastx: &String) -> Box<dyn FastxReader> {
     if fastx == &"-".to_string() {
         parse_fastx_reader(stdin()).expect("invalid stdin")
     } else {
@@ -612,7 +612,7 @@ mod tests {
             assert_eq!(record.desc(), Some("desc"));
             assert_eq!(record.seq(), b"ACCGTAGGCTGA");
             assert_eq!(record.qual(), b"IIIIIIJJJJJJ");
-
+        }
     }
 
     #[test]
