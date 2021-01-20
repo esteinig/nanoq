@@ -94,17 +94,8 @@ fn crabcast(fastx: String, output: String, min_length: u64, max_length: u64, min
 
     // Rust-Bio parser, Fastq only
 
-    let input_handle: Box<dyn Read> = if fastx == "-".to_string(){ 
-        Box::new(BufReader::new(stdin()))
-    } else {
-        Box::new(File::open(&fastx)?)
-    };
-
-    let output_handle: Box<dyn Write> = if output == "-".to_string(){
-        Box::new(BufWriter::new(stdout()))
-     } else {
-        Box::new(File::create(&output)?)
-     };
+    let input_handle = get_input_handle(fastx);
+    let output_handle = get_output_handle(output);
 
     let reader = fastq::Reader::new(input_handle);
     let mut writer = fastq::Writer::new(output_handle);
@@ -150,17 +141,8 @@ fn needlecast_filter(fastx: String, output: String, min_length: u64, max_length:
 
     // Needletail parser, with output and filters
     
-    let mut reader = if fastx == "-".to_string() {
-        parse_fastx_reader(stdin()).expect("invalid stdin")
-    } else {
-        parse_fastx_reader(File::open(&fastx)?).expect("invalid file")
-    };
-
-    let mut output_handle: Box<dyn Write> = if output == "-".to_string(){
-        Box::new(BufWriter::new(stdout()))
-     } else {
-        Box::new(File::create(&output)?)
-     };
+    let mut reader = get_needletail_reader(fastx);
+    let mut output_handle = get_output_handle(output);
 
     let max_length = if max_length <= 0 { u64::MAX } else { max_length };
 
@@ -206,11 +188,7 @@ fn needlecast_stats(fastx: &String) -> Result<(u64, u64, Vec<u64>, Vec<u64>), Er
 
     // Needletail parser just for stats, no filters or output, slight speed-up
     
-    let mut reader = if fastx == &"-".to_string() {
-        parse_fastx_reader(stdin()).expect("invalid stdin")
-    } else {
-        parse_fastx_reader(File::open(fastx)?).expect("invalid file")
-    };
+    let mut reader = get_needletail_reader(fastx);
     
     let mut reads: u64 = 0;
     let mut base_pairs: u64 = 0;
@@ -243,17 +221,8 @@ fn needlecast_filt(fastx: &String, output: String, indices: HashMap<usize, u64>)
 
     // Needletail parser just for output by read index:
     
-    let mut reader = if fastx == &"-".to_string() {
-        parse_fastx_reader(stdin()).expect("invalid stdin")
-    } else {
-        parse_fastx_reader(File::open(fastx)?).expect("invalid file")
-    };
-
-    let mut output_handle: Box<dyn Write> = if output == "-".to_string(){
-        Box::new(BufWriter::new(stdout()))
-     } else {
-        Box::new(File::create(&output)?)
-     };
+    let mut reader = get_needletail_reader(fastx);
+    let mut output_handle = get_output_handle(output);
     
      let mut read: usize = 0;
      while let Some(record) = reader.next() {
@@ -358,11 +327,7 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
 
 fn is_fastq(fastx: &String) -> Result<bool, Error> {
     
-    let mut reader = if fastx == &"-".to_string() {
-        parse_fastx_reader(stdin()).expect("invalid stdin")
-    } else {
-        parse_fastx_reader(File::open(&fastx)?).expect("invalid file")
-    };
+    let mut reader = get_needletail_reader(fastx);
 
     let first_read = reader.next().unwrap().unwrap();
     let read_format = first_read.format();
@@ -372,6 +337,30 @@ fn is_fastq(fastx: &String) -> Result<bool, Error> {
     } else {
         Ok(false)
     } 
+}
+
+fn get_needletail_reader(fastx: &String) -> Box<dyn FastxReader + 'a> {
+    if fastx == &"-".to_string() {
+        parse_fastx_reader(stdin()).expect("invalid stdin")
+    } else {
+        parse_fastx_reader(File::open(&fastx)?).expect("invalid file")
+    }
+}
+
+fn get_output_handle(output: String) -> Box<dyn Write> {
+    if output == "-".to_string(){
+        Box::new(BufWriter::new(stdout()))
+    } else {
+        Box::new(File::create(&output)?)
+    }
+}
+
+fn get_input_handle(fastx: String) -> Box<dyn Read> {
+    if fastx == "-".to_string(){ 
+        Box::new(BufReader::new(stdin()))
+    } else {
+        Box::new(File::open(&fastx)?)
+    }
 }
 
 fn compare_indexed_tuples_descending(a: &(usize, u64), b: &(usize, u64)) -> Ordering {
@@ -386,6 +375,19 @@ fn compare_indexed_tuples_descending(a: &(usize, u64), b: &(usize, u64)) -> Orde
     }
     Ordering::Equal
    
+}
+
+fn compare_u64_descending(a: &u64, b: &u64) -> Ordering {
+
+    // Will get killed with NAN (R.I.P)
+    // but we should never see NAN
+
+    if a < b {
+        return Ordering::Greater;
+    } else if a > b {
+        return Ordering::Less;
+    }
+    Ordering::Equal
 }
 
 #[allow(dead_code)]
@@ -417,18 +419,6 @@ fn compare_f64_descending(a: &f64, b: &f64) -> Ordering {
     Ordering::Equal
 }
 
-fn compare_u64_descending(a: &u64, b: &u64) -> Ordering {
-
-    // Will get killed with NAN (R.I.P)
-    // but we should never see NAN
-
-    if a < b {
-        return Ordering::Greater;
-    } else if a > b {
-        return Ordering::Less;
-    }
-    Ordering::Equal
-}
 
 fn get_mean_error(quality_bytes: &[u8]) -> f32 {
 
@@ -543,6 +533,124 @@ fn get_read_length_n50(base_pairs: &u64, read_lengths: &mut Vec<u64>) -> u64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    const TEST_FASTQ: String = String::new("../data/test.fq");
+    const TEST_FASTA: String = String::new("../data/test.fa");
+    const TEST_FASTQ_GZ: String = String::new("../data/test.fq.gz");
+    const TEST_FASTA_GZ: String = String::new("../data/test.fa.gz");
+
+    // Needletail IO
+
+    #[test]
+    fn test_needletail_input_fq_file() {
+        let test_file: String = String::new(TEST_FASTQ);
+        let mut reader = get_needletail_reader(test_file);
+
+        while let Some(record) = reader.next() {
+            let record = result.expect("invalid sequence record");
+            assert!(record.is_ok());
+            assert_eq!(&record.id(), b"id");
+            assert_eq!(&record.raw_seq(), b"ACCGTAGGCTGA");
+            assert_eq!(&record.qual().unwrap(), b"IIIIIIJJJJJJ");
+        }
+    }
+
+    #[test]
+    fn test_needletail_input_fq_gz_file() {
+        let test_file: String = String::new(TEST_FASTQ_GZ);
+        let mut reader = get_needletail_reader(test_file);
+
+        while let Some(record) = reader.next() {
+            let record = result.expect("invalid sequence record");
+            assert!(record.is_ok());
+            assert_eq!(&record.id(), b"id");
+            assert_eq!(&record.raw_seq(), b"ACCGTAGGCTGA");
+            assert_eq!(&record.qual().unwrap(), b"IIIIIIJJJJJJ");
+        }
+    }
+
+    #[test]
+    fn test_needletail_input_fa_file() {
+        let test_file: String = String::new(TEST_FASTA);
+        let mut reader = get_needletail_reader(test_file);
+
+        while let Some(record) = reader.next() {
+            let record = result.expect("invalid sequence record");
+            assert!(record.is_ok());
+            assert_eq!(&record.id(), b"id");
+            assert_eq!(&record.raw_seq(), b"ACCGTAGGCTGA");
+        }
+    }
+
+    #[test]
+    fn test_needletail_input_fa_gz_file() {
+        let test_file: String = String::new(TEST_FASTA_GZ);
+        let mut reader = get_needletail_reader(test_file);
+
+        while let Some(record) = reader.next() {
+            let record = result.expect("invalid sequence record");
+            assert!(record.is_ok());
+            assert_eq!(&record.id(), b"id");
+            assert_eq!(&record.raw_seq(), b"ACCGTAGGCTGA");
+        }
+    }
+
+    // Rust-Bio IO
+
+    #[test]
+    fn test_crabcast_input_fq_file() {
+        let test_file: String = String::new(TEST_FASTQ);
+        
+        let mut input_handle = get_input_handle(test_file);
+        let reader = fastq::Reader::new(input_handle);
+
+        for result in reader.records() {
+            let record = result.expect("invalid sequence record");
+            assert_eq!(record.check(), Ok(()));
+            assert_eq!(record.id(), "id");
+            assert_eq!(record.desc(), Some("desc"));
+            assert_eq!(record.seq(), b"ACCGTAGGCTGA");
+            assert_eq!(record.qual(), b"IIIIIIJJJJJJ");
+
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_crabcast_input_fqgz_file() {
+        let test_file: String = String::new(TEST_FASTQ_GZ);
+        let mut input_handle = get_input_handle(test_file);
+        let reader = fastq::Reader::new(input_handle);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_crabcast_input_fa_file() {
+        let test_file: String = String::new(TEST_FASTA);
+        let mut input_handle = get_input_handle(test_file);
+        let reader = fastq::Reader::new(input_handle);
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_crabcast_input_fagz_file() {
+        let test_file: String = String::new(TEST_FASTA_GZ);
+        let mut input_handle = get_input_handle(test_file);
+        let reader = fastq::Reader::new(input_handle);
+    }
+
+    // Ordering
+
+    #[test]
+    fn test_compare_indexed_tuples_descending() {
+        let test_data: Vec<(usize, u64))> = vec![(0, 30), (1, 10), (2, 50)];
+        assert_eq!(test_data.sort_by(compare_indexed_tuples_descending), vec![(1, 10), (0, 30), (2, 50)]);
+    }
+    
+    #[test]
+    fn test_compare_u64_descending() {
+        let test_data: Vec<u64> = vec![1,5,2];
+        assert_eq!(test_data.sort_by(compare_u64_descending), vec![1,2,5]);
+    }
 
     // Mean read error
 
