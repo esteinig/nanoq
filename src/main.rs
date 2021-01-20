@@ -487,7 +487,7 @@ fn get_mean_read_length(numbers: &Vec<u64>) -> u64 {
     // Compute the mean of a vector of unsigned integers
 
     let sum: u64 = numbers.iter().sum();
-
+    
     sum as u64 / numbers.len() as u64
 
 }
@@ -514,6 +514,7 @@ fn get_mean_read_quality(numbers: &Vec<f64>) -> f64 {
     let sum: f64 = numbers.iter().sum();
 
     sum as f64 / numbers.len() as f64
+
 
 }
 
@@ -564,7 +565,7 @@ mod tests {
     fn test_mean_read_quality_empty() {
         let mut test_data: Vec<f64> = Vec::new();
         let mean_quality = get_mean_read_quality(&test_data);
-        assert_eq!(mean_quality, 0 as f64);
+        assert_eq!(mean_quality, None);
     }    
 
     #[test]
