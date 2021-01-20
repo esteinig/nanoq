@@ -642,7 +642,7 @@ mod tests {
     fn test_compare_indexed_tuples_descending() {
         let test_data: Vec<(usize, u64)> = vec![(0, 30), (1, 10), (2, 50)];
         test_data.sort_by(compare_indexed_tuples_descending);
-        assert_eq!(test-Data, vec![(1, 10), (0, 30), (2, 50)]);
+        assert_eq!(test_data, vec![(1, 10), (0, 30), (2, 50)]);
     }
     
     #[test]
