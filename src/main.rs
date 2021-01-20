@@ -549,7 +549,7 @@ mod tests {
     #[should_panic]
     fn test_read_length_n50_empty() {
         let mut test_data: Vec<u64> = Vec::new();
-        let n50 = get_read_length_n50(&70, &test_data);
+        let n50 = get_read_length_n50(&70, &mut test_data);
     }
 
     #[test]
@@ -578,7 +578,7 @@ mod tests {
     #[should_panic]
     fn test_median_read_quality_empty() {
         let mut test_data: Vec<f64> = Vec::new();
-        let median_quality = get_median_read_quality(&test_data);
+        let median_quality = get_median_read_quality(&mut test_data);
     }    
 
     #[test]
@@ -599,7 +599,7 @@ mod tests {
     #[should_panic]
     fn test_mean_read_length_empty() {
         let mut test_data: Vec<u64> = Vec::new();
-        let mean_length = get_mean_read_length(&test_data);
+        let mean_length = get_mean_read_length(&mut test_data);
     }
 
     #[test]
@@ -612,7 +612,7 @@ mod tests {
     #[should_panic]
     fn test_median_read_length_empty() {
         let mut test_data: Vec<u64> = Vec::new();
-        let median_length = get_median_read_length(&test_data);
+        let median_length = get_median_read_length(&mut test_data);
     }
 
     #[test]
