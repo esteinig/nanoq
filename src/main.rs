@@ -536,10 +536,10 @@ fn get_read_length_n50(base_pairs: &u64, read_lengths: &mut Vec<u64>) -> u64 {
 mod tests {
     use super::*;
 
-    static TEST_FASTQ: String = String::from("../data/test.fq");
-    static TEST_FASTA: String = String::from("../data/test.fa");
-    static TEST_FASTQ_GZ: String = String::from("../data/test.fq.gz");
-    static TEST_FASTA_GZ: String = String::from("../data/test.fa.gz");
+    static TEST_FASTQ: &String = String::from("../data/test.fq");
+    static TEST_FASTA: &String = String::from("../data/test.fa");
+    static TEST_FASTQ_GZ: &String = String::from("../data/test.fq.gz");
+    static TEST_FASTA_GZ: &String = String::from("../data/test.fa.gz");
 
     // Needletail IO
 
