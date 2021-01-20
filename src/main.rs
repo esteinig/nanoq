@@ -56,12 +56,13 @@ fn main() -> Result<(), Error> {
             process::exit(1);
         }
 
+        // No read count check in the two pass filter -> no stats
         two_pass_filter(fastx, output, keep_percent, keep_bases);
 
     } else {
         
         // Standard mode
-         
+        
         let (reads, base_pairs, read_lengths, read_qualities) = if crab {
             crabcast(fastx, output, min_length, max_length, min_quality)
         } else {
@@ -71,7 +72,8 @@ fn main() -> Result<(), Error> {
                 needlecast_stats(&fastx)
             }
         }.expect("Carcinised error encountered - what the crab?");
-
+        
+        // This check prevents the stats computation from panicking on empty vec, see tests 
         if reads == 0 {
             eprintln!("No reads");
             process::exit(1);
@@ -268,8 +270,7 @@ fn needlecast_filt(fastx: &String, output: String, indices: HashMap<usize, f64>)
 
 fn two_pass_filter(fastx: String, output: String, keep_percent: f64, keep_bases: usize){
 
-    // Advanced filters that require a single pass for stats, 
-    // a second pass to output filtered reads; needs file input
+    // Advanced filters that require a single pass for stats, a second pass to output filtered reads
 
     if !is_fastq(&fastx).expect("invalid file input") {
         eprintln!("Two pass filter requires fastq format with quality scores");
@@ -491,7 +492,6 @@ fn get_mean_read_length(numbers: &Vec<u64>) -> u64 {
 
 }
 
-
 fn get_median_read_quality(numbers: &mut Vec<f64>) -> f64 {
 
     // Compute the median of a vector of double-precision floats
@@ -546,10 +546,10 @@ mod tests {
     // N50
 
     #[test]
-    #[should_panic]
     fn test_read_length_n50_empty() {
         let mut test_data: Vec<u64> = Vec::new();
         let n50 = get_read_length_n50(&70, &mut test_data);
+        assert_eq!(n50, 0 as u64);
     }
 
     #[test]
