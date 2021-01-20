@@ -1,14 +1,14 @@
 ---
 title: 'Nanoq: fast quality control for nanopore reads'
 tags:
+  - ont
   - nanopore
+  - reads
   - filter 
   - summary
   - statistics
-  - reads
   - length
   - quality
-  - ont
 authors:
   - name: Eike Steinig
     orcid: 0000-0001-5399-5353
@@ -123,7 +123,7 @@ While `rust-bio` is slightly faster than `needletail` in these specific benchmar
 
 # Acknowledgements
 
-We would like to thank the `Rust-Bio` community, the [`seq_io`](https://github.com/markschl/seq_io) project and the `OneCodex` team for developing the read parsing backends. ES was funded by the Queensland Genomics Far North Queensland project and a joint grant by HOT NORTH and the Center for Policy Relevant Infectious Disease Simulation and Mathematical Modelling (NHMRC: #1131932).
+We would like to thank the `Rust-Bio` community, the [`seq_io`](https://github.com/markschl/seq_io) project and the `OneCodex` team for developing the *Rust* read parsing crates. ES was funded by the Queensland Genomics Far North Queensland project and a joint grant by HOT NORTH and the Center for Policy Relevant Infectious Disease Simulation and Mathematical Modelling (NHMRC: #1131932).
 
 # References
 

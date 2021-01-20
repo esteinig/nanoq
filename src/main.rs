@@ -218,26 +218,6 @@ fn needlecast_stats(fastx: &String) -> Result<(u64, u64, Vec<u64>, Vec<u64>), Er
 
 }
 
-fn needlecast_filt(fastx: &String, output: String, indices: HashMap<usize, u64>) -> Result<(), Error> {
-
-    // Needletail parser just for output by read index:
-    
-    let mut reader = get_needletail_reader(fastx).expect("failed to initiate needletail reader");
-    let mut output_handle = get_output_handle(output).expect("failed to initiate fastx output handle");
-    
-     let mut read: usize = 0;
-     while let Some(record) = reader.next() {
-        if indices.contains_key(&read) {  // test if this is faster than checking if index in vec
-            let seqrec = record.expect("invalid sequence record");
-            seqrec.write(&mut output_handle, None).expect("invalid record write op");
-        }
-        read += 1;
-    }
-        
-    return Ok(())
-
-}
-
 fn two_pass_filter(fastx: String, output: String, keep_percent: f64, keep_bases: usize){
 
     // Advanced filters that require a single pass for stats, a second pass to output filtered reads
@@ -261,13 +241,49 @@ fn two_pass_filter(fastx: String, output: String, keep_percent: f64, keep_bases:
     // First pass, get read stats:
     let (_, _, read_lengths, read_qualities) = needlecast_stats(&fastx).expect("failed stats pass");
 
+    let indexed_qualities_retain = retain_indexed_quality_reads(read_qualities, keep_percent, keep_bases).expect("failed index collect");
+
+    // Second pass, filter reads to output by indices
+    let mut _indices: HashMap<usize, u64> = indexed_qualities_retain.iter().cloned().collect();
+    needlecast_filt(&fastx, output, _indices).expect("failed output pass"); // TODO: check if vec contains is faster
+    
+
+}
+
+
+fn needlecast_filt(fastx: &String, output: String, indices: HashMap<usize, u64>) -> Result<(), Error> {
+
+    // Needletail parser just for output by read index:
+    
+    let mut reader = get_needletail_reader(fastx).expect("failed to initiate needletail reader");
+    let mut output_handle = get_output_handle(output).expect("failed to initiate fastx output handle");
+    
+     let mut read: usize = 0;
+     while let Some(record) = reader.next() {
+        if indices.contains_key(&read) {  // test if this is faster than checking if index in vec
+            let seqrec = record.expect("invalid sequence record");
+            seqrec.write(&mut output_handle, None).expect("invalid record write op");
+        }
+        read += 1;
+    }
+        
+    return Ok(())
+
+}
+
+// Base functions
+
+fn retain_indexed_quality_reads(read_qualities: Vec<u64>, keep_percent: f64, keep_bases: usize) -> Result<Vec<(usize, u64)>, Error> {
+
+    // Index quality values by read amd fo;ter by kee-Percent or keep_bases
+
     let mut indexed_qualities: Vec<(usize, u64)> = Vec::new();
     for (i, q) in read_qualities.iter().enumerate() {
         indexed_qualities.push((i, *q));
     }
 
     // Sort (read index, qual) descending
-    indexed_qualities.sort_by(|a, b| compare_indexed_tuples_descending(a, b));
+    indexed_qualities.sort_by(compare_indexed_tuples_descending);
 
     // Apply keep_percent (0 -> keep all)
     let _limit: usize = (indexed_qualities.len() as f64 * keep_percent) as usize;
@@ -291,14 +307,9 @@ fn two_pass_filter(fastx: String, output: String, keep_percent: f64, keep_bases:
         }
     };
 
-    // Second pass, filter reads to output by indices
-    let mut _indices: HashMap<usize, u64> = indexed_qualities_retain.iter().cloned().collect();
-    needlecast_filt(&fastx, output, _indices).expect("failed output pass"); // TODO: check if vec contains is faster
-    
+    return Ok(indexed_qualities_retain)
 
 }
-
-// Base functions
 
 fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut read_qualities: Vec<u64>) -> Result<(), Error> {
 
@@ -536,6 +547,36 @@ fn get_read_length_n50(base_pairs: &u64, read_lengths: &mut Vec<u64>) -> u64 {
 mod tests {
     use super::*;
 
+    // Fastq
+
+    #[test]
+    fn test_is_fastq_fq_file() {
+        let test_file: String = String::from("data/test.fq");
+        let is_fastq = is_fastq(&test_file);
+        assert!(is_fastq);
+    }
+
+    #[test]
+    fn test_is_fastq_fq_gz_file() {
+        let test_file: String = String::from("data/test.fq.gz");
+        let is_fastq = is_fastq(&test_file);
+        assert!(is_fastq);
+    }
+
+    #[test]
+    fn test_is_fastq_fa_gz_file() {
+        let test_file: String = String::from("data/test.fa");
+        let is_fastq = is_fastq(&test_file);
+        assert!(!is_fastq);
+    }
+
+    #[test]
+    fn test_is_fastq_fa_gz_file() {
+        let test_file: String = String::from("data/test.fa.gz");
+        let is_fastq = is_fastq(&test_file);
+        assert!(!is_fastq);
+    }
+
     // Needletail IO
 
     #[test]
@@ -609,7 +650,7 @@ mod tests {
 
     #[test]
     #[should_panic]
-    fn test_crabcast_input_fqgz_file() {
+    fn test_crabcast_input_fq_gz_file() {
         let test_file: String = String::from("data/test.fq.gz");
         let input_handle = get_input_handle(test_file).expect("invalid input handle");
         let reader = fastq::Reader::new(input_handle);
