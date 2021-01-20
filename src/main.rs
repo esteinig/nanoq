@@ -625,7 +625,7 @@ mod tests {
 
     #[test]
     #[should_panic]
-    fn test_crabcast_input_fagz_file() {
+    fn test_crabcast_input_fa_gz_file() {
         let test_file: String = String::from("data/test.fa.gz");
         let input_handle = get_input_handle(test_file).expect("invalid input handle");
         let reader = fastq::Reader::new(input_handle);
@@ -637,14 +637,14 @@ mod tests {
     fn test_compare_indexed_tuples_descending() {
         let mut test_data: Vec<(usize, u64)> = vec![(0, 30), (1, 10), (2, 50)];
         test_data.sort_by(compare_indexed_tuples_descending);
-        assert_eq!(test_data, vec![(1, 10), (0, 30), (2, 50)]);
+        assert_eq!(test_data, vec![(2, 50), (0, 30), (1, 10)]);
     }
     
     #[test]
     fn test_compare_u64_descending() {
         let mut test_data: Vec<u64> = vec![1,5,2];
         test_data.sort_by(compare_u64_descending);
-        assert_eq!(test_data, vec![1,2,5]);
+        assert_eq!(test_data, vec![5,2,1]);
     }
 
     // Mean read error
