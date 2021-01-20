@@ -536,10 +536,10 @@ fn get_read_length_n50(base_pairs: &u64, read_lengths: &mut Vec<u64>) -> u64 {
 mod tests {
     use super::*;
 
-    static  TEST_FASTQ: String = String::from("../data/test.fq");
-    static  TEST_FASTA: String = String::from("../data/test.fa");
-    static  TEST_FASTQ_GZ: String = String::from("../data/test.fq.gz");
-    static  TEST_FASTA_GZ: String = String::from("../data/test.fa.gz");
+    static TEST_FASTQ: String = String::from("../data/test.fq");
+    static TEST_FASTA: String = String::from("../data/test.fa");
+    static TEST_FASTQ_GZ: String = String::from("../data/test.fq.gz");
+    static TEST_FASTA_GZ: String = String::from("../data/test.fa.gz");
 
     // Needletail IO
 
@@ -599,7 +599,7 @@ mod tests {
     fn test_crabcast_input_fq_file() {
         let test_file: String = String::from(TEST_FASTQ);
         
-        let mut input_handle = get_input_handle(test_file).unwrap();
+        let input_handle = get_input_handle(test_file).unwrap();
         let reader = fastq::Reader::new(input_handle);
 
         for record in reader.records() {
@@ -616,7 +616,7 @@ mod tests {
     #[should_panic]
     fn test_crabcast_input_fqgz_file() {
         let test_file: String = String::from(TEST_FASTQ_GZ);
-        let mut input_handle = get_input_handle(test_file).unwrap();
+        let input_handle = get_input_handle(test_file).unwrap();
         let reader = fastq::Reader::new(input_handle);
     }
 
@@ -624,7 +624,7 @@ mod tests {
     #[should_panic]
     fn test_crabcast_input_fa_file() {
         let test_file: String = String::from(TEST_FASTA);
-        let mut input_handle = get_input_handle(test_file).unwrap();
+        let input_handle = get_input_handle(test_file).unwrap();
         let reader = fastq::Reader::new(input_handle);
     }
 
@@ -632,7 +632,7 @@ mod tests {
     #[should_panic]
     fn test_crabcast_input_fagz_file() {
         let test_file: String = String::from(TEST_FASTA_GZ);
-        let mut input_handle = get_input_handle(test_file).unwrap();
+        let input_handle = get_input_handle(test_file).unwrap();
         let reader = fastq::Reader::new(input_handle);
     }
 
