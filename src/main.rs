@@ -535,16 +535,16 @@ fn get_read_length_n50(base_pairs: &u64, read_lengths: &mut Vec<u64>) -> u64 {
 mod tests {
     use super::*;
 
-    const TEST_FASTQ: String = String::new("../data/test.fq");
-    const TEST_FASTA: String = String::new("../data/test.fa");
-    const TEST_FASTQ_GZ: String = String::new("../data/test.fq.gz");
-    const TEST_FASTA_GZ: String = String::new("../data/test.fa.gz");
+    const TEST_FASTQ: String = String::from("../data/test.fq");
+    const TEST_FASTA: String = String::from("../data/test.fa");
+    const TEST_FASTQ_GZ: String = String::from("../data/test.fq.gz");
+    const TEST_FASTA_GZ: String = String::from("../data/test.fa.gz");
 
     // Needletail IO
 
     #[test]
     fn test_needletail_input_fq_file() {
-        let test_file: String = String::new(TEST_FASTQ);
+        let test_file: String = String::from(TEST_FASTQ);
         let mut reader = get_needletail_reader(test_file);
 
         while let Some(record) = reader.next() {
@@ -558,7 +558,7 @@ mod tests {
 
     #[test]
     fn test_needletail_input_fq_gz_file() {
-        let test_file: String = String::new(TEST_FASTQ_GZ);
+        let test_file: String = String::from(TEST_FASTQ_GZ);
         let mut reader = get_needletail_reader(test_file);
 
         while let Some(record) = reader.next() {
@@ -572,7 +572,7 @@ mod tests {
 
     #[test]
     fn test_needletail_input_fa_file() {
-        let test_file: String = String::new(TEST_FASTA);
+        let test_file: String = String::from(TEST_FASTA);
         let mut reader = get_needletail_reader(test_file);
 
         while let Some(record) = reader.next() {
@@ -585,7 +585,7 @@ mod tests {
 
     #[test]
     fn test_needletail_input_fa_gz_file() {
-        let test_file: String = String::new(TEST_FASTA_GZ);
+        let test_file: String = String::from(TEST_FASTA_GZ);
         let mut reader = get_needletail_reader(test_file);
 
         while let Some(record) = reader.next() {
@@ -600,12 +600,12 @@ mod tests {
 
     #[test]
     fn test_crabcast_input_fq_file() {
-        let test_file: String = String::new(TEST_FASTQ);
+        let test_file: String = String::from(TEST_FASTQ);
         
         let mut input_handle = get_input_handle(test_file);
         let reader = fastq::Reader::new(input_handle);
 
-        for result in reader.records() {
+        for record in reader.records() {
             let record = record.expect("invalid sequence record");
             assert_eq!(record.check(), Ok(()));
             assert_eq!(record.id(), "id");
@@ -618,7 +618,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_crabcast_input_fqgz_file() {
-        let test_file: String = String::new(TEST_FASTQ_GZ);
+        let test_file: String = String::from(TEST_FASTQ_GZ);
         let mut input_handle = get_input_handle(test_file);
         let reader = fastq::Reader::new(input_handle);
     }
@@ -626,7 +626,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_crabcast_input_fa_file() {
-        let test_file: String = String::new(TEST_FASTA);
+        let test_file: String = String::from(TEST_FASTA);
         let mut input_handle = get_input_handle(test_file);
         let reader = fastq::Reader::new(input_handle);
     }
@@ -634,7 +634,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_crabcast_input_fagz_file() {
-        let test_file: String = String::new(TEST_FASTA_GZ);
+        let test_file: String = String::from(TEST_FASTA_GZ);
         let mut input_handle = get_input_handle(test_file);
         let reader = fastq::Reader::new(input_handle);
     }
