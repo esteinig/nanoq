@@ -340,7 +340,7 @@ fn is_fastq(fastx: &String) -> Result<bool, Error> {
     } 
 }
 
-fn get_needletail_reader(fastx: &String) -> Result<(Box<dyn FastxReader, Error)> {
+fn get_needletail_reader(fastx: &String) -> Result<(Box<dyn FastxReader>, Error)> {
     if fastx == &"-".to_string() {
         Ok(parse_fastx_reader(stdin()).expect("invalid stdin"))
     } else {
