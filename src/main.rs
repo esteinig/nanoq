@@ -570,7 +570,7 @@ mod tests {
 
     #[test]
     fn test_mean_read_quality_empty() {
-        let mut test_data: Vec<f64> = Vec::new();
+        let test_data: Vec<f64> = Vec::new();
         let mean_quality = get_mean_read_quality(&test_data);
         assert!(mean_quality.is_nan()); // f64 returns NaN on ZeroDivision
     }    
