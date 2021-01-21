@@ -644,11 +644,11 @@ mod tests {
         let read_qualities: Vec<u64> = vec![10, 20, 20, 30];
         let read_lengths: Vec<u64> = vec![10, 20, 20, 30];
         let keep_percent: f64 = 0.75;
-        let keep_bases: usize = 30;
+        let keep_bases: usize = 60;
         let indices = retain_indexed_quality_reads(read_qualities, read_lengths, keep_percent, keep_bases).unwrap();
 
-        assert_eq!(indices.len(), 2);
-        assert_eq!(indices, vec![(0, 10), (1, 20)]);
+        assert_eq!(indices.len(), 3);
+        assert_eq!(indices, vec![(3, 30), (2, 20), (1, 20)]);
     }
 
 
