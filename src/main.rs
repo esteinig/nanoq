@@ -557,7 +557,8 @@ mod tests {
 
     #[test]
     fn test_is_fastq_fq_file() {
-        let test_file: String = get_root().push_str(&String::from("test.fq"));
+        let froot = get_root();
+        let test_file: String = froot.push_str(&String::from("test.fq"));
         let is_fastq = is_fastq(&test_file).unwrap();
         assert!(is_fastq);
     }
