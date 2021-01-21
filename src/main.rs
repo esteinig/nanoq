@@ -591,7 +591,7 @@ mod tests {
     
         let read_qualities: Vec<u64> = vec![10, 20, 20, 30];
         let read_lengths: Vec<u64> = vec![10, 20, 20, 30];
-        let keep_percent: f64 = 0.25;
+        let keep_percent: f64 = 0.1;
         let keep_bases: usize = 0;
         let indices = retain_indexed_quality_reads(read_qualities, read_lengths, keep_percent, keep_bases).unwrap();
 
@@ -609,7 +609,7 @@ mod tests {
         let indices = retain_indexed_quality_reads(read_qualities, read_lengths, keep_percent, keep_bases).unwrap();
 
         assert_eq!(indices.len(), 1);
-        assert_eq!(indices, vec![(1, 20)]);
+        assert_eq!(indices, vec![(3, 30), (2, 20)]);
     }
 
     #[test]
