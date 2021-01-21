@@ -579,12 +579,11 @@ mod tests {
         return root;
     }
 
-    // Eprint output
-
+    // Eprint stats function
 
     #[test]
     fn test_eprint_stats() {
-        
+
         let reads: u64 = 5;
         let base_pairs: u64 = 80;
         let read_lengths: Vec<u64> = vec![20, 10, 30, 20, 10];
@@ -598,7 +597,7 @@ mod tests {
             median_read_length, 
             mean_read_quality, 
             median_read_quality
-        ) = eprint_stats(reads, base_pairs, mut read_lengths, mut read_qualities) 
+        ) = eprint_stats(reads, base_pairs, mut read_lengths, mut read_qualities);
         
         assert_eq!(read_length_n50, 20);
         assert_eq!(max_read_length, 30);
