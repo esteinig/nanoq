@@ -684,7 +684,7 @@ mod tests {
         let test_file = get_test_fq_gz();
         let input_handle = get_input_handle(test_file).expect("invalid input handle");
         let reader = fastq::Reader::new(input_handle);
-        let _ = reader.next().unwrap().unwrap();
+        let _ = reader.records().next().unwrap().unwrap();
     }
 
     #[test]
@@ -693,7 +693,7 @@ mod tests {
         let test_file = get_test_fa();
         let input_handle = get_input_handle(test_file).expect("invalid input handle");
         let reader = fastq::Reader::new(input_handle);
-        let _ = reader.next().unwrap().unwrap();
+        let _ = reader.records().next().unwrap().unwrap();
     }
 
     #[test]
@@ -702,7 +702,7 @@ mod tests {
         let test_file = get_test_fa_gz();
         let input_handle = get_input_handle(test_file).expect("invalid input handle");
         let reader = fastq::Reader::new(input_handle);
-        let _ = reader.next().unwrap().unwrap();
+        let _ = reader.records().next().unwrap().unwrap();
     }
 
     // Ordering
