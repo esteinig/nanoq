@@ -672,7 +672,7 @@ mod tests {
             let record = record.expect("invalid sequence record");
             assert_eq!(record.check(), Ok(()));
             assert_eq!(record.id(), "id");
-            assert_eq!(record.desc(), Some("desc"));
+            assert_eq!(record.desc(), None);
             assert_eq!(record.seq(), b"ACCGTAGGCTGA");
             assert_eq!(record.qual(), b"IIIIIIJJJJJJ");
         }
@@ -683,7 +683,8 @@ mod tests {
     fn test_crabcast_input_fq_gz_file() {
         let test_file = get_test_fq_gz();
         let input_handle = get_input_handle(test_file).expect("invalid input handle");
-        let _ = fastq::Reader::new(input_handle);
+        let reader = fastq::Reader::new(input_handle);
+        let _ = reader.next().unwrap().unwrap();
     }
 
     #[test]
@@ -691,7 +692,8 @@ mod tests {
     fn test_crabcast_input_fa_file() {
         let test_file = get_test_fa();
         let input_handle = get_input_handle(test_file).expect("invalid input handle");
-        let _ = fastq::Reader::new(input_handle);
+        let reader = fastq::Reader::new(input_handle);
+        let _ = reader.next().unwrap().unwrap();
     }
 
     #[test]
@@ -699,7 +701,8 @@ mod tests {
     fn test_crabcast_input_fa_gz_file() {
         let test_file = get_test_fa_gz();
         let input_handle = get_input_handle(test_file).expect("invalid input handle");
-        let _ = fastq::Reader::new(input_handle);
+        let reader = fastq::Reader::new(input_handle);
+        let _ = reader.next().unwrap().unwrap();
     }
 
     // Ordering
