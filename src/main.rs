@@ -590,7 +590,7 @@ mod tests {
     fn test_needlecast_filt_fq() {
 
         let test_file = get_test_fq();
-        let _indices Vec<(usize, u64)> = vec![(0, 40)];
+        let _indices: Vec<(usize, u64)> = vec![(0, 40)];
         let mut indices: HashMap<usize, u64> = _indices.iter().cloned().collect();
         let completed = needlecast_filt(test_file, String::from("-"), indices);
 
