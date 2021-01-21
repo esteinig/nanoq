@@ -604,7 +604,7 @@ mod tests {
         assert_eq!(min_read_length, 10);
         assert_eq!(mean_read_length, 18);
         assert_eq!(median_read_length, 20);
-        assert_eq!(mean_read_quality, 16.0);
+        assert_eq!(mean_read_quality, 18.0);
         assert_eq!(median_read_quality, 20.0);
 
     }
