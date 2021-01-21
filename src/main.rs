@@ -547,6 +547,12 @@ fn get_read_length_n50(base_pairs: &u64, read_lengths: &mut Vec<u64>) -> u64 {
 mod tests {
     use super::*;
 
+    fn get_root() -> String {
+        let mut root: String = env!("CARGO_MANIFEST_DIR"));
+        root.push_str("/data");
+        return root;
+    }
+
     // Fastq
 
     #[test]
