@@ -590,7 +590,7 @@ mod tests {
         let keep_bases: usize = 0;
         let indices = retain_indexed_quality_reads(read_qualities, read_lengths, keep_percent, keep_bases).unwrap();
 
-        assert_eq!(indices, None)
+        assert_eq!(indices, vec![(0, 10), (1, 20)]);
     }
 
     #[test]
@@ -602,7 +602,7 @@ mod tests {
         let keep_bases: usize = 30;
         let indices = retain_indexed_quality_reads(read_qualities, read_lengths, keep_percent, keep_bases).unwrap();
 
-        assert_eq!(indices, None)
+        assert_eq!(indices, vec![(0, 10), (1, 20)]);
     }
 
     #[test]
@@ -614,7 +614,7 @@ mod tests {
         let keep_bases: usize = 30;
         let indices = retain_indexed_quality_reads(read_qualities, read_lengths, keep_percent, keep_bases).unwrap();
 
-        assert_eq!(indices, None)
+        assert_eq!(indices, vec![(0, 10), (1, 20)]);
     }
 
 
