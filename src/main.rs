@@ -642,8 +642,8 @@ mod tests {
 
         while let Some(record) = reader.next() {
             let record = record.expect("invalid sequence record");
-            assert_eq!(record.id(), b"id");
-            assert_eq!(record.raw_seq(), b"ACCGTAGGCTGA");
+            assert_eq!(&record.id(), "id");
+            assert_eq!(&record.raw_seq(), "ACCGTAGGCTGA");
         }
     }
 
