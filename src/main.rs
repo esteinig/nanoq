@@ -585,6 +585,19 @@ mod tests {
 
     // Needlecast based filters and stats
 
+    #[test]
+    fn test_two_pass_filter_main_fq() {
+        let test_file = get_test_fq();
+        let completed = two_pass_filter(test_file, String::from("/dev/null"), 100.0, 0);
+        assert!(completed.is_ok());
+    }
+
+    #[test]
+    fn test_two_pass_filter_main_fa() {
+        let test_file = get_test_fa();
+        let completed = two_pass_filter(test_file, String::from("/dev/null"), 100.0, 0);
+        assert!(completed.is_ok());
+    }
 
     #[test]
     fn test_needlecast_filt_fq() {
