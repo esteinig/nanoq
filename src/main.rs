@@ -47,18 +47,17 @@ fn main() -> Result<(), Error> {
 
         // Advanced mode (Filtlong analog)
 
-        if fastx == "-".to_string() {
-            eprintln!("Cannot read from STDIN with two-pass filters!");
+        if fastx == "-".to_string() || fastx == "/dev/stdin".to_string() {
+            eprintln!("Cannot read from STDIN with advanced filters, must read from file");
             process::exit(1);
         }
 
         if min_length > 0 || min_quality > 0 || max_length > 0 {
-            eprintln!("Cannot specify length or quality filters with advanced two-pass filters!");
+            eprintln!("Cannot specify length or quality filters with advanced filters, keep filters only");
             process::exit(1);
         }
 
-        // No read count check in the two pass filter -> no stats
-        two_pass_filter(fastx, output, keep_percent, keep_bases);
+        two_pass_filter(fastx, output, keep_percent, keep_bases).expect("failed advanced filter");
 
     } else {
         
