@@ -867,8 +867,8 @@ mod tests {
     fn test_read_length_range() {
         let test_data = vec![10, 10, 20, 30];
         let (min_read_length, max_read_length) = get_read_length_range(&test_data);
-        assert_eq!(*min_read_length, 10);
-        assert_eq!(*max_read_length, 30);
+        assert_eq!(min_read_length, 10);
+        assert_eq!(max_read_length, 30);
     }
 
 
