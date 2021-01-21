@@ -586,8 +586,8 @@ mod tests {
 
         let reads: u64 = 5;
         let base_pairs: u64 = 80;
-        let mut read_lengths: Vec<u64> = vec![20, 10, 30, 20, 10];
-        let mut read_qualities: Vec<u64> = vec![20, 10, 30, 20, 10];
+        let read_lengths: Vec<u64> = vec![20, 10, 30, 20, 10];
+        let read_qualities: Vec<u64> = vec![20, 10, 30, 20, 10];
 
         let (
             read_length_n50, 
