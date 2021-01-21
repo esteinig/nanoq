@@ -583,100 +583,113 @@ mod tests {
         return root;
     }
 
-    // Needlecast filt based on index HashMap
+    // Needlecast based filters and stats
 
     #[test]
-    fn test_two_pass_filter_main() {
+    fn test_needlecast_stats_fq() {
+        let test_file = get_test_fq();
+        let (reads, base_pairs, read_lengths, read_qualities) = needlecast_stats(test_file);
 
+        assert_eq!(reads, 1);
+        assert_eq!(base_pairs, 12);
+        assert_eq!(read_lengths, vec![12]);
+        assert_eq!(read_qualities, vec![12]);
+    }
+
+    #[test]
+    fn test_needlecast_stats_fa() {
+        let test_file = get_test_fa();
+        let (reads, base_pairs, read_lengths, read_qualities) = needlecast_stats(test_file);
+        
+        assert_eq!(reads, 1);
+        assert_eq!(base_pairs, 12);
+        assert_eq!(read_lengths, vec![12]);
+        assert_eq!(read_qualities, vec![12]);
+    }
+
+    #[test]
+    fn test_two_pass_filter_main_fq() {
         let test_file = get_test_fq();
         let completed = two_pass_filter(test_file, String::from("/dev/null"), 100.0, 0);
         assert!(completed.is_ok());
+    }
 
+    #[test]
+    fn test_two_pass_filter_main_fa() {
+        let test_file = get_test_fa();
+        let completed = two_pass_filter(test_file, String::from("/dev/null"), 100.0, 0);
+        assert!(completed.is_ok());
     }
 
     #[test]
     fn test_needlecast_filt_fq() {
-
         let test_file = get_test_fq();
         let _indices: Vec<(usize, u64)> = vec![(0, 40)];
-        let mut indices: HashMap<usize, u64> = _indices.iter().cloned().collect();
+        let indices: HashMap<usize, u64> = _indices.iter().cloned().collect();
         let completed = needlecast_filt(&test_file, String::from("/dev/null"), indices);
         assert!(completed.is_ok());
-
     }
 
     #[test]
     fn test_needlecast_filt_fa() {
-
         let test_file = get_test_fa();
         let _indices: Vec<(usize, u64)> = vec![(0, 40)];
-        let mut indices: HashMap<usize, u64> = _indices.iter().cloned().collect();
+        let indices: HashMap<usize, u64> = _indices.iter().cloned().collect();
         let completed = needlecast_filt(&test_file, String::from("/dev/null"), indices);
         assert!(completed.is_ok());
-
     }
 
     // Retain indices from quality filtering
     
     #[test]
     fn test_retain_indexed_quality_reads_keep_percent_retain_none() {
-    
         let read_qualities: Vec<u64> = vec![10, 20, 20, 30];
         let read_lengths: Vec<u64> = vec![10, 20, 20, 30];
         let keep_percent: f64 = 0.1;
         let keep_bases: usize = 0;
         let indices = retain_indexed_quality_reads(read_qualities, read_lengths, keep_percent, keep_bases).unwrap();
-
         assert_eq!(indices.len(), 0); 
         assert_eq!(indices, vec![]);
     }
 
     #[test]
     fn test_retain_indexed_quality_reads_keep_percent_retain_some() {
-    
         let read_qualities: Vec<u64> = vec![10, 20, 20, 30];
         let read_lengths: Vec<u64> = vec![10, 20, 20, 30];
         let keep_percent: f64 = 0.50;
         let keep_bases: usize = 0;
         let indices = retain_indexed_quality_reads(read_qualities, read_lengths, keep_percent, keep_bases).unwrap();
-
         assert_eq!(indices.len(), 2); // order of quality sort with equal elements not guaranteed
     }
 
     #[test]
     fn test_retain_indexed_quality_reads_keep_bases_retain_none() {
-    
         let read_qualities: Vec<u64> = vec![10, 20, 20, 30];
         let read_lengths: Vec<u64> = vec![10, 20, 20, 30];
         let keep_percent: f64 = 0.1;
         let keep_bases: usize = 0;
         let indices = retain_indexed_quality_reads(read_qualities, read_lengths, keep_percent, keep_bases).unwrap();
-
         assert_eq!(indices.len(), 0);
         assert_eq!(indices, vec![]);
     }
 
     #[test]
     fn test_retain_indexed_quality_reads_keep_bases_retain_some() {
-    
         let read_qualities: Vec<u64> = vec![10, 20, 20, 30];
         let read_lengths: Vec<u64> = vec![10, 20, 20, 30];
         let keep_percent: f64 = 1.0;
         let keep_bases: usize = 50;
         let indices = retain_indexed_quality_reads(read_qualities, read_lengths, keep_percent, keep_bases).unwrap();
-
         assert_eq!(indices.len(), 1); // order of quality sort with equal elements not guaranteed
     }
 
     #[test]
     fn test_retain_indexed_quality_reads_both() {
-    
         let read_qualities: Vec<u64> = vec![10, 20, 20, 30];
         let read_lengths: Vec<u64> = vec![10, 20, 20, 30];
         let keep_percent: f64 = 0.75;
         let keep_bases: usize = 60;
         let indices = retain_indexed_quality_reads(read_qualities, read_lengths, keep_percent, keep_bases).unwrap();
-
         assert_eq!(indices.len(), 2); // order of quality sort with equal elements not guaranteed
     }
 
@@ -685,12 +698,10 @@ mod tests {
 
     #[test]
     fn test_eprint_stats() {
-
         let reads: u64 = 5;
         let base_pairs: u64 = 80;
         let read_lengths: Vec<u64> = vec![20, 10, 30, 20, 10];
         let read_qualities: Vec<u64> = vec![20, 10, 30, 20, 10];
-
         let (
             read_length_n50, 
             max_read_length, 
@@ -700,7 +711,7 @@ mod tests {
             mean_read_quality, 
             median_read_quality
         ) = eprint_stats(reads, base_pairs, read_lengths, read_qualities).unwrap();
-        
+
         assert_eq!(read_length_n50, 20);
         assert_eq!(max_read_length, 30);
         assert_eq!(min_read_length, 10);
@@ -708,7 +719,6 @@ mod tests {
         assert_eq!(median_read_length, 20);
         assert_eq!(mean_read_quality, 18.0);
         assert_eq!(median_read_quality, 20.0);
-
     }
 
     // Fastq
@@ -798,7 +808,6 @@ mod tests {
     #[test]
     fn test_crabcast_input_fq_file() {
         let test_file = get_test_fq();
-        
         let input_handle = get_input_handle(test_file).expect("invalid input handle");
         let reader = fastq::Reader::new(input_handle);
 
@@ -972,6 +981,5 @@ mod tests {
         assert_eq!(min_read_length, 10);
         assert_eq!(max_read_length, 30);
     }
-
 
 }
