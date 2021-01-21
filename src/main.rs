@@ -548,31 +548,31 @@ mod tests {
     use super::*;
 
     fn get_root() -> String {
-        let root: String = env!("CARGO_MANIFEST_DIR").to_string();
+        let mut root: String = env!("CARGO_MANIFEST_DIR").to_string();
         root.push_str("/data/");
         return root;
     }
 
     fn get_test_fq() -> String {
-        let root: String = get_root();
+        let mut root: String = get_root();
         root.push_str(&String::from("test.fq"));
         return root;
     }
 
     fn get_test_fq_gz() -> String {
-        let root: String = get_root();
+        let mut root: String = get_root();
         root.push_str(&String::from("test.fq.gz"));
         return root;
     }
 
     fn get_test_fa() -> String {
-        let root: String = get_root();
+        let mut root: String = get_root();
         root.push_str(&String::from("test.fa"));
         return root;
     }
 
     fn get_test_fa_gz() -> String {
-        let root: String = get_root();
+        let mut root: String = get_root();
         root.push_str(&String::from("test.fa.gz"));
         return root;
     }
