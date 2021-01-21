@@ -222,13 +222,11 @@ fn two_pass_filter(fastx: String, output: String, keep_percent: f64, keep_bases:
     // Advanced filters that require a single pass for stats, a second pass to output filtered reads
 
     if !is_fastq(&fastx).expect("invalid file input") {
-        eprintln!("Two pass filter requires fastq format with quality scores");
-        process::exit(1);
+        panic!("invalid fastq input");
     }
 
     if !(keep_percent >= 0. && keep_percent <= 100.) {
-        eprintln!("Keep percent arguments must be between 0 and 100 (%)");
-        process::exit(1);
+        panic!("keep percent range");
     }
 
     let keep_percent: f64 = if keep_percent == 0. {
@@ -585,6 +583,19 @@ mod tests {
 
     // Needlecast based filters and stats
 
+    #[test]
+    fn test_two_pass_filter_main_fq() {
+        let test_file = get_test_fq();
+        let completed = two_pass_filter(test_file, String::from("/dev/null"), 100.0, 0);
+        assert!(completed.is_ok());
+    }
+
+    #[test]
+    #[should_panic]  // fasta not supported, need qual scores
+    fn test_two_pass_filter_main_fa() {
+        let test_file = get_test_fa();
+        let _ = two_pass_filter(test_file, String::from("/dev/null"), 100.0, 0);
+    }
 
     #[test]
     fn test_needlecast_filt_fq() {
