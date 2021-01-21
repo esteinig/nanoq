@@ -608,7 +608,7 @@ mod tests {
         let keep_bases: usize = 0;
         let indices = retain_indexed_quality_reads(read_qualities, read_lengths, keep_percent, keep_bases).unwrap();
 
-        assert_eq!(indices.len(), 1); // order of quality sort with equal elements not guaranteed
+        assert_eq!(indices.len(), 2); // order of quality sort with equal elements not guaranteed
     }
 
     #[test]
