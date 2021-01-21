@@ -586,6 +586,26 @@ mod tests {
     // Needlecast based filters and stats
 
     #[test]
+    fn test_needlecast_stats_fq() {
+        let test_file = get_test_fq();
+        let (reads, base_pairs, read_lengths, read_qualities) = needlecast_stats(&test_file).unwrap();
+
+        assert_eq!(reads, 1);
+        assert_eq!(base_pairs, 12);
+        assert_eq!(read_lengths, vec![12]);
+    }
+
+    #[test]
+    fn test_needlecast_stats_fa() {
+        let test_file = get_test_fa();
+        let (reads, base_pairs, read_lengths, read_qualities) = needlecast_stats(&test_file).unwrap();
+        
+        assert_eq!(reads, 1);
+        assert_eq!(base_pairs, 12);
+        assert_eq!(read_lengths, vec![12]);
+    }
+
+    #[test]
     fn test_two_pass_filter_main_fq() {
         let test_file = get_test_fq();
         let completed = two_pass_filter(test_file, String::from("/dev/null"), 100.0, 0);
@@ -593,10 +613,10 @@ mod tests {
     }
 
     #[test]
+    #[should_panic]  // fasta not supported, need qual scores
     fn test_two_pass_filter_main_fa() {
         let test_file = get_test_fa();
-        let completed = two_pass_filter(test_file, String::from("/dev/null"), 100.0, 0);
-        assert!(completed.is_ok());
+        let _ = two_pass_filter(test_file, String::from("/dev/null"), 100.0, 0);
     }
 
     #[test]
