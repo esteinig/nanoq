@@ -594,7 +594,7 @@ mod tests {
         let mut indices: HashMap<usize, u64> = _indices.iter().cloned().collect();
         let completed = needlecast_filt(&test_file, String::from("-"), indices);
 
-        asserteq!(completed, Ok(()));
+        assert_eq!(completed, Ok(()));
 
     }
 
