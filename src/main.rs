@@ -683,7 +683,7 @@ mod tests {
     fn test_crabcast_input_fq_gz_file() {
         let test_file = get_test_fq_gz();
         let input_handle = get_input_handle(test_file).expect("invalid input handle");
-        let reader = fastq::Reader::new(input_handle);
+        let _ = fastq::Reader::new(input_handle);
     }
 
     #[test]
@@ -691,7 +691,7 @@ mod tests {
     fn test_crabcast_input_fa_file() {
         let test_file = get_test_fa();
         let input_handle = get_input_handle(test_file).expect("invalid input handle");
-        let reader = fastq::Reader::new(input_handle);
+        let _ = fastq::Reader::new(input_handle);
     }
 
     #[test]
@@ -699,7 +699,7 @@ mod tests {
     fn test_crabcast_input_fa_gz_file() {
         let test_file = get_test_fa_gz();
         let input_handle = get_input_handle(test_file).expect("invalid input handle");
-        let reader = fastq::Reader::new(input_handle);
+        let _ = fastq::Reader::new(input_handle);
     }
 
     // Ordering
@@ -770,7 +770,7 @@ mod tests {
     #[should_panic]
     fn test_median_read_quality_empty() {
         let mut test_data: Vec<u64> = Vec::new();
-        let median_quality = get_median_read_quality(&mut test_data);
+        let _ = get_median_read_quality(&mut test_data);
     }    
 
     #[test]
@@ -791,7 +791,7 @@ mod tests {
     #[should_panic]
     fn test_mean_read_length_empty() {
         let mut test_data: Vec<u64> = Vec::new();
-        let mean_length = get_mean_read_length(&mut test_data);
+        let _ = get_mean_read_length(&mut test_data);
     }
 
     #[test]
@@ -804,7 +804,7 @@ mod tests {
     #[should_panic]
     fn test_median_read_length_empty() {
         let mut test_data: Vec<u64> = Vec::new();
-        let median_length = get_median_read_length(&mut test_data);
+        let _ = get_median_read_length(&mut test_data);
     }
 
     #[test]
@@ -825,7 +825,7 @@ mod tests {
     #[should_panic]
     fn test_read_length_range_empty() {
         let test_data: Vec<u64> = Vec::new();
-        let (min_read_length, max_read_length) = get_read_length_range(&test_data);
+        let _ = get_read_length_range(&test_data);
     }
 
     #[test]
