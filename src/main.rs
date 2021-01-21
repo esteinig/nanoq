@@ -318,7 +318,7 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
     let median_read_length = get_median_read_length(&mut read_lengths);
     let median_read_quality = get_median_read_quality(&mut read_qualities);
     let read_length_n50 = get_read_length_n50(&base_pairs, &mut read_lengths);
-    let (*min_read_length, *max_read_length) = get_read_length_range(&read_lengths);
+    let (min_read_length, max_read_length) = get_read_length_range(&read_lengths);
 
     eprintln!(
         "{:} {:} {:} {:} {:} {:} {:} {:.2} {:.2}",
@@ -460,7 +460,7 @@ fn get_mean_error(quality_bytes: &[u8]) -> f32 {
 
 // Read length range
 
-fn get_read_length_range(numbers: &Vec<u64>) -> (&u64, &u64) {
+fn get_read_length_range(numbers: &Vec<u64>) -> (u64, u64) {
 
     let min_read_length = numbers.iter().min().expect("Could not determine minimum read length");
     let max_read_length = numbers.iter().max().expect("Could not determine maximum read length");
