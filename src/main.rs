@@ -590,7 +590,7 @@ mod tests {
     fn test_two_pass_filter_main() {
 
         let test_file = get_test_fq();
-        let completed = two_pass_filter(test_file, String::from("-"), 100, 0);
+        let completed = two_pass_filter(test_file, String::from("-"), 100.0, 0);
         assert!(completed.is_ok());
 
     }
