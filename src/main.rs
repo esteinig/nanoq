@@ -548,7 +548,7 @@ mod tests {
     use super::*;
 
     fn get_root() -> String {
-        let root: String = env!("CARGO_MANIFEST_DIR");
+        let root: String = env!("CARGO_MANIFEST_DIR").to_string();
         root.push_str("/data/");
         return root;
     }
@@ -557,7 +557,7 @@ mod tests {
 
     #[test]
     fn test_is_fastq_fq_file() {
-        let test_file: String = get_root().push_str(String::from("test.fq"));
+        let test_file: String = get_root().push_str(&String::from("test.fq"));
         let is_fastq = is_fastq(&test_file).unwrap();
         assert!(is_fastq);
     }
