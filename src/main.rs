@@ -77,7 +77,7 @@ fn main() -> Result<(), Error> {
         // This check prevents the stats computation from panicking on empty vec, see tests 
         if reads == 0 {
             eprintln!("No reads");
-            process::exit(1);
+            process::exit(0); // exit gracefully
         }
 
         let _ = eprint_stats(reads, base_pairs, read_lengths, read_qualities).expect("failed to collect stats");
@@ -128,7 +128,7 @@ fn crabcast(fastx: String, output: String, min_length: u64, max_length: u64, min
             reads += 1;
 
             if min_length > 0 || min_quality > 0 || max_length > 0 {
-                writer.write_record(&record).expect("Error: could not write record");
+                writer.write_record(&record).expect("invalid record write");
             }
         }           
 
@@ -242,6 +242,11 @@ fn two_pass_filter(fastx: String, output: String, keep_percent: f64, keep_bases:
     let (_, _, read_lengths, read_qualities) = needlecast_stats(&fastx).expect("failed stats pass");
 
     let indexed_qualities_retain = retain_indexed_quality_reads(read_qualities, read_lengths, keep_percent, keep_bases).expect("failed index collect");
+
+    if indexed_qualities_retain.len() == 0 {
+        eprintln!("No reads");
+        process::exit(0);  // exit gracefully
+    }
 
     // Second pass, filter reads to output by indices
     let mut _indices: HashMap<usize, u64> = indexed_qualities_retain.iter().cloned().collect();
@@ -582,7 +587,7 @@ mod tests {
     // Retain indices from quality filtering
     
     #[test]
-    fn test_retain_indexed_quality_reads_keep_percent() {
+    fn test_retain_indexed_quality_reads_keep_percent_retain_none() {
     
         let read_qualities: Vec<u64> = vec![10, 20, 20, 30];
         let read_lengths: Vec<u64> = vec![10, 20, 20, 30];
@@ -590,11 +595,25 @@ mod tests {
         let keep_bases: usize = 0;
         let indices = retain_indexed_quality_reads(read_qualities, read_lengths, keep_percent, keep_bases).unwrap();
 
-        assert_eq!(indices, vec![(0, 10), (1, 20)]);
+        assert_eq!(indices.len(), 0);
+        assert_eq!(indices, vec![]);
     }
 
     #[test]
-    fn test_retain_indexed_quality_reads_keep_bases() {
+    fn test_retain_indexed_quality_reads_keep_percent_retain_some() {
+    
+        let read_qualities: Vec<u64> = vec![10, 20, 20, 30];
+        let read_lengths: Vec<u64> = vec![10, 20, 20, 30];
+        let keep_percent: f64 = 0.50;
+        let keep_bases: usize = 0;
+        let indices = retain_indexed_quality_reads(read_qualities, read_lengths, keep_percent, keep_bases).unwrap();
+
+        assert_eq!(indices.len(), 1);
+        assert_eq!(indices, vec![(1, 20)]);
+    }
+
+    #[test]
+    fn test_retain_indexed_quality_reads_keep_bases_retain_none() {
     
         let read_qualities: Vec<u64> = vec![10, 20, 20, 30];
         let read_lengths: Vec<u64> = vec![10, 20, 20, 30];
@@ -602,6 +621,20 @@ mod tests {
         let keep_bases: usize = 30;
         let indices = retain_indexed_quality_reads(read_qualities, read_lengths, keep_percent, keep_bases).unwrap();
 
+        assert_eq!(indices.len(), 0);
+        assert_eq!(indices, vec![]);
+    }
+
+    #[test]
+    fn test_retain_indexed_quality_reads_keep_bases_retain_some() {
+    
+        let read_qualities: Vec<u64> = vec![10, 20, 20, 30];
+        let read_lengths: Vec<u64> = vec![10, 20, 20, 30];
+        let keep_percent: f64 = 1.0;
+        let keep_bases: usize = 30;
+        let indices = retain_indexed_quality_reads(read_qualities, read_lengths, keep_percent, keep_bases).unwrap();
+
+        assert_eq!(indices.len(), 1);
         assert_eq!(indices, vec![(0, 10), (1, 20)]);
     }
 
@@ -610,10 +643,11 @@ mod tests {
     
         let read_qualities: Vec<u64> = vec![10, 20, 20, 30];
         let read_lengths: Vec<u64> = vec![10, 20, 20, 30];
-        let keep_percent: f64 = 0.25;
+        let keep_percent: f64 = 0.50;
         let keep_bases: usize = 30;
         let indices = retain_indexed_quality_reads(read_qualities, read_lengths, keep_percent, keep_bases).unwrap();
 
+        assert_eq!(indices.len(), 2);
         assert_eq!(indices, vec![(0, 10), (1, 20)]);
     }
 
