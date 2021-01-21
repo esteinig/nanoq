@@ -647,8 +647,8 @@ mod tests {
         let keep_bases: usize = 60;
         let indices = retain_indexed_quality_reads(read_qualities, read_lengths, keep_percent, keep_bases).unwrap();
 
-        assert_eq!(indices.len(), 3);
-        assert_eq!(indices, vec![(3, 30), (2, 20), (1, 20)]);
+        assert_eq!(indices.len(), 2);
+        assert_eq!(indices, vec![(3, 30), (2, 20)]);
     }
 
 
