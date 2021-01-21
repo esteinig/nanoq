@@ -548,7 +548,7 @@ mod tests {
     use super::*;
 
     fn get_root() -> String {
-        let root: String = env!("CARGO_MANIFEST_DIR"));
+        let root: String = env!("CARGO_MANIFEST_DIR");
         root.push_str("/data/");
         return root;
     }
