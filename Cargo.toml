@@ -13,7 +13,7 @@ license = "MIT"
 edition = "2018"
 include = [
     "**/*.rs",
-    "Cargo.toml",
+    "Cargo.toml"
 ]
 
 [dependencies]
