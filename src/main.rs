@@ -214,11 +214,11 @@ fn needlecast_stats(fastx: &String) -> Result<(u64, u64, Vec<u64>, Vec<u64>), Er
 
     }
 
-    return Ok((reads, base_pairs, read_lengths, read_qualities))
+    Ok((reads, base_pairs, read_lengths, read_qualities))
 
 }
 
-fn two_pass_filter(fastx: String, output: String, keep_percent: f64, keep_bases: usize){
+fn two_pass_filter(fastx: String, output: String, keep_percent: f64, keep_bases: usize) -> Result<(), Error> {
 
     // Advanced filters that require a single pass for stats, a second pass to output filtered reads
 
@@ -252,7 +252,7 @@ fn two_pass_filter(fastx: String, output: String, keep_percent: f64, keep_bases:
     let mut _indices: HashMap<usize, u64> = indexed_qualities_retain.iter().cloned().collect();
     needlecast_filt(&fastx, output, _indices).expect("failed output pass"); // TODO: check if vec contains is faster
     
-
+    Ok(())
 }
 
 
@@ -272,7 +272,7 @@ fn needlecast_filt(fastx: &String, output: String, indices: HashMap<usize, u64>)
         read += 1;
     }
         
-    return Ok(())
+    Ok(())
 
 }
 
@@ -585,6 +585,15 @@ mod tests {
     }
 
     // Needlecast filt based on index HashMap
+
+    #[test]
+    fn test_two_pass_filter_main() {
+
+        let test_file = get_test_fq();
+        let completed = two_pass_filter(test_file, String::from("-"), 100, 0);
+        assert!(completed.is_ok());
+
+    }
 
     #[test]
     fn test_needlecast_filt_fq() {
