@@ -333,8 +333,8 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
 
         eprintln!(
             "
-Nanoq read summary
-==================
+Nanoq read set summary: v0.2.0
+===============================
 
 Number of reads:     {:}
 Number of bases:     {:}
