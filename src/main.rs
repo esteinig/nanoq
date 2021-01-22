@@ -64,12 +64,12 @@ fn main() -> Result<(), Error> {
         // Standard mode
         
         let (reads, base_pairs, read_lengths, read_qualities) = if crab {
-            crabcast_filter(fastx, output, min_length, max_length, min_quality)
+            crabcast_filter(fastx, output, min_length, max_length, min_quality);
         } else {
             if min_length > 0 || min_quality > 0 || max_length > 0 {
-                needlecast_filter(fastx, output, min_length, max_length, min_quality)
+                needlecast_filter(fastx, output, min_length, max_length, min_quality);
             } else {
-                needlecast_stats(&fastx)
+                needlecast_stats(&fastx);
             }
         }.expect("Carcinised error encountered - what the crab?");
         
@@ -119,7 +119,7 @@ fn crabcast_filter(fastx: String, output: String, min_length: u64, max_length: u
 
         let seqlen = record.seq().len() as u64;
                 
-        if seqlen >= min_length && mean_quality >= min_quality && seqlen <= max_length {
+        if seqlen >= min_length && mean_quality >= min_quality && !(seqlen > max_length) {
             
             read_lengths.push(seqlen);
             read_qualities.push(mean_quality);            
