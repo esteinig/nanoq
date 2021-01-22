@@ -322,18 +322,89 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
     let read_length_n50 = get_read_length_n50(&base_pairs, &mut read_lengths);
     let (min_read_length, max_read_length) = get_read_length_range(&read_lengths);
 
-    eprintln!(
-        "{:} {:} {:} {:} {:} {:} {:} {:.2} {:.2}",
-        reads, 
-        base_pairs, 
-        read_length_n50,
-        max_read_length, 
-        min_read_length, 
-        mean_read_length, 
-        median_read_length, 
-        mean_read_quality, 
-        median_read_quality
-    );
+    if detail {
+
+        if reads < 5 {
+            panic!("Must have at least five reads for extended summary output")
+        }
+
+        let mut indexed_lengths: Vec<(usize, u64)> = Vec::new();
+        for (i, q) in &read_lengths.iter().enumerate() {
+            indexed_lengths.push((i, *q));
+        }
+
+        &indexed_lengths.sort_by(compare_indexed_tuples_descending);
+
+        let mut indexed_qualities: Vec<(usize, u64)> = Vec::new();
+        for (i, q) in &read_qualities.iter().enumerate() {
+            indexed_qualities.push((i, *q));
+        }
+
+        &indexed_qualities.sort_by(compare_indexed_tuples_descending);
+        
+        let (index1, length1) = indexed_lengths[0];
+        let (index2, length2) = indexed_lengths[1];
+        let (index3, length3) = indexed_lengths[2];
+        let (index4, length4) = indexed_lengths[3];
+        let (index5, length5) = indexed_lengths[4];
+
+        eprintln!(
+            "
+            Top ranking read lengths (average read quality):
+
+            1. {:} ({:})
+            2. {:} ({:})
+            3. {:} ({:})
+            4. {:} ({:})
+            5. {:} ({:})
+            
+            ",
+            length1, read_qualities[index1],
+            length2, read_qualities[index2],
+            length3, read_qualities[index3],
+            length4, read_qualities[index4],
+            length5, read_qualities[index5]
+        );
+
+        let (index5, qual1) = indexed_qualities[0];
+        let (index6, qual2) = indexed_qualities[1];
+        let (index7, qual3) = indexed_qualities[2];
+        let (index9, qual4) = indexed_qualities[3];
+        let (index10, qual5) = indexed_qualities[4];
+
+        eprintln!(
+            "
+            Top ranking read qualities (read length):
+
+            1. {:} ({:})
+            2. {:} ({:})
+            3. {:} ({:})
+            4. {:} ({:})
+            5. {:} ({:})
+            
+            ",
+            qual1, read_lengths[index6],
+            qual2, read_lengths[index7],
+            qual3, read_lengths[index8],
+            qual4, read_lengths[index9],
+            qual5, read_lengths[index10]
+        );
+
+    } else {
+        
+        eprintln!(
+            "{:} {:} {:} {:} {:} {:} {:} {:.2} {:.2}",
+            reads, 
+            base_pairs, 
+            read_length_n50,
+            max_read_length, 
+            min_read_length, 
+            mean_read_length, 
+            median_read_length, 
+            mean_read_quality, 
+            median_read_quality
+        );
+    }
 
     Ok((read_length_n50, max_read_length, min_read_length, mean_read_length, median_read_length, mean_read_quality, median_read_quality))
 
