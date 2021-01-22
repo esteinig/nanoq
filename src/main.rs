@@ -587,6 +587,8 @@ mod tests {
     fn test_needlecasts_stats_fq() {
         let test_file = get_test_fq();
         let (reads, base_pairs, read_lengths, read_qualities) = needlecast_stats(&test_file).unwrap();
+
+        assert_eq!(reads, 1);
     }
 
     #[test]
