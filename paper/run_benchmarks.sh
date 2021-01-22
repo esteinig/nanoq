@@ -31,7 +31,6 @@ for i in $(seq 1 100); do
     (time cat test.fq | nanoq -c) 2> ${i}_nanoq_crab_stat
     tail -1 ${i}_nanoq_crab_stat >> nanoq_crab_stat
 
-    
     echo "Nanostat stats"
 
     # test file stat nanostat 4 cpu
