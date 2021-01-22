@@ -19,6 +19,8 @@ for i in $(seq 1 100); do
     # Gzipped time replicate iteration
     echo "Replicate timer: $i"
 
+    echo "Nanoq stats"
+
     # test file stat nanoq
     (time cat test.fq | nanoq) 2> ${i}_nanoq_stat
     tail -1 ${i}_nanoq_stat >> nanoq_fq_stat
@@ -29,6 +31,9 @@ for i in $(seq 1 100); do
     (time cat test.fq | nanoq -c) 2> ${i}_nanoq_crab_stat
     tail -1 ${i}_nanoq_crab_stat >> nanoq_crab_stat
 
+    
+    echo "Nanostat stats"
+
     # test file stat nanostat 4 cpu
     (time NanoStat --fastq test.fq -t 4) 2> ${i}_nanostat_stat
     tail -1 ${i}_nanostat_stat >> nanostat_fq_stat
@@ -36,12 +41,17 @@ for i in $(seq 1 100); do
     (time NanoStat --fastq test.fq.gz -t 4) 2> ${i}_nanostat_gz_stat
     tail -1 ${i}_nanostat_gz_stat >> nanostat_gz_stat
 
+    
+    echo "Nanofilt filters"
+
     # test file filt nanofilt
     (time cat test.fq | NanoFilt -l 5000 > /dev/null) 2> ${i}_nanofilt_filt
     tail -1 ${i}_nanofilt_filt >> nanofilt_fq_filt
     # test file filt gzipped nanofilt
     (time zcat test.fq.gz | NanoFilt -l 5000 > /dev/null) 2> ${i}_nanofilt_gz_filt
     tail -1 ${i}_nanofilt_gz_filt >> nanofilt_gz_filt
+
+    echo "Nanoq filters"
 
     # test file filt nanoq
     (time cat test.fq | nanoq -l 5000 > /dev/null) 2> ${i}_nanoq_filt
@@ -52,6 +62,8 @@ for i in $(seq 1 100); do
     # test file filt gzipped nanoq crab cast (no native gz support)
     (time zcat test.fq.gz | nanoq -l 5000 -c > /dev/null) 2> ${i}_nanoq_crab_filt
     tail -1 ${i}_nanoq_crab_filt >> nanoq_crab_filt
+
+    echo "Filtlong filters"
 
      # test file filt filtlong
     (time filtlong --min_length 5000 test.fq > /dev/null) 2> ${i}_filtlong_filt
