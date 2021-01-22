@@ -624,7 +624,7 @@ mod tests {
         let test_file = get_test_fq();
         let _indices: Vec<(usize, u64)> = vec![(0, 40)];
         let indices: HashMap<usize, u64> = _indices.iter().cloned().collect();
-        let completed = needlecast_filt(&test_file, String::from("/dev/null"), indices);
+        let completed = needlecast_index_filter(&test_file, String::from("/dev/null"), indices);
         assert!(completed.is_ok());
     }
 
@@ -633,7 +633,7 @@ mod tests {
         let test_file = get_test_fa();
         let _indices: Vec<(usize, u64)> = vec![(0, 40)];
         let indices: HashMap<usize, u64> = _indices.iter().cloned().collect();
-        let completed = needlecast_filt(&test_file, String::from("/dev/null"), indices);
+        let completed = needlecast_index_filter(&test_file, String::from("/dev/null"), indices);
         assert!(completed.is_ok());
     }
 
