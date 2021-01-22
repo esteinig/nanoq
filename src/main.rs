@@ -343,28 +343,35 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
 
         &indexed_qualities.sort_by(compare_indexed_tuples_descending);
         
+         // Read lengths
+
         let (index1, length1) = indexed_lengths[0];
         let (index2, length2) = indexed_lengths[1];
         let (index3, length3) = indexed_lengths[2];
         let (index4, length4) = indexed_lengths[3];
         let (index5, length5) = indexed_lengths[4];
 
-        eprintln!(
-            dedent("
-            Top ranking read lengths (average read quality):
+        let top_lengths = dedent(
+            format!("
+                Top ranking read lengths (average read quality):
 
-            1. {:} ({:})
-            2. {:} ({:})
-            3. {:} ({:})
-            4. {:} ({:})
-            5. {:} ({:})
-            "),
-            length1, read_qualities[index1],
-            length2, read_qualities[index2],
-            length3, read_qualities[index3],
-            length4, read_qualities[index4],
-            length5, read_qualities[index5]
+                1. {:} ({:})
+                2. {:} ({:})
+                3. {:} ({:})
+                4. {:} ({:})
+                5. {:} ({:})
+                ",
+                length1, read_qualities[index1],
+                length2, read_qualities[index2],
+                length3, read_qualities[index3],
+                length4, read_qualities[index4],
+                length5, read_qualities[index5]
+            )
         );
+
+        eprintln!(top_lengths);
+
+        // Read quality
 
         let (index6, qual1) = indexed_qualities[0];
         let (index7, qual2) = indexed_qualities[1];
@@ -374,19 +381,20 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
 
         let top_quality = dedent(
             format!("
-            Top ranking read qualities (read length):
+                Top ranking read qualities (read length):
 
-            1. {:} ({:})
-            2. {:} ({:})
-            3. {:} ({:})
-            4. {:} ({:})
-            5. {:} ({:})
-            "),
-            qual1, read_lengths[index6],
-            qual2, read_lengths[index7],
-            qual3, read_lengths[index8],
-            qual4, read_lengths[index9],
-            qual5, read_lengths[index10]
+                1. {:} ({:})
+                2. {:} ({:})
+                3. {:} ({:})
+                4. {:} ({:})
+                5. {:} ({:})
+                ",
+                qual1, read_lengths[index6],
+                qual2, read_lengths[index7],
+                qual3, read_lengths[index8],
+                qual4, read_lengths[index9],
+                qual5, read_lengths[index10]
+            )
         );
 
         eprintln!(top_quality);
