@@ -589,6 +589,9 @@ mod tests {
         let (reads, base_pairs, read_lengths, read_qualities) = needlecast_stats(&test_file).unwrap();
 
         assert_eq!(reads, 1);
+        assert_eq!(base_pairs, 12);
+        assert_eq!(read_lengths, vec![12]);
+        assert_eq!(read_qualities, vec![40]);
     }
 
     #[test]
