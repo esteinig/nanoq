@@ -352,7 +352,7 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
 
         
         eprintln!("
-Top ranking read lengths (average read quality):
+Top ranking read lengths (read quality):
 
 1. {:} bp (Q{:})
 2. {:} bp (Q{:})
