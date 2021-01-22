@@ -64,7 +64,7 @@ fn main() -> Result<(), Error> {
         // Standard mode
         
         let (reads, base_pairs, read_lengths, read_qualities) = if crab {
-            crabcast(fastx, output, min_length, max_length, min_quality)
+            crabcast_filter(fastx, output, min_length, max_length, min_quality)
         } else {
             if min_length > 0 || min_quality > 0 || max_length > 0 {
                 needlecast_filter(fastx, output, min_length, max_length, min_quality)
@@ -79,7 +79,7 @@ fn main() -> Result<(), Error> {
             process::exit(0); // exit gracefully
         }
 
-        let _ = eprint_stats(reads, base_pairs, read_lengths, read_qualities).expect("failed to collect stats");
+        eprint_stats(reads, base_pairs, read_lengths, read_qualities).expect("failed to collect stats");
 
     }
 
@@ -90,7 +90,7 @@ fn main() -> Result<(), Error> {
 
 // Main functions
 
-fn crabcast(fastx: String, output: String, min_length: u64, max_length: u64, min_quality: u64) -> Result<(u64, u64, Vec<u64>, Vec<u64>), Error>  {
+fn crabcast_filter(fastx: String, output: String, min_length: u64, max_length: u64, min_quality: u64) -> Result<(u64, u64, Vec<u64>, Vec<u64>), Error>  {
 
     // Rust-Bio parser, Fastq only
 
@@ -842,7 +842,7 @@ mod tests {
     // Rust-Bio IO
 
     #[test]
-    fn test_crabcast_input_fq_file() {
+    fn test_crabcast_filter_input_fq_file() {
         let test_file = get_test_fq();
         let input_handle = get_input_handle(test_file).expect("invalid input handle");
         let reader = fastq::Reader::new(input_handle);
@@ -859,7 +859,7 @@ mod tests {
 
     #[test]
     #[should_panic]
-    fn test_crabcast_input_fq_gz_file() {
+    fn test_crabcast_filter_input_fq_gz_file() {
         let test_file = get_test_fq_gz();
         let input_handle = get_input_handle(test_file).expect("invalid input handle");
         let reader = fastq::Reader::new(input_handle);
@@ -868,7 +868,7 @@ mod tests {
 
     #[test]
     #[should_panic]
-    fn test_crabcast_input_fa_file() {
+    fn test_crabcast_filter_input_fa_file() {
         let test_file = get_test_fa();
         let input_handle = get_input_handle(test_file).expect("invalid input handle");
         let reader = fastq::Reader::new(input_handle);
@@ -877,7 +877,7 @@ mod tests {
 
     #[test]
     #[should_panic]
-    fn test_crabcast_input_fa_gz_file() {
+    fn test_crabcast_filter_input_fa_gz_file() {
         let test_file = get_test_fa_gz();
         let input_handle = get_input_handle(test_file).expect("invalid input handle");
         let reader = fastq::Reader::new(input_handle);
