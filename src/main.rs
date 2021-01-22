@@ -372,8 +372,8 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
         let (index9, qual4) = indexed_qualities[3];
         let (index10, qual5) = indexed_qualities[4];
 
-        eprintln!(
-            dedent("
+        let top_quality = dedent(
+            format!("
             Top ranking read qualities (read length):
 
             1. {:} ({:})
@@ -388,6 +388,8 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
             qual4, read_lengths[index9],
             qual5, read_lengths[index10]
         );
+
+        eprintln!(top_quality);
 
     } else {
         
