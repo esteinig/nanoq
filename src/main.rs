@@ -354,11 +354,11 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
         eprintln!("
 Top ranking read lengths (average read quality):
 
-1. {:} ({:})
-2. {:} ({:})
-3. {:} ({:})
-4. {:} ({:})
-5. {:} ({:})
+1. {:} bp (Q{:})
+2. {:} bp (Q{:})
+3. {:} bp (Q{:})
+4. {:} bp (Q{:})
+5. {:} bp (Q{:})
         ",
         length1, read_qualities[index1],
         length2, read_qualities[index2],
@@ -378,11 +378,11 @@ Top ranking read lengths (average read quality):
         eprintln!("
 Top ranking read qualities (read length):
 
-1. {:} ({:})
-2. {:} ({:})
-3. {:} ({:})
-4. {:} ({:})
-5. {:} ({:})
+1. Q{:} ({:} bp)
+2. Q{:} ({:} bp)
+3. Q{:} ({:} bp)
+4. Q{:} ({:} bp)
+5. Q{:} ({:} bp)
         ",
         qual1, read_lengths[index6],
         qual2, read_lengths[index7],
