@@ -371,14 +371,14 @@ Median read quality: {:.1}
          // Read lengths
         eprintln!("Top ranking read lengths (read quality)\n");
         for i in 0..=top {
-            let (read_index, length) = indexed_lengths[i];
+            let (read_index, length) = indexed_lengths[i as usize];
             eprintln!("{}. {:} bp (Q{:})", i+1, length, read_qualities[read_index]);
         }
 
         // Read quality
         eprintln!("Top ranking read qualities (read length)\n");
         for i in 0..=top {
-            let (read_index, qual) = indexed_lengths[i];
+            let (read_index, qual) = indexed_lengths[i as usize];
             eprintln!("{}. {:} bp (Q{:})", i+1, qual, read_lengths[read_index]);
         }
 
