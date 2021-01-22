@@ -24,9 +24,9 @@ fn command_line_interface<'a>() -> ArgMatches<'a> {
         .arg(Arg::with_name("QUALITY").short("q").long("min_quality").takes_value(true).help("Minimum average seq quality [0]"))
         .arg(Arg::with_name("PERCENT").short("p").long("keep_percent").takes_value(true).help("Keep best percent quality bases on reads (0 - 100) [0]"))
         .arg(Arg::with_name("BASES").short("b").long("keep_bases").takes_value(true).help("Keep reads with best quality number of bases [0]"))
-        .arg(Arg::with_name("DETAIL").short("d").long("detail").takes_value(false).help("Pretty print detailed stats [false]"))
-        .arg(Arg::with_name("TOP").short("t").long("top").takes_value(true).help("Print <top> length + quality reads [5]"))
         .arg(Arg::with_name("CRAB").short("c").long("crab").takes_value(false).help("Use the rust-bio parser (fastq) [false]"))
+        .arg(Arg::with_name("DETAIL").short("d").long("detail").multiple(true).takes_value(false).help("Print detailed read summary [false]"))
+        .arg(Arg::with_name("TOP").short("t").long("top").takes_value(true).help("Print <top> length + quality reads [5]"))
     .get_matches()
 
 }
@@ -39,13 +39,19 @@ fn main() -> Result<(), Error> {
     let output: String = cli.value_of("OUTPUT").unwrap_or("-").parse().unwrap();
     let min_length: u64 = cli.value_of("MINLEN").unwrap_or("0").parse().unwrap();
     let max_length: u64 = cli.value_of("MAXLEN").unwrap_or("0").parse().unwrap();
-    let min_quality: u64 = cli.value_of("QUALITY").unwrap_or("0").parse().unwrap();
+    let min_quality: f32 = cli.value_of("QUALITY").unwrap_or("0").parse().unwrap();
     let keep_percent: f64 = cli.value_of("PERCENT").unwrap_or("0").parse().unwrap();
     let keep_bases: usize = cli.value_of("BASES").unwrap_or("0").parse().unwrap();
     let top: u64 = cli.value_of("TOP").unwrap_or("5").parse().unwrap();
     let crab: bool = cli.is_present("CRAB");
-    let detail: bool = cli.is_present("DETAIL");
     
+    let detail: u64 = match cli.occurrences_of("d") {
+        0 => 0,    // no details
+        1 => 1,    // top ranks
+        2 => 2,    // top ranks + thresholds
+        3 | _ => 2 // anything more not effective
+    };
+
     if keep_percent > 0.0 || keep_bases > 0 {
 
         // Advanced mode (Filtlong analog)
@@ -55,7 +61,7 @@ fn main() -> Result<(), Error> {
             process::exit(1);
         }
 
-        if min_length > 0 || min_quality > 0 || max_length > 0 {
+        if min_length > 0 || min_quality > 0.0 || max_length > 0 {
             eprintln!("Cannot specify length or quality filters with advanced filters, keep filters only");
             process::exit(1);
         }
@@ -69,7 +75,7 @@ fn main() -> Result<(), Error> {
         let (reads, base_pairs, read_lengths, read_qualities) = if crab {
             crabcast_filter(fastx, output, min_length, max_length, min_quality)
         } else {
-            if min_length > 0 || min_quality > 0 || max_length > 0 {
+            if min_length > 0 || min_quality > 0.0 || max_length > 0 {
                 needlecast_filter(fastx, output, min_length, max_length, min_quality)
             } else {
                 needlecast_stats(&fastx)
@@ -93,7 +99,7 @@ fn main() -> Result<(), Error> {
 
 // Main functions
 
-fn crabcast_filter(fastx: String, output: String, min_length: u64, max_length: u64, min_quality: u64) -> Result<(u64, u64, Vec<u64>, Vec<u64>), Error>  {
+fn crabcast_filter(fastx: String, output: String, min_length: u64, max_length: u64, min_quality: f32) -> Result<(u64, u64, Vec<u64>, Vec<f32>), Error>  {
 
     // Rust-Bio parser, Fastq only
 
@@ -108,7 +114,7 @@ fn crabcast_filter(fastx: String, output: String, min_length: u64, max_length: u
     let mut base_pairs: u64 = 0;
     let mut reads: u64 = 0;
     let mut read_lengths: Vec<u64> = Vec::new();
-    let mut read_qualities: Vec<u64> = Vec::new();
+    let mut read_qualities: Vec<f32> = Vec::new();
 
     for result in reader.records() {
         
@@ -118,7 +124,7 @@ fn crabcast_filter(fastx: String, output: String, min_length: u64, max_length: u
 
         let quality_values = record.qual().to_vec();
         let mean_error = get_mean_error(&quality_values);
-        let mean_quality: u64 = (-10f64*log10(mean_error as f64)) as u64;
+        let mean_quality: f32 = -10f32*mean_error.log(10)
 
         let seqlen = record.seq().len() as u64;
                 
@@ -129,7 +135,7 @@ fn crabcast_filter(fastx: String, output: String, min_length: u64, max_length: u
             base_pairs += seqlen;
             reads += 1;
 
-            if min_length > 0 || min_quality > 0 || max_length > 0 {
+            if min_length > 0 || min_quality > 0.0 || max_length > 0 {
                 writer.write_record(&record).expect("invalid record write");
             }
         }           
@@ -140,7 +146,7 @@ fn crabcast_filter(fastx: String, output: String, min_length: u64, max_length: u
 
 }
 
-fn needlecast_filter(fastx: String, output: String, min_length: u64, max_length: u64, min_quality: u64) -> Result<(u64, u64, Vec<u64>, Vec<u64>), Error> {
+fn needlecast_filter(fastx: String, output: String, min_length: u64, max_length: u64, min_quality: f32) -> Result<(u64, u64, Vec<u64>, Vec<f32>), Error> {
 
     // Needletail parser, with output and filters
     
@@ -152,7 +158,7 @@ fn needlecast_filter(fastx: String, output: String, min_length: u64, max_length:
     let mut reads: u64 = 0;
     let mut base_pairs: u64 = 0;
     let mut read_lengths: Vec<u64> = Vec::new();
-    let mut read_qualities: Vec<u64> = Vec::new();
+    let mut read_qualities: Vec<f32> = Vec::new();
 
     while let Some(record) = reader.next() {
         
@@ -162,7 +168,7 @@ fn needlecast_filter(fastx: String, output: String, min_length: u64, max_length:
         // Quality scores present:
         if let Some(qual) = seqrec.qual() {
             let mean_error = get_mean_error(&qual);
-            let mean_quality: u64 = (-10f64*log10(mean_error as f64)) as u64;
+            let mean_quality: f32 = -10f32*mean_error.log(10)
             // Fastq filter
             if seqlen >= min_length && mean_quality >= min_quality && seqlen <= max_length {
                 reads += 1;
@@ -187,7 +193,7 @@ fn needlecast_filter(fastx: String, output: String, min_length: u64, max_length:
 
 }
 
-fn needlecast_stats(fastx: &String) -> Result<(u64, u64, Vec<u64>, Vec<u64>), Error> {
+fn needlecast_stats(fastx: &String) -> Result<(u64, u64, Vec<u64>, Vec<f32>), Error> {
 
     // Needletail parser just for stats, no filters or output, slight speed-up
     
@@ -196,7 +202,7 @@ fn needlecast_stats(fastx: &String) -> Result<(u64, u64, Vec<u64>, Vec<u64>), Er
     let mut reads: u64 = 0;
     let mut base_pairs: u64 = 0;
     let mut read_lengths: Vec<u64> = Vec::new();
-    let mut read_qualities: Vec<u64> = Vec::new();
+    let mut read_qualities: Vec<f32> = Vec::new();
 
     while let Some(record) = reader.next() {
         
@@ -206,15 +212,10 @@ fn needlecast_stats(fastx: &String) -> Result<(u64, u64, Vec<u64>, Vec<u64>), Er
         // Quality scores:
         if let Some(qual) = seqrec.qual() {
             let mean_error = get_mean_error(&qual);
-            let mean_quality: u64 = (-10f64*log10(mean_error as f64)) as u64;
+            let mean_quality: f32 = -10f32*mean_error.log(10)
             read_qualities.push(mean_quality);
-            if seqlen == 34668 {
-                eprintln!("{} {}", seqlen, mean_quality);
-            }
         } 
         
-        
-
         reads += 1;
         base_pairs += seqlen;
         read_lengths.push(seqlen);
@@ -377,21 +378,23 @@ Median read quality: {:.1}
         &indexed_qualities.sort_by(compare_indexed_tuples_descending);
         
          // Read lengths
-        eprintln!("Top ranking read lengths (read quality)\n");
+        eprintln!("Top ranking read lengths\n");
         for i in 0..top {
             let (read_index, length) = indexed_lengths[i as usize];
-            eprintln!("{}. {:} bp (Q{:})", i+1, length, read_qualities[read_index]);
+            eprintln!("{}. {:} bp", i+1, length);
         }
         eprintln!("");
 
         // Read quality
-        eprintln!("Top ranking read qualities (read length)\n");
+        eprintln!("Top ranking mean read qualities\n");
         for i in 0..top {
             let (read_index, qual) = indexed_qualities[i as usize];
-            eprintln!("{}. Q{:} ({:} bp)", i+1, qual, read_lengths[read_index]);
+            eprintln!("{}. Q{:} ({:} bp)", i+1, qual);
         }
 
+        // Read length thresholds
 
+        for 
 
     } else {
         
@@ -1041,8 +1044,8 @@ mod tests {
     #[test]
     fn test_mean_error_qscore() {
         let mean_error = get_mean_error(b"IIIIIIJJJJJJ");
-        let mean_quality: u64 = (-10f64*log10(mean_error as f64)) as u64;
-        assert_eq!(mean_quality, 40 as u64);
+        let mean_quality: f32 = -10f32*mean_error.log(10);
+        assert_eq!(mean_quality, 40 as f32);
     }
 
     // N50
@@ -1064,35 +1067,35 @@ mod tests {
 
     #[test]
     fn test_mean_read_quality_empty() {
-        let test_data: Vec<u64> = Vec::new();
+        let test_data: Vec<f32> = Vec::new();
         let mean_quality = get_mean_read_quality(&test_data);
-        assert!(mean_quality.is_nan()); // f64 returns NaN on ZeroDivision
+        assert!(mean_quality.is_nan()); // f32 returns NaN on ZeroDivision
     }    
 
     #[test]
     fn test_mean_read_quality() {
         let mean_quality = get_mean_read_quality(&mut vec![10, 10, 20, 30]);
-        assert_eq!(mean_quality, 17.5 as f64);
+        assert_eq!(mean_quality, 17.5 as f32);
     }
 
     
     #[test]
     #[should_panic]
     fn test_median_read_quality_empty() {
-        let mut test_data: Vec<u64> = Vec::new();
+        let mut test_data: Vec<f32> = Vec::new();
         let _ = get_median_read_quality(&mut test_data);
     }    
 
     #[test]
     fn test_median_read_quality_even() {
         let median_quality = get_median_read_quality(&mut vec![10, 10, 20, 30]);
-        assert_eq!(median_quality, 15 as f64);
+        assert_eq!(median_quality, 15 as f32);
     }
 
     #[test]
     fn test_median_read_quality_odd() {
         let median_quality = get_median_read_quality(&mut vec![10, 10, 20, 30, 40]);
-        assert_eq!(median_quality, 20 as f64);
+        assert_eq!(median_quality, 20 as f32);
     }
 
     // Read lengths
