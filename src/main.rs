@@ -10,7 +10,6 @@ use std::fs::File;
 use needletail::parser::Format;
 use needletail::parser::FastxReader;
 use std::collections::HashMap;
-use textwrap::dedent;
 
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
