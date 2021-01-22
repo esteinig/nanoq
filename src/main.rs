@@ -10,6 +10,7 @@ use std::fs::File;
 use needletail::parser::Format;
 use needletail::parser::FastxReader;
 use std::collections::HashMap;
+use num_format::{Locale, ToFormattedString};
 
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
@@ -313,7 +314,7 @@ fn retain_indexed_quality_reads(read_qualities: Vec<u64>, read_lengths: Vec<u64>
 
 }
 
-fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut read_qualities: Vec<u64>, detail: bool) -> Result<(u64, u64, u64, u64, u64, f64, f64), Error> {
+fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut read_qualities: Vec<u64>, detail: bool, top: usize) -> Result<(u64, u64, u64, u64, u64, f64, f64), Error> {
 
     let mean_read_length = get_mean_read_length(&read_lengths);
     let mean_read_quality = get_mean_read_quality(&read_qualities);
@@ -324,9 +325,32 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
 
     if detail {
 
-        if reads < 5 {
-            panic!("Must have at least five reads for extended summary output")
+        if reads < top {
+            panic!("Must have at least {:} reads for extended summary output", top)
         }
+
+        eprintln!(
+            "
+Number of reads:     {:}
+Number of bases:     {:}
+N50:                 {:}
+Longest read:        {:} 
+Shortest read:       {:}
+Mean read length:    {:}
+Median read length:  {:} 
+Mean read quality:   {:.1} 
+Median read quality: {:.1}
+            ",
+            reads.to_formatted_string(&Locale::en), 
+            base_pairs.to_formatted_string(&Locale::en), 
+            read_length_n50.to_formatted_string(&Locale::en),
+            max_read_length.to_formatted_string(&Locale::en), 
+            min_read_length.to_formatted_string(&Locale::en), 
+            mean_read_length.to_formatted_string(&Locale::en), 
+            median_read_length.to_formatted_string(&Locale::en), 
+            mean_read_quality, 
+            median_read_quality
+        );
 
         let mut indexed_lengths: Vec<(usize, u64)> = Vec::new();
         for (i, q) in read_lengths.iter().enumerate() {
@@ -343,58 +367,25 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
         &indexed_qualities.sort_by(compare_indexed_tuples_descending);
         
          // Read lengths
-
-        let (index1, length1) = indexed_lengths[0];
-        let (index2, length2) = indexed_lengths[1];
-        let (index3, length3) = indexed_lengths[2];
-        let (index4, length4) = indexed_lengths[3];
-        let (index5, length5) = indexed_lengths[4];
-
-        
-        eprintln!("
-Top ranking read lengths (read quality):
-
-1. {:} bp (Q{:})
-2. {:} bp (Q{:})
-3. {:} bp (Q{:})
-4. {:} bp (Q{:})
-5. {:} bp (Q{:})
-        ",
-        length1, read_qualities[index1],
-        length2, read_qualities[index2],
-        length3, read_qualities[index3],
-        length4, read_qualities[index4],
-        length5, read_qualities[index5]
-        );
+        eprintln!("Top ranking read lengths (read quality)\n")
+        for i in 0..=top {
+            let (read_index, length) = indexed_lengths[i];
+            eprintln!("{}. {:} bp (Q{:})", i+1, length, read_qualities[read_index]);
+        }
 
         // Read quality
+        eprintln!("Top ranking read qualities (read length)\n")
+        for i in 0..=top {
+            let (read_index, qual) = indexed_lengths[i];
+            eprintln!("{}. {:} bp (Q{:})", i+1, qual, read_lengths[read_index]);
+        }
 
-        let (index6, qual1) = indexed_qualities[0];
-        let (index7, qual2) = indexed_qualities[1];
-        let (index8, qual3) = indexed_qualities[2];
-        let (index9, qual4) = indexed_qualities[3];
-        let (index10, qual5) = indexed_qualities[4];
 
-        eprintln!("
-Top ranking read qualities (read length):
-
-1. Q{:} ({:} bp)
-2. Q{:} ({:} bp)
-3. Q{:} ({:} bp)
-4. Q{:} ({:} bp)
-5. Q{:} ({:} bp)
-        ",
-        qual1, read_lengths[index6],
-        qual2, read_lengths[index7],
-        qual3, read_lengths[index8],
-        qual4, read_lengths[index9],
-        qual5, read_lengths[index10]
-        );
 
     } else {
         
         eprintln!(
-            "{:} {:} {:} {:} {:} {:} {:} {:.2} {:.2}",
+            "{:} {:} {:} {:} {:} {:} {:} {:.1} {:.1}",
             reads, 
             base_pairs, 
             read_length_n50,
