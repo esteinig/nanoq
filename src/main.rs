@@ -24,7 +24,8 @@ fn command_line_interface<'a>() -> ArgMatches<'a> {
         .arg(Arg::with_name("QUALITY").short("q").long("min_quality").takes_value(true).help("Minimum average seq quality [0]"))
         .arg(Arg::with_name("PERCENT").short("p").long("keep_percent").takes_value(true).help("Keep best percent quality bases on reads (0 - 100) [0]"))
         .arg(Arg::with_name("BASES").short("b").long("keep_bases").takes_value(true).help("Keep reads with best quality number of bases [0]"))
-        .arg(Arg::with_name("DETAIL").short("d").long("detail").takes_value(false).help("Pretty print dtailed stats [false]"))
+        .arg(Arg::with_name("DETAIL").short("d").long("detail").takes_value(false).help("Pretty print detailed stats [false]"))
+        .arg(Arg::with_name("TOP").short("t").long("top").takes_value(true).help("Print <top> length + quality reads [5]"))
         .arg(Arg::with_name("CRAB").short("c").long("crab").takes_value(false).help("Use the rust-bio parser (fastq) [false]"))
     .get_matches()
 
@@ -41,6 +42,7 @@ fn main() -> Result<(), Error> {
     let min_quality: u64 = cli.value_of("QUALITY").unwrap_or("0").parse().unwrap();
     let keep_percent: f64 = cli.value_of("PERCENT").unwrap_or("0").parse().unwrap();
     let keep_bases: usize = cli.value_of("BASES").unwrap_or("0").parse().unwrap();
+    let top: u64 = cli.value_of("TOP").unwrap_or("5").parse().unwrap();
     let crab: bool = cli.is_present("CRAB");
     let detail: bool = cli.is_present("DETAIL");
     
@@ -80,7 +82,7 @@ fn main() -> Result<(), Error> {
             process::exit(0); // exit gracefully
         }
 
-        eprint_stats(reads, base_pairs, read_lengths, read_qualities, detail).expect("failed to collect stats");
+        eprint_stats(reads, base_pairs, read_lengths, read_qualities, detail, top).expect("failed to collect stats");
 
     }
 
@@ -314,7 +316,7 @@ fn retain_indexed_quality_reads(read_qualities: Vec<u64>, read_lengths: Vec<u64>
 
 }
 
-fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut read_qualities: Vec<u64>, detail: bool, top: usize) -> Result<(u64, u64, u64, u64, u64, f64, f64), Error> {
+fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut read_qualities: Vec<u64>, detail: bool, top: u64) -> Result<(u64, u64, u64, u64, u64, f64, f64), Error> {
 
     let mean_read_length = get_mean_read_length(&read_lengths);
     let mean_read_quality = get_mean_read_quality(&read_qualities);
@@ -367,14 +369,14 @@ Median read quality: {:.1}
         &indexed_qualities.sort_by(compare_indexed_tuples_descending);
         
          // Read lengths
-        eprintln!("Top ranking read lengths (read quality)\n")
+        eprintln!("Top ranking read lengths (read quality)\n");
         for i in 0..=top {
             let (read_index, length) = indexed_lengths[i];
             eprintln!("{}. {:} bp (Q{:})", i+1, length, read_qualities[read_index]);
         }
 
         // Read quality
-        eprintln!("Top ranking read qualities (read length)\n")
+        eprintln!("Top ranking read qualities (read length)\n");
         for i in 0..=top {
             let (read_index, qual) = indexed_lengths[i];
             eprintln!("{}. {:} bp (Q{:})", i+1, qual, read_lengths[read_index]);
@@ -839,7 +841,7 @@ mod tests {
     // Eprint stats function
 
     #[test]
-    fn test_eprint_stats() {
+    fn test_eprint_stats_detail_success() {
         let reads: u64 = 5;
         let base_pairs: u64 = 80;
         let read_lengths: Vec<u64> = vec![20, 10, 30, 20, 10];
@@ -852,7 +854,7 @@ mod tests {
             median_read_length, 
             mean_read_quality, 
             median_read_quality
-        ) = eprint_stats(reads, base_pairs, read_lengths, read_qualities, true).unwrap(); // detailed
+        ) = eprint_stats(reads, base_pairs, read_lengths, read_qualities, true, 5).unwrap(); // detailed
 
         assert_eq!(read_length_n50, 20);
         assert_eq!(max_read_length, 30);
@@ -862,6 +864,17 @@ mod tests {
         assert_eq!(mean_read_quality, 18.0);
         assert_eq!(median_read_quality, 20.0);
     }
+
+    #[test]
+    #[should_panic]
+    fn test_eprint_stats_detail_fail() {
+        let reads: u64 = 5;
+        let base_pairs: u64 = 80;
+        let read_lengths: Vec<u64> = vec![20, 10, 30, 20, 10];
+        let read_qualities: Vec<u64> = vec![20, 10, 30, 20, 10];
+        eprint_stats(reads, base_pairs, read_lengths, read_qualities, true, 10).unwrap(); // panics at implausible top param
+    }
+
 
     // Fastq
 
