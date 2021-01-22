@@ -36,13 +36,13 @@ def plot_data(data: pandas.DataFrame) -> None:
     filter_data = data[data['mode'] == 'filt']
     stats_data = data[data['mode'] == 'stat']
 
-    seaborn.violinplot(
+    seaborn.barplot(
         y='time', x='ftype', hue='tool', data=filter_data,
         ax=axes[0], palette="Greens"
     )
-    seaborn.violinplot(
+    seaborn.barplot(
         y='time', x='ftype', hue='tool', data=stats_data,
-        ax=axes[1], palette="Greens"
+        ax=axes[1], palette="Blues"
     )
 
     plt.tight_layout()
