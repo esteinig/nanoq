@@ -860,7 +860,7 @@ mod tests {
             median_read_length, 
             mean_read_quality, 
             median_read_quality
-        ) = eprint_stats(reads, base_pairs, read_lengths, read_qualities, true).unwrap();
+        ) = eprint_stats(reads, base_pairs, read_lengths, read_qualities, true).unwrap(); // detailed
 
         assert_eq!(read_length_n50, 20);
         assert_eq!(max_read_length, 30);
