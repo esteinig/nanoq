@@ -247,13 +247,13 @@ fn two_pass_filter(fastx: String, output: String, keep_percent: f64, keep_bases:
 
     // Second pass, filter reads to output by indices
     let mut _indices: HashMap<usize, u64> = indexed_qualities_retain.iter().cloned().collect();
-    needlecast_filt(&fastx, output, _indices).expect("failed output pass"); // TODO: check if vec contains is faster
+    needlecast_index_filter(&fastx, output, _indices).expect("failed output pass"); // TODO: check if vec contains is faster
     
     Ok(())
 }
 
 
-fn needlecast_filt(fastx: &String, output: String, indices: HashMap<usize, u64>) -> Result<(), Error> {
+fn needlecast_index_filter(fastx: &String, output: String, indices: HashMap<usize, u64>) -> Result<(), Error> {
 
     // Needletail parser just for output by read index:
     
@@ -620,7 +620,7 @@ mod tests {
     }
 
     #[test]
-    fn test_needlecast_filt_fq() {
+    fn test_needlecast_index_filter_fq() {
         let test_file = get_test_fq();
         let _indices: Vec<(usize, u64)> = vec![(0, 40)];
         let indices: HashMap<usize, u64> = _indices.iter().cloned().collect();
@@ -629,7 +629,7 @@ mod tests {
     }
 
     #[test]
-    fn test_needlecast_filt_fa() {
+    fn test_needlecast_index_filter_fa() {
         let test_file = get_test_fa();
         let _indices: Vec<(usize, u64)> = vec![(0, 40)];
         let indices: HashMap<usize, u64> = _indices.iter().cloned().collect();
