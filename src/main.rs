@@ -100,6 +100,8 @@ fn crabcast_filter(fastx: String, output: String, min_length: u64, max_length: u
     let reader = fastq::Reader::new(input_handle);
     let mut writer = fastq::Writer::new(output_handle);
 
+    let max_length = if max_length <= 0 { u64::MAX } else { max_length };
+
     let mut base_pairs: u64 = 0;
     let mut reads: u64 = 0;
     let mut read_lengths: Vec<u64> = Vec::new();
@@ -117,7 +119,7 @@ fn crabcast_filter(fastx: String, output: String, min_length: u64, max_length: u
 
         let seqlen = record.seq().len() as u64;
                 
-        if seqlen >= min_length && mean_quality >= min_quality && !(seqlen > max_length) {
+        if seqlen >= min_length && mean_quality >= min_quality && seqlen <= max_length {
             
             read_lengths.push(seqlen);
             read_qualities.push(mean_quality);            
