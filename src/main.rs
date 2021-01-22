@@ -366,11 +366,11 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
             length5, read_qualities[index5]
         );
 
-        let (index6, qual1) = indexed_qualities[0];
-        let (index7, qual2) = indexed_qualities[1];
-        let (index8, qual3) = indexed_qualities[2];
-        let (index9, qual4) = indexed_qualities[3];
-        let (index10, qual5) = indexed_qualities[4];
+        let (index6, qual1) = read_qualities[0];
+        let (index7, qual2) = read_qualities[1];
+        let (index8, qual3) = read_qualities[2];
+        let (index9, qual4) = read_qualities[3];
+        let (index10, qual5) = read_qualities[4];
 
         eprintln!(
             "
