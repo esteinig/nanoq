@@ -586,7 +586,7 @@ mod tests {
     #[test]
     fn test_needlecast_filter_all_pass() {
         let test_file = get_test_fq();
-        let (reads, base_pairs, read_lengths, read_qualities) = needlecast_filter(test_file, String::from("/dev/null"), 1, 0, 7)
+        let (reads, base_pairs, read_lengths, read_qualities) = needlecast_filter(test_file, String::from("/dev/null"), 1, 0, 7).unwrap();
         assert_eq!(reads, 1);
         assert_eq!(base_pairs, 12);
         assert_eq!(read_lengths, vec![12]);
@@ -596,7 +596,7 @@ mod tests {
     #[test]
     fn test_needlecast_filter_min_length_none_pass() {
         let test_file = get_test_fq();
-        let (reads, base_pairs, read_lengths, read_qualities) = needlecast_filter(test_file, String::from("/dev/null"), 15, 0, 7)
+        let (reads, base_pairs, read_lengths, read_qualities) = needlecast_filter(test_file, String::from("/dev/null"), 15, 0, 7).unwrap();
         assert_eq!(reads, 0);
         assert_eq!(base_pairs, 0);
         assert_eq!(read_lengths, vec![]);
@@ -606,7 +606,7 @@ mod tests {
     #[test]
     fn test_needlecast_filter_max_length_none_pass() {
         let test_file = get_test_fq();
-        let (reads, base_pairs, read_lengths, read_qualities) = needlecast_filter(test_file, String::from("/dev/null"), 10, 10, 7)
+        let (reads, base_pairs, read_lengths, read_qualities) = needlecast_filter(test_file, String::from("/dev/null"), 10, 10, 7).unwrap();
         assert_eq!(reads, 0);
         assert_eq!(base_pairs, 0);
         assert_eq!(read_lengths, vec![]);
@@ -616,7 +616,7 @@ mod tests {
     #[test]
     fn test_needlecast_filter_min_quality_none_pass() {
         let test_file = get_test_fq();
-        let (reads, base_pairs, read_lengths, read_qualities) = needlecast_filter(test_file, String::from("/dev/null"), 10, 0, 60)
+        let (reads, base_pairs, read_lengths, read_qualities) = needlecast_filter(test_file, String::from("/dev/null"), 10, 0, 60).unwrap();
         assert_eq!(reads, 0);
         assert_eq!(base_pairs, 0);
         assert_eq!(read_lengths, vec![]);
