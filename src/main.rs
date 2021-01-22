@@ -329,14 +329,14 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
         }
 
         let mut indexed_lengths: Vec<(usize, u64)> = Vec::new();
-        for (i, q) in &read_lengths.iter().enumerate() {
+        for (i, q) in read_lengths.iter().enumerate() {
             indexed_lengths.push((i, *q));
         }
 
         &indexed_lengths.sort_by(compare_indexed_tuples_descending);
 
         let mut indexed_qualities: Vec<(usize, u64)> = Vec::new();
-        for (i, q) in &read_qualities.iter().enumerate() {
+        for (i, q) in read_qualities.iter().enumerate() {
             indexed_qualities.push((i, *q));
         }
 
@@ -366,9 +366,9 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
             length5, read_qualities[index5]
         );
 
-        let (index5, qual1) = indexed_qualities[0];
-        let (index6, qual2) = indexed_qualities[1];
-        let (index7, qual3) = indexed_qualities[2];
+        let (index6, qual1) = indexed_qualities[0];
+        let (index7, qual2) = indexed_qualities[1];
+        let (index8, qual3) = indexed_qualities[2];
         let (index9, qual4) = indexed_qualities[3];
         let (index10, qual5) = indexed_qualities[4];
 
