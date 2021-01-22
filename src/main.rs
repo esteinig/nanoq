@@ -10,6 +10,7 @@ use std::fs::File;
 use needletail::parser::Format;
 use needletail::parser::FastxReader;
 use std::collections::HashMap;
+use textwrap::dedent;
 
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
@@ -349,7 +350,7 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
         let (index5, length5) = indexed_lengths[4];
 
         eprintln!(
-            "
+            dedent("
             Top ranking read lengths (average read quality):
 
             1. {:} ({:})
@@ -357,8 +358,7 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
             3. {:} ({:})
             4. {:} ({:})
             5. {:} ({:})
-            
-            ",
+            "),
             length1, read_qualities[index1],
             length2, read_qualities[index2],
             length3, read_qualities[index3],
@@ -373,7 +373,7 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
         let (index10, qual5) = read_qualities[4];
 
         eprintln!(
-            "
+            dedent("
             Top ranking read qualities (read length):
 
             1. {:} ({:})
@@ -381,8 +381,7 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
             3. {:} ({:})
             4. {:} ({:})
             5. {:} ({:})
-            
-            ",
+            "),
             qual1, read_lengths[index6],
             qual2, read_lengths[index7],
             qual3, read_lengths[index8],
