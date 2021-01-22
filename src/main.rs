@@ -208,7 +208,12 @@ fn needlecast_stats(fastx: &String) -> Result<(u64, u64, Vec<u64>, Vec<u64>), Er
             let mean_error = get_mean_error(&qual);
             let mean_quality: u64 = (-10f64*log10(mean_error as f64)) as u64;
             read_qualities.push(mean_quality);
+            if seqlen == 34668 {
+                eprintln!("{} {}", seqlen, mean_quality);
+            }
         } 
+        
+        
 
         reads += 1;
         base_pairs += seqlen;
@@ -334,7 +339,7 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
         eprintln!(
             "
 Nanoq read set summary: v0.2.0
-===============================
+==============================
 
 Number of reads:     {:}
 Number of bases:     {:}
