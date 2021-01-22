@@ -64,12 +64,12 @@ fn main() -> Result<(), Error> {
         // Standard mode
         
         let (reads, base_pairs, read_lengths, read_qualities) = if crab {
-            crabcast_filter(fastx, output, min_length, max_length, min_quality);
+            crabcast_filter(fastx, output, min_length, max_length, min_quality)
         } else {
             if min_length > 0 || min_quality > 0 || max_length > 0 {
-                needlecast_filter(fastx, output, min_length, max_length, min_quality);
+                needlecast_filter(fastx, output, min_length, max_length, min_quality)
             } else {
-                needlecast_stats(&fastx);
+                needlecast_stats(&fastx)
             }
         }.expect("Carcinised error encountered - what the crab?");
         
