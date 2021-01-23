@@ -319,8 +319,8 @@ fn retain_indexed_quality_reads(read_qualities: Vec<f32>, read_lengths: Vec<u64>
 fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut read_qualities: Vec<f32>, detail: u64, top: u64) -> Result<(u64, u64, u64, u64, u64, f64, f64), Error> {
     
     // required for zip implementation below
-    let _read_lengths_unsorted = read_lengths.to_vec();
-    let _read_qualities_unsorted = read_lengths.to_vec();
+    let _read_lengths_unsorted: Vec<u64> = read_lengths.to_vec();
+    let _read_qualities_unsorted: Vec<f32> = read_lengths.to_vec();
 
     // all sort the vectors or sort independent of sorts, vectors are sorted
     let mean_read_length = get_mean_read_length(&read_lengths);
