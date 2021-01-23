@@ -1,13 +1,13 @@
 [package]
 name = "nanoq"
 version = "0.2.0"
-authors = ["esteinig <eike.steinig@unimelb.edu.au>"]
-description = "Minimal but speedy quality control for nanopore reads"
+authors = ["esteinig <eike.steinig@unimelb.edu.au>", "ljmcoin <lachlan.coin@unimelb.edu.au>"]
+description = "Minimal but speedy quality control and summaries of nanopore reads"
 documentation = "https://github.com/esteinig/nanoq"
 homepage = "https://github.com/esteinig/nanoq"
 repository = "https://github.com/esteinig/nanoq"
 readme = "README.md"
-keywords = ["nanopore", "quality", "ont", "filter", "read"]
+keywords = ["nanopore", "quality", "ont", "summary", "filter", "read"]
 categories = ["science"]
 license = "MIT"
 edition = "2018"

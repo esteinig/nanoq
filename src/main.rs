@@ -24,7 +24,7 @@ fn command_line_interface<'a>() -> ArgMatches<'a> {
         .arg(Arg::with_name("PERCENT").short("p").long("keep_percent").takes_value(true).help("Keep best percent quality bases on reads (0 - 100) [0]"))
         .arg(Arg::with_name("BASES").short("b").long("keep_bases").takes_value(true).help("Keep reads with best quality number of bases [0]"))
         .arg(Arg::with_name("CRAB").short("c").long("crab").takes_value(false).help("Use the rust-bio parser (fastq) [false]"))
-        .arg(Arg::with_name("DETAIL").short("d").long("detail").multiple(true).takes_value(false).help("Print detailed read summary [false]"))
+        .arg(Arg::with_name("DETAIL").short("d").long("detail").multiple(true).help("Print detailed read summary [false]"))
         .arg(Arg::with_name("TOP").short("t").long("top").takes_value(true).help("Print <top> length + quality reads [5]"))
     .get_matches()
 
@@ -50,6 +50,8 @@ fn main() -> Result<(), Error> {
         2 => 2,    // top ranks + thresholds
         3 | _ => 2 // anything more not effective
     };
+
+    println!("{}", detail)
 
     if keep_percent > 0.0 || keep_bases > 0 {
 
