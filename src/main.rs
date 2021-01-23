@@ -401,7 +401,7 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
     let q_thresholds: Vec<f32> = vec![5.0, 7.0, 10.0, 15.0, 20.0];
     let mut q_threshold_data: HashMap<String, Vec<u64>> = HashMap::new();
 
-    let l_thresholds: Vec<u64> = vec![200, 500, 1000, 5000, 10000, 50000, 100000, 1000000];
+    let l_thresholds: Vec<u64> = vec![200, 500, 1000, 5000, 10000, 30000, 50000, 100000, 1000000];
     let mut l_threshold_data: HashMap<String, Vec<u64>> = HashMap::new();
 
     for (l, q) in read_lengths.iter().zip(read_qualities.iter()){ // must be unsorted
