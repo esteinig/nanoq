@@ -424,39 +424,39 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
     let l1000000_bp: u64 = 0;
 
     for (l, q) in read_lengths.iter().zip(read_qualities.iter()){ // unsorted
-        if q > 5 {
+        if q > &5.0 {
             q5 += 1;
             q5_bp += l;
-        } else if q > 7 {
+        } else if q > &7.0 {
             q7 += 1;
             q7_bp+= l;
-        }  else if q > 10 {
+        }  else if q > &10.0 {
             q10 += 1;
             q10_bp += l;
-        }  else if q > 15 {
+        }  else if q > &15.0 {
             q15 += 1;
             q15_bp += l;
-        }  else if q > 20 {
+        }  else if q > &20.0 {
             q20 += 1;
             q20_bp += l;
         }  
 
-        if l > 200 {
+        if l > &200 {
             l200 += 1;
             l200_bp += l;
-        } else if l > 500 {
+        } else if l > &500 {
             l500 += 1;
-        }  else if l > 1000 {
+        }  else if l > &1000 {
             l1000 += 1;
-        }  else if l > 5000 {
+        }  else if l > &5000 {
             l5000 += 1;
-        }  else if l > 10000 {
+        }  else if l > &10000 {
             l10000 += 1;
-        }  else if l > 50000 {
+        }  else if l > &50000 {
             l50000 += 1;
-        }  else if l > 100000 {
+        }  else if l > &100000 {
             l100000 += 1;
-        }  else if l > 1000000 {
+        }  else if l > &1000000 {
             l1000000 += 1;
         }  
 
