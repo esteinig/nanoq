@@ -322,7 +322,7 @@ fn retain_indexed_quality_reads(read_qualities: Vec<f32>, read_lengths: Vec<u64>
 
 }
 
-fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut read_qualities: Vec<f32>, detail: bool, top: u64) -> Result<(u64, u64, u64, u64, u64, f64, f64), Error> {
+fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut read_qualities: Vec<f32>, detail: u64, top: u64) -> Result<(u64, u64, u64, u64, u64, f64, f64), Error> {
 
     let mean_read_length = get_mean_read_length(&read_lengths);
     let mean_read_quality = get_mean_read_quality(&read_qualities);
@@ -331,7 +331,7 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
     let read_length_n50 = get_read_length_n50(&base_pairs, &mut read_lengths);
     let (min_read_length, max_read_length) = get_read_length_range(&read_lengths);
 
-    if detail {
+    if detail > 0 {
 
         if reads < top {
             panic!("Must have at least {:} reads for extended summary output", top)
@@ -363,36 +363,41 @@ Median read quality: {:.1}
             median_read_quality
         );
 
-        let mut indexed_lengths: Vec<(usize, u64)> = Vec::new();
-        for (i, q) in read_lengths.iter().enumerate() {
-            indexed_lengths.push((i, *q));
+
+        if detail > 1 {
+            let mut indexed_lengths: Vec<(usize, u64)> = Vec::new();
+            for (i, q) in read_lengths.iter().enumerate() {
+                indexed_lengths.push((i, *q));
+            }
+    
+            &indexed_lengths.sort_by(compare_indexed_tuples_descending_u64);
+    
+            let mut indexed_qualities: Vec<(usize, f32)> = Vec::new();
+            for (i, q) in read_qualities.iter().enumerate() {
+                indexed_qualities.push((i, *q));
+            }
+    
+            &indexed_qualities.sort_by(compare_indexed_tuples_descending_f32);
+            
+             // Read lengths
+            eprintln!("Top ranking read lengths\n");
+            for i in 0..top {
+                let (read_index, length) = indexed_lengths[i as usize];
+                eprintln!("{}. {:} bp", i+1, length);
+            }
+            eprintln!("");
+    
+            // Read quality
+            eprintln!("Top ranking mean read qualities\n");
+            for i in 0..top {
+                let (read_index, qual) = indexed_qualities[i as usize];
+                eprintln!("{}. Q{:}", i+1, qual);
+            }
+
+            
+            // Read length thresholds
         }
-
-        &indexed_lengths.sort_by(compare_indexed_tuples_descending_u64);
-
-        let mut indexed_qualities: Vec<(usize, f32)> = Vec::new();
-        for (i, q) in read_qualities.iter().enumerate() {
-            indexed_qualities.push((i, *q));
-        }
-
-        &indexed_qualities.sort_by(compare_indexed_tuples_descending_f32);
         
-         // Read lengths
-        eprintln!("Top ranking read lengths\n");
-        for i in 0..top {
-            let (read_index, length) = indexed_lengths[i as usize];
-            eprintln!("{}. {:} bp", i+1, length);
-        }
-        eprintln!("");
-
-        // Read quality
-        eprintln!("Top ranking mean read qualities\n");
-        for i in 0..top {
-            let (read_index, qual) = indexed_qualities[i as usize];
-            eprintln!("{}. Q{:}", i+1, qual);
-        }
-
-        // Read length thresholds
 
 
     } else {
