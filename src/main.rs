@@ -431,7 +431,7 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
 
     eprintln!("Mean read quality thresholds\n");
     for k in qkeys.iter() {
-        let data = q_threshold_data[k];
+        let data = q_threshold_data[k.to_string()];
 
         let percent_reads: f64 = ((data[0] / reads) as f64)*100.0;
         let nreads = data[0].to_formatted_string(&Locale::en);
@@ -445,16 +445,15 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
 
     eprintln!("Mean read length thresholds\n");
     for k in lkeys.iter() {
-        let data = l_threshold_data[k];
+        let data = l_threshold_data[k.to_string()];
 
         let percent_reads: f64 = ((data[0] / reads) as f64)*100.0;
         let nreads = data[0].to_formatted_string(&Locale::en);
         let bp = data[1].to_formatted_string(&Locale::en);
 
-        let _threshold = k.parse::<u64>().unwrap();
-        let _gap = if _threshold < 10  { " " } else { "" };
+        let _gap = if k < 10  { " " } else { "" };
 
-        eprintln!(">{:} bp: {:}{:} ({:.4}%) {:}", _threshold.to_formatted_string(&Locale::en), _gap, nreads, percent_reads, bp);
+        eprintln!(">{:} bp: {:}{:} ({:.4}%) {:}", k.to_formatted_string(&Locale::en), _gap, nreads, percent_reads, bp);
     }
     eprintln!("");
 
