@@ -385,7 +385,7 @@ Median read quality:  {:.1}
             eprintln!("Top ranking mean read qualities\n");
             for i in 0..top {
                 let (_, qual) = indexed_qualities[i as usize];
-                eprintln!("{}. Q{:.2}", i+1, qual);
+                eprintln!("{}. Q {:.2}", i+1, qual);
             }
             eprintln!("");
 
