@@ -35,7 +35,7 @@ A common practice for quality control and filtering of reads for length and qual
 
 `Nanoq` is implemented in *Rust* using the read parsers from [`needletail`](https://github.com/onecodex/needletail) and [`Rust-Bio`](https://github.com/rust-bio/rust-bio) [@rustbio].
 
-Tests can be run within the repository:
+Tests can be run within the `nanoq` repository:
 
 ```
 cargo test
@@ -60,10 +60,10 @@ Basic summary statistics are output to `stderr`:
 * mean and median read length
 * mean and median read quality 
 
-Extended output analogous to `NanoStat` can be obtained using the `--detail` flag :
+Extended output analogous to `NanoStat` can be obtained using multiple `--detail` flags:
 
 ```bash
-cat test.fq | nanoq -d
+cat test.fq | nanoq -d -d -d
 ```
 
 Reads filtered by minimum read length (`--length`) and mean read quality (`--quality`) are output to `stdout`:

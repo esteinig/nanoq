@@ -27,5 +27,5 @@ about:
   home: 'https://github.com/esteinig/nanoq'
   license: MIT
   license_file: LICENSE
-  summary: 'Minimal but speedy quality control for nanopore reads'
+  summary: 'Minimal but speedy quality control and summaries of nanopore reads'
 
