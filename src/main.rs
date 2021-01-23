@@ -366,7 +366,7 @@ Median read quality:  {:.2}
         print_thresholds(read_lengths, read_qualities, reads);
         if detail > 2 {
             // unsorted values
-            print_top_ranking(&read_lengths, &read_qualities, &top);
+            print_top_ranking(read_lengths, read_qualities, top);
         }
     }
 
@@ -428,7 +428,7 @@ fn print_thresholds(read_lengths: Vec<u64>, read_qualities: Vec<f32>, reads: u64
 
 }
 
-fn print_top_ranking(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, top: &u64) -> Result<(), Error> {
+fn print_top_ranking(read_lengths: Vec<u64>, read_qualities: Vec<f32>, top: u64) -> Result<(), Error> {
 
     // Index length and quality vecs
 
