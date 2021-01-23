@@ -1,16 +1,16 @@
 # nanoq <a href='https://github.com/esteinig'><img src='docs/nanoq.png' align="right" height="270" /></a>
 
 ![](https://img.shields.io/badge/lang-rust-black.svg)
-![](https://img.shields.io/badge/version-0.1.1-purple.svg)
+![](https://img.shields.io/badge/version-0.2.0-purple.svg)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3707754.svg)](https://doi.org/10.5281/zenodo.3707754)
 
 Minimal but speedy quality control for nanopore reads.
 
 ## Overview
 
-**`v0.1.1 no tests`**
+**`v0.2.0`**
 
-- [Motivation](#motivation)
+- [Purpose](#purpose)
 - [Install](#install)
 - [Usage](#usage)
   - [Command line](#command-line)
@@ -21,7 +21,7 @@ Minimal but speedy quality control for nanopore reads.
 - [Etymology](#etymology)
 - [Citing](#citing)
 
-## Motivation
+## Purpose
 
 Basic sequence quality control and computation of summary statistics can be a bit slow due to bottlenecks in read parsing. `Nanoq` attempts to perform these operations on `fastx` files using the `needletail` and `rust-bio` libraries with either a single-pass operation for defaulty summary statistics and filtering, or a two-pass operation enabling advanced filtering methods similar to `Filtlong`.
 
