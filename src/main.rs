@@ -400,22 +400,22 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
     // Threshold summary prints with HashMaps
 
     let q_thresholds: Vec<f32> = vec![5.0, 7.0, 10.0, 15.0, 20.0];
-    let mut q_threshold_data: HashMap<String, (u64, u64)> = HashMap::new();
+    let mut q_threshold_data: HashMap<String, Vec<u64>> = HashMap::new();
 
     let l_thresholds: Vec<u64> = vec![200, 500, 1000, 5000, 10000, 50000, 100000, 1000000];
-    let mut l_threshold_data: HashMap<String, (u64, u64)> = HashMap::new();
+    let mut l_threshold_data: HashMap<String, Vec<u64>> = HashMap::new();
 
     for (l, q) in read_lengths.iter().zip(read_qualities.iter()){ // must be unsorted
         for tq in &q_thresholds {
             if q > &tq {
-                let (mut qcount, mut qbp) = q_threshold_data.entry(tq.to_string()).or_insert((0, 0));
+                let (mut qcount, mut qbp) = q_threshold_data.entry(tq.to_string()).or_insert(vec![0, 0]));
                 qcount += 1;
                 qbp += l;
             }
         }
         for tl in &l_thresholds {
             if l > &tl {
-                let (mut lcount, mut lbp) = l_threshold_data.entry(tl.to_string()).or_insert((0, 0));
+                let (mut lcount, mut lbp) = l_threshold_data.entry(tl.to_string()).or_insert(vec![0, 0]);
                 lcount += 1;
                 lbp += l;
             }
