@@ -5,7 +5,6 @@ use clap::{Arg, ArgMatches, App};
 use std::cmp::Ordering;
 use bio::io::fastq;
 use std::process;
-use libm::log10;
 use std::fs::File;
 use needletail::parser::Format;
 use needletail::parser::FastxReader;
