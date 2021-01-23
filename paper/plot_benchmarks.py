@@ -33,7 +33,7 @@ def plot_data(data: pandas.DataFrame) -> None:
         )
     )
 
-    data = data[data["ftype"] != "crab")]  # exlude bio parser for now, slightly slower than needletail
+    data = data[data["ftype"] != "crab"]  # exlude bio parser for now, slightly slower than needletail
 
     for mode, _data in data.groupby("mode"):
         for tool, __data in _data.groupby("tool"):
