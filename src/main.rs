@@ -425,9 +425,9 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
     let mut qkeys: Vec<String>  = q_threshold_data.keys().cloned().collect();
     let mut lkeys: Vec<String> = l_threshold_data.keys().cloned().collect(); 
     
-    let qkeys = qkeys.map(|x| x.parse::<u64>().unwrap() );
-    let lkeys = lkeys.map(|x| x.parse::<u64>().unwrap() );
-    
+    let qkeys = qkeys.into_iter().map(|x| x.parse::<u64>().unwrap() );
+    let lkeys = lkeys.into_iter().map(|x| x.parse::<u64>().unwrap() );
+
     qkeys.sort(); qkeys.reverse();
     lkeys.sort(); lkeys.reverse();
 
