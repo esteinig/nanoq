@@ -428,7 +428,7 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
     let lkeys: Vec<u64> = lkeys.iter().map(|x| x.parse::<u64>().unwrap() ).collect();
 
     qkeys.sort_by(compare_f32_descending);
-    lkeys.sort(compare_u64_descending);
+    lkeys.sort_by(compare_u64_descending);
 
     eprintln!("Mean read quality thresholds\n");
     for (t, data) in q_threshold_data.iter() {
