@@ -446,7 +446,7 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
         let nreads = data[0].to_formatted_string(&Locale::en);
         let bp = data[1].to_formatted_string(&Locale::en);
         let _gap = if t.parse::<u64>().unwrap() < 10  { " " } else { "" };
-        eprintln!(">{:} bp: {:}{:} ({:.4}%) {:}", t, _gap, nreads, percent_reads, bp);
+        eprintln!(">{:} bp: {:}{:} ({:.4}%) {:}", t.to_formatted_string(&Locale::en), _gap, nreads, percent_reads, bp);
     }
     eprintln!("");
 
