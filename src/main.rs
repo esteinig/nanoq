@@ -422,9 +422,9 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
         }
     } 
 
-    q_threshold_data.sort_by(|a, b| (a.0 as f32).cmp(&b.0 as f32));
-    l_threshold_data.sort_by(|a, b| (a.0 as u64).cmp(&b.0 as u64));
-    
+    q_threshold_data.iter().sort_by(|a, b| (a.0 as f32).cmp(&b.0 as f32));
+    l_threshold_data.iter().sort_by(|a, b| (a.0 as u64).cmp(&b.0 as u64));
+
     eprintln!("Mean read quality thresholds\n");
     for (t, data) in q_threshold_data.iter() {
         let percent_reads: f64 = ((data[0] / reads) as f64)*100.0;
