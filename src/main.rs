@@ -389,7 +389,7 @@ Median read quality: {:.1}
         eprintln!("Top ranking mean read qualities\n");
         for i in 0..top {
             let (read_index, qual) = indexed_qualities[i as usize];
-            eprintln!("{}. Q{:} ({:} bp)", i+1, qual);
+            eprintln!("{}. Q{:}", i+1, qual);
         }
 
         // Read length thresholds
@@ -1022,6 +1022,7 @@ mod tests {
         let mut test_data: Vec<(usize, u64)> = vec![(0, 30), (1, 10), (2, 50)];
         test_data.sort_by(compare_indexed_tuples_descending);
         assert_eq!(test_data, vec![(2, 50), (0, 30), (1, 10)]);
+        assert_eq!(test_data.sort_by_key(|tup| tup.1).reverse(), vec![(2, 50), (0, 30), (1, 10)]);
     }
     
     #[test]
