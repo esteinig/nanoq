@@ -42,7 +42,7 @@ cargo install nanoq
 Currently on this channel but will be in `BioConda`:
 
 ```
-conda install -c esteinig nanoq
+conda install -c conda-forge -c esteinig nanoq=0.2.0
 ```
 
 ### `Docker`
