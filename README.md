@@ -128,7 +128,7 @@ done
 ### Parameters
 
 ```
-nanoq 0.2.0
+nanoq 0.2.1
 
 Fast quality control and summary statistics for nanopore reads
 
