@@ -394,7 +394,6 @@ Median read quality: {:.1}
 
         // Read length thresholds
 
-        for 
 
     } else {
         
