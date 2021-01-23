@@ -454,25 +454,6 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
     }
     eprintln!("");
 
-//     let length_str = eprintln!("
-    
-// Reads above quality thresholds
-
-// >Q5  {:}  {:.1}%  {:}
-// >Q7  {:}  {:.1}%  {:}
-// >Q10 {:}  {:.1}%  {:}
-// >Q15 {:}  {:.1}%  {:}
-// >Q20 {:}  {:.1}%  {:}
-//     ", 
-//     q5.to_formatted_string(&Locale::en), (reads / q5_bp) as f64*100.0, q5_bp.to_formatted_string(&Locale::en),
-//     q7.to_formatted_string(&Locale::en), (reads / q7_bp) as f64*100.0, q7_bp.to_formatted_string(&Locale::en),
-//     q10.to_formatted_string(&Locale::en), (reads / q10_bp) as f64*100.0, q10_bp.to_formatted_string(&Locale::en),
-//     q15.to_formatted_string(&Locale::en), (reads / q15_bp) as f64*100.0, q15_bp.to_formatted_string(&Locale::en),
-//     q20.to_formatted_string(&Locale::en), (reads / q20_bp) as f64*100.0, q20_bp.to_formatted_string(&Locale::en)
-//     );
-
-//     let quality_str = String::from("");
-
     Ok(())
 
 }
