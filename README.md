@@ -43,9 +43,7 @@ Currently on this channel but will be in `BioConda`:
 
 ```
 conda install -c esteinig nanoq
-nanoq --help
 ```
-
 
 ### `Docker`
 
