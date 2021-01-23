@@ -422,9 +422,11 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
         }
     } 
 
-    println!("{:?} {:?}", q_threshold_counts, l_threshold_counts);
+    println!("{:?} {:?}", q_threshold_data, l_threshold_data);
 
-    for ()
+    for (t, data) in q_threshold_data.iter().sorted() {
+        println!("{:?} {:?}", t, data);
+    }
 
 //     let length_str = eprintln!("
     
