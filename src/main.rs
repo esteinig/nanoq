@@ -360,11 +360,11 @@ Median read quality:  {:.2}
 
         if detail > 1 {
             
-            print_top_ranking(&read_lengths, &read_qualities, &top);
+            print_thresholds(&read_lengths, &read_qualities, &reads);
 
             if detail > 2 {
 
-                print_thresholds(&read_lengths, &read_qualities, &reads);
+                print_top_ranking(&read_lengths, &read_qualities, &top);
 
             }
         }
