@@ -343,8 +343,8 @@ Longest read:         {:}
 Shortest read:        {:}
 Mean read length:     {:}
 Median read length:   {:} 
-Mean read quality:    {:.1} 
-Median read quality:  {:.1}
+Mean read quality:    {:.2} 
+Median read quality:  {:.2}
             ",
             reads.to_formatted_string(&Locale::en), 
             base_pairs.to_formatted_string(&Locale::en), 
@@ -359,37 +359,14 @@ Median read quality:  {:.1}
 
 
         if detail > 1 {
-            let mut indexed_lengths: Vec<(usize, u64)> = Vec::new();
-            for (i, q) in read_lengths.iter().enumerate() {
-                indexed_lengths.push((i, *q));
-            }
-    
-            &indexed_lengths.sort_by(compare_indexed_tuples_descending_u64);
-    
-            let mut indexed_qualities: Vec<(usize, f32)> = Vec::new();
-            for (i, q) in read_qualities.iter().enumerate() {
-                indexed_qualities.push((i, *q));
-            }
-    
-            &indexed_qualities.sort_by(compare_indexed_tuples_descending_f32);
             
-             // Read lengths
-            eprintln!("Top ranking read lengths\n");
-            for i in 0..top {
-                let (_, length) = indexed_lengths[i as usize];
-                eprintln!("{}. {:} bp", i+1, length);
-            }
-            eprintln!("");
-    
-            // Read quality
-            eprintln!("Top ranking mean read qualities\n");
-            for i in 0..top {
-                let (_, qual) = indexed_qualities[i as usize];
-                eprintln!("{}. Q {:.2}", i+1, qual);
-            }
-            eprintln!("");
+            print_top_ranking(&read_lengths, &read_qualities,)
 
-            // Read length thresholds
+            if detail > 2 {
+
+                print_thresholds(&read_lengths, &read_qualities, &reads);
+
+            }
         }
         
 
@@ -411,6 +388,137 @@ Median read quality:  {:.1}
     }
 
     Ok((read_length_n50, max_read_length, min_read_length, mean_read_length, median_read_length, mean_read_quality, median_read_quality))
+
+}
+
+fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &u64) -> Result<(String, String), Error> {
+
+    // pretty specific right now
+
+    let q5 : u64 = 0;
+    let q5_bp: u64 = 0;
+    let q7 : u64 = 0;
+    let q7_bp: u64 = 0;
+    let q10 : u64 = 0;
+    let q10_bp: u64 = 0;
+    let q15 : u64 = 0;
+    let q15_bp: u64 = 0;
+    let q20 : u64 = 0;
+    let q20_bp: u64 = 0;
+
+    let l200 : u64 = 0;
+    let l200_bp: u64 = 0;
+    let l500 : u64 = 0; 
+    let l500_bp: u64 = 0;
+    let l1000 : u64 = 0; 
+    let l1000_bp: u64 = 0;
+    let l5000 : u64 = 0;
+    let l5000_bp: u64 = 0;
+    let l10000 : u64 = 0; 
+    let l10000_bp: u64 = 0;
+    let l50000 : u64 = 0; 
+    let l50000_bp: u64 = 0;
+    let l100000 : u64 = 0; 
+    let l100000_bp: u64 = 0;
+    let l1000000 : u64 = 0; 
+    let l1000000_bp: u64 = 0;
+
+    for (l, q) in read_lengths.iter().zip(read_qualities.iter()){ // unsorted
+        if q > 5 {
+            q5 += 1;
+            q5_bp += l;
+        } else if q > 7 {
+            q7 += 1;
+            q7_bp+= l;
+        }  else if q > 10 {
+            q10 += 1;
+            q10_bp += l;
+        }  else if q > 15 {
+            q15 += 1;
+            q15_bp += l;
+        }  else if q > 20 {
+            q20 += 1;
+            q20_bp += l;
+        }  
+
+        if l > 200 {
+            l200 += 1;
+            l200_bp += l;
+        } else if l > 500 {
+            l500 += 1;
+        }  else if l > 1000 {
+            l1000 += 1;
+        }  else if l > 5000 {
+            l5000 += 1;
+        }  else if l > 10000 {
+            l10000 += 1;
+        }  else if l > 50000 {
+            l50000 += 1;
+        }  else if l > 100000 {
+            l100000 += 1;
+        }  else if l > 1000000 {
+            l1000000 += 1;
+        }  
+
+    } 
+
+    length_str = format!("
+    
+    Reads above quality thresholds
+
+    >Q5  {:}  {:.1}%  {:}
+    >Q7  {:}  {:.1}%  {:}
+    >Q10 {:}  {:.1}%  {:}
+    >Q15 {:}  {:.1}%  {:}
+    >Q20 {:}  {:.1}%  {:}
+    ", 
+    q5.to_formatted_string(&Locale::en), (reads / q5_bp)*100.0, q5_bp.to_formatted_string(&Locale::en),
+    q7.to_formatted_string(&Locale::en), (reads / q7_bp)*100.0, q7_bp.to_formatted_string(&Locale::en),
+    q10.to_formatted_string(&Locale::en), (reads / q10_bp)*100.0, q10_bp.to_formatted_string(&Locale::en),
+    q15.to_formatted_string(&Locale::en), (reads / q15_bp)*100.0, q15_bp.to_formatted_string(&Locale::en),
+    q20.to_formatted_string(&Locale::en), (reads / q20_bp)*100.0, q20_bp.to_formatted_string(&Locale::en)
+    )
+
+
+    Ok(())
+
+}
+
+fn print_top_ranking(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>) -> Result<(), Error> {
+
+    // Index length and quality vecs
+
+    let mut indexed_lengths: Vec<(usize, u64)> = Vec::new();
+    for (i, q) in read_lengths.iter().enumerate() {
+        indexed_lengths.push((i, *q));
+    }
+
+    &indexed_lengths.sort_by(compare_indexed_tuples_descending_u64);
+
+    let mut indexed_qualities: Vec<(usize, f32)> = Vec::new();
+    for (i, q) in read_qualities.iter().enumerate() {
+        indexed_qualities.push((i, *q));
+    }
+
+    &indexed_qualities.sort_by(compare_indexed_tuples_descending_f32);
+    
+        // Read lengths
+    eprintln!("Top ranking read lengths\n");
+    for i in 0..top {
+        let (_, length) = indexed_lengths[i as usize];
+        eprintln!("{}. {:} bp", i+1, length);
+    }
+    eprintln!("");
+
+    // Read quality
+    eprintln!("Top ranking mean read qualities\n");
+    for i in 0..top {
+        let (_, qual) = indexed_qualities[i as usize];
+        eprintln!("{}. Q {:.2}", i+1, qual);
+    }
+    eprintln!("");
+
+    Ok(())
 
 }
 
