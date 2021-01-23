@@ -46,8 +46,6 @@ fn main() -> Result<(), Error> {
     
     let detail = cli.occurrences_of("DETAIL");
 
-    println!("Detail: {:?}", detail);
-
     if keep_percent > 0.0 || keep_bases > 0 {
 
         // Advanced mode (Filtlong analog)
