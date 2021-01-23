@@ -229,23 +229,15 @@ Benchmarks evaluate processing speed of a long-read filter and computation of su
 
 ![nanoq benchmarks](paper/benchmarks.png?raw=true "Nanoq benchmarks")
 
-Filter:
-
-| program         |  example command                                   | mean sec (+/- sd)   |  ~ reads / sec  | speedup |
-| -------------   | ---------------------------------------------------|---------------------| ----------------|---------|
-| nanofilt        | `cat test.fq | NanoFilt -l 5000 > /dev/null`       | 35.42 (0.396)       | 2,283           | 1.00 x  |
-| filtlong        | `filtlong --min_length 5000 test.fq > /dev/null`   | 20.28 (0.396)       | 4,930           | 2.15 x  |
-| nanoq           | `cat test.fq | nanoq -l 5000 > /dev/null`          | 05.01 (1.442)       | 19,960          | 8.74 x  |
-
-Summary statistics:
-
-| program         |  example command                | threads  | mean time (+/- sd) |  reads / sec    | speedup |
-| -------------   | --------------------------------|----------|--------------------| ----------------|---------|
-| nanostat        | `NanoStat --fastq test.fq -t 4` | 4        | 40.01 (2.649)      | 2,499           | 1.00 x  |
-| nanoq           | `cat test.fq | nanoq`           | 1        | 04.93 (1.441)      | 20,283          | 8.11 x  |
+| program         |  task  | mean sec (+/- sd)   |  ~ reads / sec  | speedup |
+| -------------   | -------|---------------------|-----------------|---------|
+| nanofilt        | filter | 35.42 (0.396)       | 2,283           | 1.00 x  |
+| filtlong        | filter | 20.28 (0.396)       | 4,930           | 2.15 x  |
+| nanoq           | filter |  05.01 (1.442)      | 19,960          | 8.74 x  |
+| nanostat        | stats  | 40.01 (2.649)       | 2,499           | 1.00 x  |
+| nanoq           | stats  | 04.93 (1.441)       | 20,283          | 8.11 x  |
 
 
-Real time estimates from 100 replicates on an idle server, so kinda shoulda be somewhat reflective of performance.
 
 ## Dependencies
 
