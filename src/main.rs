@@ -462,7 +462,7 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
 
     } 
 
-    length_str = format!("
+    let length_str = format!("
     
     Reads above quality thresholds
 
@@ -477,10 +477,11 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
     q10.to_formatted_string(&Locale::en), (reads / q10_bp)*100.0, q10_bp.to_formatted_string(&Locale::en),
     q15.to_formatted_string(&Locale::en), (reads / q15_bp)*100.0, q15_bp.to_formatted_string(&Locale::en),
     q20.to_formatted_string(&Locale::en), (reads / q20_bp)*100.0, q20_bp.to_formatted_string(&Locale::en)
-    )
+    );
 
+    let quality_str = String::from("");
 
-    Ok(())
+    Ok((length_str, quality_str))
 
 }
 
