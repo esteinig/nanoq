@@ -320,7 +320,7 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
     
     // required for zip implementation below
     let _read_lengths_unsorted: Vec<u64> = read_lengths.to_vec();
-    let _read_qualities_unsorted: Vec<f32> = read_lengths.to_vec();
+    let _read_qualities_unsorted: Vec<f32> = read_qualities.to_vec();
 
     // all sort the vectors or sort independent of sorts, vectors are sorted
     let mean_read_length = get_mean_read_length(&read_lengths);
