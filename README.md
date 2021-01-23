@@ -27,7 +27,7 @@ Minimal but speedy quality control for nanopore reads.
 
 ## Motivation
 
-Basic sequence quality control and computation of summary statistics can be a bit slow due to bottlenecks in read parsing. `Nanoq` attempts to perform these operations on `fastx` files using the `needletail` library with either a single-pass operation for defaulty summary statistics and filtering, or a two-pass operation enabling advanced filtering methods similar to `Filtlong`.
+Basic sequence quality control and computation of summary statistics can be a bit slow due to bottlenecks in read parsing. `Nanoq` attempts to perform these operations on `fastx` files using the `needletail` and `rust-bio` libraries with either a single-pass operation for defaulty summary statistics and filtering, or a two-pass operation enabling advanced filtering methods similar to `Filtlong`.
 
 Quality scores are computed for basecalls from nanopore sequencing data, as outlined in the [technical documentation](https://community.nanoporetech.com/technical_documents/data-analysis/).
 
@@ -39,16 +39,6 @@ If you have [`Rust`](https://www.rust-lang.org/tools/install) and `Cargo` instal
 
 ```
 cargo install nanoq
-nanoq --help
-```
-
-#### `Singularity`
-
-I prefer `Singularity` over `Docker` containers for integrated access to the host file system.
-
-```
-singularity pull docker://esteinig/nanoq
-./nanoq_latest.sif --help
 ```
 
 #### `Conda`
@@ -60,18 +50,23 @@ conda install -c esteinig nanoq
 nanoq --help
 ```
 
+
 #### `Docker`
 
 `Docker` containers need a user- and bindmount of the current host working directory containing the `fastq` (here: `test.fq`) - which links into the default container working directory `/data`:
 
 ```
-docker run -it \
-  -v $(pwd):/data \
-  -u $(id -u):$(id -g) \
-  esteinig/nanoq \
-  --fastq /data/test.fq \
-  --output /data/filt.fq
+
 ```
+
+#### `Singularity`
+
+I prefer `Singularity` over `Docker` containers for integrated access to the host file system.
+
+```
+singularity pull docker://esteinig/nanoq
+```
+
 
 ## Usage
 
@@ -80,7 +75,7 @@ docker run -it \
 Summary statistics:
 
 ```
-nanoq -f test.fq
+cat test.fq | nanoq
 ```
 
 File mode:
@@ -89,16 +84,12 @@ File mode:
 nanoq -f test.fq -l 1000 -q 10 -o filt.fq 
 ```
 
-Streaming mode:
 
-```
-cat test.fq | nanoq -l 1000 -q 10 > /dev/null
-```
 
 ### Parameters
 
 ```
-nanoq 0.1.1
+nanoq 0.2.0
 
 Minimal quality control for nanopore reads
 
@@ -130,50 +121,42 @@ These correspond to:
 reads bp longest shortest mean_length median_length mean_qscore median_qscore
 ```
 
+Extended output is enabled with up to 3 `--detail` (`-d`) flags:
+
+```
+nanoq -f test.fq -d -d
+```
+
 ## Benchmarks
 
-Benchmarks evaluate processing speed of a long-read filter and computation of summary statistics on the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) (3,491,390  reads, 14.38 Gbp, `GridION`) using the `nanoq:v0.1.0` `Singularity` image in comparison to [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong)
+Benchmarks evaluate processing speed of a long-read filter and computation of summary statistics on the first 100,000 reads (`test.fq.gz` in Docker container) of the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) (`GridION`) using the `nanoq:v0.2.0` [`Benchmark`](paper/Benchmarks) image with comparison to [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong)
+
+![nanoq benchmarks](paper/benchmarks.png?raw=true "Nanoq benchmarks")
 
 Filter:
 
-| program         |  command                                           |  real time |  reads / sec    | speedup |
-| -------------   | ---------------------------------------------------|------------| ----------------|---------|
-| nanofilt        | `NanoFilt -f test.fq -l 5000 > /dev/null`          | 00:20:39   | 2,818           | 1.00 x  |
-| filtlong        | `filtlong --min_length 5000 test.fq > /dev/null`   | 00:13:20   | 4,364           | 1.55 x  |
-| nanoq           | `nanoq -f test.fq -l 5000 > /dev/null`             | 00:02:44   | 21,289          | 7.55 x  |
+| program         |  example command                                   | mean time (+/- sd)  |  ~ reads / sec  | speedup |
+| -------------   | ---------------------------------------------------|---------------------| ----------------|---------|
+| nanofilt        | `cat test.fq | NanoFilt -l 5000 > /dev/null`       | 00:20:39            | 2,818           | 1.00 x  |
+| filtlong        | `filtlong --min_length 5000 test.fq > /dev/null`   | 00:13:20            | 4,364           | 1.55 x  |
+| nanoq           | `cat test.fq | nanoq -l 5000 > /dev/null`          | 00:02:44            | 21,289          | 7.55 x  |
 
 Summary statistics:
 
-| program         |  command                       | threads  | real time |  reads / sec    | speedup |
-| -------------   | -------------------------------|----------|-----------| ----------------|---------|
-| nanostat        | `NanoStat -f test.fq -t 1`     | 1        | 00:18:47  | 3,097           | 1.00 x  |
-| nanostat        | `NanoStat -f test.fq -t 8`     | 8        | 00:18:29  | 3,148           | 1.01 x  |
-| nanostat        | `NanoStat -f test.fq -t 16`    | 16       | 00:18:24  | 3,162           | 1.02 x  |
-| nanoq           | `nanoq -f test.fq 2> stats.txt`| 1        | 00:02:44  | 21,289          | 6.87 x  |
+| program         |  example command                | threads  | mean time (+/- sd) |  reads / sec    | speedup |
+| -------------   | --------------------------------|----------|--------------------| ----------------|---------|
+| nanostat        | `NanoStat --fastq test.fq -t 4` | 4        | 00:18:47           | 3,097           | 1.00 x  |
+| nanoq           | `cat test.fq | nanoq`           | 1        | 00:02:44           | 21,289          | 6.87 x  |
 
-Since we directed the reads to `/dev/null` in the filter benchmarks there is no difference to computing just the summary statistics for `nanoq`. Additional threads in `NanoStat` did not make a difference in processing the `fastq` which is likely limited by input capacity of the reader. 
-
-Keep in mind that `nanoq` does not accept the more convenient `sequencing_summary` file from local sequencing runs; applications may be more suitable for shared or public nanopore reads and automated pipelines.
 
 ## Dependencies
 
-`Nanoq` uses [`rust-bio`](https://rust-bio.github.io/) which has a ton of great contributors, check it out. 
+`Nanoq` uses [`rust-bio`](https://rust-bio.github.io/) which has a ton of great contributors and the [`needletail`](https://github.com/onecodex/needletail) library from OneCodex. 
 
 ## Etymology
 
-Coincidentally `nanoq` [nanɔq] means 'polar bear' in Native American (Eskimo-Aleut, Greenlandic). If you find `nanoq` useful for your research consider a small donation to the [Polar Bear Fund](https://www.polarbearfund.ca/) or [Polar Bears International](https://polarbearsinternational.org/).
+Avoiding name collision with `nanoqc` and dropping the `c` to arrive at `nanoq` [nanɔq] which coincidentally means 'polar bear' in Native American (Eskimo-Aleut, Greenlandic). If you find `nanoq` useful for your research consider a small donation to the [Polar Bear Fund](https://www.polarbearfund.ca/) or [Polar Bears International](https://polarbearsinternational.org/) :bear:
 
-## Citing
+## Contributions
 
-```
-@software{eike_steinig_2020_3707754,
-  author       = {Eike Steinig},
-  title        = {esteinig/nanoq: Zenodo release},
-  month        = mar,
-  year         = 2020,
-  publisher    = {Zenodo},
-  version      = {v0.1.1},
-  doi          = {10.5281/zenodo.3707754},
-  url          = {https://doi.org/10.5281/zenodo.3707754}
-}
-```
+We welcome any and all suggestions or pull requests. Please feel free to open an issue in the repositorty on `GitHub`.
