@@ -43,16 +43,16 @@ def plot_data(data: pandas.DataFrame) -> None:
         ax=axes[0], palette="Greens"
     )
     
-    plt.xlabel("")
-    plt.ylabel("seconds\n")
-
     seaborn.barplot(
         y='time', x='ftype', hue='tool', data=stats_data,
         ax=axes[1], palette="Blues", hue_order=["nanostat", "nanoq"]
     )
 
-    plt.xlabel("")
-    plt.ylabel("seconds\n")
+    axes[0].set_xlabel("")
+    axes[0].set_ylabel("seconds\n")
+    axes[1].set_xlabel("")
+    axes[1].set_ylabel("seconds\n")
+
     axes[0].title.set_text('Read filter')
     axes[1].title.set_text('Read statistics')
 
