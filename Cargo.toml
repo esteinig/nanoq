@@ -18,6 +18,6 @@ include = [
 
 [dependencies]
 clap = "2.33.0"
-bio = "*"
+bio = "0.32.0"
 needletail = "0.4"
 num-format = "0.4.0"
