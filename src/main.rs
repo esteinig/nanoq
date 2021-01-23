@@ -425,8 +425,8 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
     let mut qt_vec: Vec<(&String, &Vec<f32>)> = q_threshold_data.iter().collect();
     let mut lt_vec: Vec<(&String, &Vec<u64>)> = l_threshold_data.iter().collect();
 
-    qt_vec.iter().sort_by(|a, b| (a as f32).0.cmp(&b.0 as f32));
-    lt_vec.iter().sort_by(|a, b| (a as u64).0.cmp(&b.0 as u64));
+    qt_vec.sort_by(|a, b| (a.0.parse::<u64>().unwrap() ).cmp(&b.0.parse::<u64>().unwrap()));
+    lt_vec.sort_by(|a, b| (a.0.parse::<u64>().unwrap() ).cmp(&b.0.parse::<u64>().unwrap()));
 
 
 
