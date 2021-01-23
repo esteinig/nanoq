@@ -439,7 +439,7 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
 
         let _gap = if k < &10.0  { " " } else { "" };
 
-        eprintln!(">Q{:}: {:}{:} ({:.4}%) {:}", k, _gap, nreads, percent_reads, bp);
+        eprintln!(">Q{:}: {:}{:} reads ({:}%) {:} bp", k, _gap, nreads, percent_reads, bp);
     }
     eprintln!("");
 
