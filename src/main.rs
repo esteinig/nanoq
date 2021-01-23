@@ -395,9 +395,9 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
 
     // Threshold summary prints
 
-    q_thresholds = vec![5.0, 7.0, 10.0, 15.0, 20.0];
-    q_threshold_counts: HashMap<usize, u64> = ;
-    q_threshold_bp: HashMap<usize, u64> = ;
+    let q_thresholds = vec![5.0, 7.0, 10.0, 15.0, 20.0];
+    let q_threshold_counts: HashMap<usize, u64> = HashMap::new();
+    let q_threshold_bp: HashMap<usize, u64> = HashMap::new();
 
     for (l, q) in read_lengths.iter().zip(read_qualities.iter()){ // unsorted
         
