@@ -415,7 +415,7 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
         }
         for tl in &l_thresholds {
             if l > &tl {
-                let (mut count, mut bp) = *l_threshold_data.entry(tq.to_string()).or_insert((0, 0));
+                let (mut count, mut bp) = *l_threshold_data.entry(tl.to_string()).or_insert((0, 0));
                 count += 1;
                 bp += l;
             }
