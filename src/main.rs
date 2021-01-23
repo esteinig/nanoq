@@ -14,7 +14,7 @@ use num_format::{Locale, ToFormattedString};
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
     App::new("nanoq")
-        .version("0.2.0")
+        .version("0.2.1")
         .about("\nFast quality control and summary statistics for nanopore reads\n")
         .arg(Arg::with_name("FASTX").short("f").long("fastx").takes_value(true).help("Fastx input file [-]"))
         .arg(Arg::with_name("OUTPUT").short("o").long("output").takes_value(true).help("Fastx output file [-]"))
