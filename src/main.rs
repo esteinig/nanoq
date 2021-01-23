@@ -409,14 +409,14 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
     for (l, q) in read_lengths.iter().zip(read_qualities.iter()){ // must be unsorted
         for tq in &q_thresholds {
             if q > &tq {
-                q_threshold_counts.entry(&tq.to_string()).or_insert(0) += 1;
-                q_threshold_lengths.entry(&tq.to_string()).or_insert(0) += l;
+                *q_threshold_counts.entry(tq.to_string()).or_insert(0) += 1;
+                *q_threshold_lengths.entry(tq.to_string()).or_insert(0) += l;
             }
         }
         for tl in &l_thresholds {
             if l > &tl {
-                l_threshold_counts.entry(&tl.to_string()).or_insert(0) += 1;
-                l_threshold_lengths.entry(&tl.to_string()).or_insert(0) += l;
+                *l_threshold_counts.entry(tl.to_string()).or_insert(0) += 1;
+                *l_threshold_lengths.entry(tl.to_string()).or_insert(0) += l;
             }
         }
     } 
