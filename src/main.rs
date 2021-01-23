@@ -405,8 +405,8 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
 
     let q_thresholds_bp: Vec<u64> = vec![200, 500, 1000, 5000, 10000, 50000, 100000, 1000000];
 
-    let q_threshold_bp: HashMap<usize, u64> = HashMap::new();
-    for t in q_thresholds { q_threshold_counts.insert(t, 0) };
+    let q_threshold_bp: HashMap<u64, u64> = HashMap::new();
+    for t in q_thresholds_bp { q_threshold_counts.insert(t, 0) };
 
     for (l, q) in read_lengths.iter().zip(read_qualities.iter()){ // unsorted
         println!("{} {}", l, q);
