@@ -680,17 +680,17 @@ mod tests {
     #[test]
     fn test_crabcast_filter_all_pass() {
         let test_file = get_test_fq();
-        let (reads, base_pairs, read_lengths, read_qualities) = crabcast_filter(test_file, String::from("/dev/null"), 1, 0, 7).unwrap();
+        let (reads, base_pairs, read_lengths, read_qualities) = crabcast_filter(test_file, String::from("/dev/null"), 1, 0, 7.0).unwrap();
         assert_eq!(reads, 1);
         assert_eq!(base_pairs, 12);
         assert_eq!(read_lengths, vec![12]);
-        assert_eq!(read_qualities, vec![40]);
+        assert_eq!(read_qualities, vec![40.0]);
     }
 
     #[test]
     fn test_crabcast_filter_min_length_none_pass() {
         let test_file = get_test_fq();
-        let (reads, base_pairs, read_lengths, read_qualities) = crabcast_filter(test_file, String::from("/dev/null"), 15, 0, 7).unwrap();
+        let (reads, base_pairs, read_lengths, read_qualities) = crabcast_filter(test_file, String::from("/dev/null"), 15, 0, 7.0).unwrap();
         assert_eq!(reads, 0);
         assert_eq!(base_pairs, 0);
         assert_eq!(read_lengths, vec![]);
@@ -700,7 +700,7 @@ mod tests {
     #[test]
     fn test_crabcast_filter_max_length_none_pass() {
         let test_file = get_test_fq();
-        let (reads, base_pairs, read_lengths, read_qualities) = crabcast_filter(test_file, String::from("/dev/null"), 10, 10, 7).unwrap();
+        let (reads, base_pairs, read_lengths, read_qualities) = crabcast_filter(test_file, String::from("/dev/null"), 10, 10, 7.0).unwrap();
         assert_eq!(reads, 0);
         assert_eq!(base_pairs, 0);
         assert_eq!(read_lengths, vec![]);
@@ -710,7 +710,7 @@ mod tests {
     #[test]
     fn test_crabcast_filter_min_quality_none_pass() {
         let test_file = get_test_fq();
-        let (reads, base_pairs, read_lengths, read_qualities) = crabcast_filter(test_file, String::from("/dev/null"), 10, 0, 60).unwrap();
+        let (reads, base_pairs, read_lengths, read_qualities) = crabcast_filter(test_file, String::from("/dev/null"), 10, 0, 60.0).unwrap();
         assert_eq!(reads, 0);
         assert_eq!(base_pairs, 0);
         assert_eq!(read_lengths, vec![]);
@@ -722,17 +722,17 @@ mod tests {
     #[test]
     fn test_needlecast_filter_all_pass() {
         let test_file = get_test_fq();
-        let (reads, base_pairs, read_lengths, read_qualities) = needlecast_filter(test_file, String::from("/dev/null"), 1, 0, 7).unwrap();
+        let (reads, base_pairs, read_lengths, read_qualities) = needlecast_filter(test_file, String::from("/dev/null"), 1, 0, 7.0).unwrap();
         assert_eq!(reads, 1);
         assert_eq!(base_pairs, 12);
         assert_eq!(read_lengths, vec![12]);
-        assert_eq!(read_qualities, vec![40]);
+        assert_eq!(read_qualities, vec![40.0]);
     }
 
     #[test]
     fn test_needlecast_filter_min_length_none_pass() {
         let test_file = get_test_fq();
-        let (reads, base_pairs, read_lengths, read_qualities) = needlecast_filter(test_file, String::from("/dev/null"), 15, 0, 7).unwrap();
+        let (reads, base_pairs, read_lengths, read_qualities) = needlecast_filter(test_file, String::from("/dev/null"), 15, 0, 7.0).unwrap();
         assert_eq!(reads, 0);
         assert_eq!(base_pairs, 0);
         assert_eq!(read_lengths, vec![]);
@@ -742,7 +742,7 @@ mod tests {
     #[test]
     fn test_needlecast_filter_max_length_none_pass() {
         let test_file = get_test_fq();
-        let (reads, base_pairs, read_lengths, read_qualities) = needlecast_filter(test_file, String::from("/dev/null"), 10, 10, 7).unwrap();
+        let (reads, base_pairs, read_lengths, read_qualities) = needlecast_filter(test_file, String::from("/dev/null"), 10, 10, 7.0).unwrap();
         assert_eq!(reads, 0);
         assert_eq!(base_pairs, 0);
         assert_eq!(read_lengths, vec![]);
@@ -752,7 +752,7 @@ mod tests {
     #[test]
     fn test_needlecast_filter_min_quality_none_pass() {
         let test_file = get_test_fq();
-        let (reads, base_pairs, read_lengths, read_qualities) = needlecast_filter(test_file, String::from("/dev/null"), 10, 0, 60).unwrap();
+        let (reads, base_pairs, read_lengths, read_qualities) = needlecast_filter(test_file, String::from("/dev/null"), 10, 0, 60.0).unwrap();
         assert_eq!(reads, 0);
         assert_eq!(base_pairs, 0);
         assert_eq!(read_lengths, vec![]);
@@ -766,7 +766,7 @@ mod tests {
         assert_eq!(reads, 1);
         assert_eq!(base_pairs, 12);
         assert_eq!(read_lengths, vec![12]);
-        assert_eq!(read_qualities, vec![40]);
+        assert_eq!(read_qualities, vec![40.0]);
     }
 
     #[test]
@@ -796,8 +796,8 @@ mod tests {
     #[test]
     fn test_needlecast_index_filter_fq() {
         let test_file = get_test_fq();
-        let _indices: Vec<(usize, u64)> = vec![(0, 40)];
-        let indices: HashMap<usize, u64> = _indices.iter().cloned().collect();
+        let _indices: Vec<(usize, f32)> = vec![(0, 40.0)];
+        let indices: HashMap<usize, f32> = _indices.iter().cloned().collect();
         let completed = needlecast_index_filter(&test_file, String::from("/dev/null"), indices);
         assert!(completed.is_ok());
     }
@@ -805,8 +805,8 @@ mod tests {
     #[test]
     fn test_needlecast_index_filter_fa() {
         let test_file = get_test_fa();
-        let _indices: Vec<(usize, u64)> = vec![(0, 40)];
-        let indices: HashMap<usize, u64> = _indices.iter().cloned().collect();
+        let _indices: Vec<(usize, f32)> = vec![(0, 40.0)];
+        let indices: HashMap<usize, f32> = _indices.iter().cloned().collect();
         let completed = needlecast_index_filter(&test_file, String::from("/dev/null"), indices);
         assert!(completed.is_ok());
     }
@@ -815,7 +815,7 @@ mod tests {
     
     #[test]
     fn test_retain_indexed_quality_reads_keep_percent_retain_none() {
-        let read_qualities: Vec<u64> = vec![10, 20, 20, 30];
+        let read_qualities: Vec<f32> = vec![10.0, 20.0, 20.0, 30.0];
         let read_lengths: Vec<u64> = vec![10, 20, 20, 30];
         let keep_percent: f64 = 0.1;
         let keep_bases: usize = 0;
@@ -826,7 +826,7 @@ mod tests {
 
     #[test]
     fn test_retain_indexed_quality_reads_keep_percent_retain_some() {
-        let read_qualities: Vec<u64> = vec![10, 20, 20, 30];
+        let read_qualities: Vec<f32> = vec![10.0, 20.0, 20.0, 30.0];
         let read_lengths: Vec<u64> = vec![10, 20, 20, 30];
         let keep_percent: f64 = 0.50;
         let keep_bases: usize = 0;
@@ -836,7 +836,7 @@ mod tests {
 
     #[test]
     fn test_retain_indexed_quality_reads_keep_bases_retain_none() {
-        let read_qualities: Vec<u64> = vec![10, 20, 20, 30];
+        let read_qualities: Vec<f32> = vec![10.0, 20.0, 20.0, 30.0];
         let read_lengths: Vec<u64> = vec![10, 20, 20, 30];
         let keep_percent: f64 = 0.1;
         let keep_bases: usize = 0;
@@ -847,7 +847,7 @@ mod tests {
 
     #[test]
     fn test_retain_indexed_quality_reads_keep_bases_retain_some() {
-        let read_qualities: Vec<u64> = vec![10, 20, 20, 30];
+        let read_qualities: Vec<f32> = vec![10.0, 20.0, 20.0, 30.0];
         let read_lengths: Vec<u64> = vec![10, 20, 20, 30];
         let keep_percent: f64 = 1.0;
         let keep_bases: usize = 50;
@@ -857,7 +857,7 @@ mod tests {
 
     #[test]
     fn test_retain_indexed_quality_reads_both() {
-        let read_qualities: Vec<u64> = vec![10, 20, 20, 30];
+        let read_qualities: Vec<f32> = vec![10.0, 20.0, 20.0, 30.0];
         let read_lengths: Vec<u64> = vec![10, 20, 20, 30];
         let keep_percent: f64 = 0.75;
         let keep_bases: usize = 60;
@@ -873,7 +873,7 @@ mod tests {
         let reads: u64 = 5;
         let base_pairs: u64 = 80;
         let read_lengths: Vec<u64> = vec![20, 10, 30, 20, 10];
-        let read_qualities: Vec<u64> = vec![20, 10, 30, 20, 10];
+        let read_qualities: Vec<f32> = vec![10.0, 20.0, 20.0, 30.0];
         let (
             read_length_n50, 
             max_read_length, 
@@ -899,7 +899,7 @@ mod tests {
         let reads: u64 = 5;
         let base_pairs: u64 = 80;
         let read_lengths: Vec<u64> = vec![20, 10, 30, 20, 10];
-        let read_qualities: Vec<u64> = vec![20, 10, 30, 20, 10];
+        let read_qualities: Vec<f32> = vec![10.0, 20.0, 20.0, 30.0];
         eprint_stats(reads, base_pairs, read_lengths, read_qualities, true, 10).unwrap(); // panics at implausible top param
     }
 
