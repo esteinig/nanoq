@@ -49,7 +49,9 @@ def plot_data(data: pandas.DataFrame) -> None:
 
     plt.xlabel("")
     plt.ylabel("seconds\n")
-
+    axes[0].title.set_text('Read filter')
+    axes[1].title.set_text('Read statistics')
+    
     plt.tight_layout()
     fig.savefig('benchmarks.png')
 
