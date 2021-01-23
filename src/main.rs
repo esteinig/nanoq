@@ -427,8 +427,8 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
     let qkeys: Vec<f32> = qkeys.iter().map(|x| x.parse::<f32>().unwrap() ).collect();
     let lkeys: Vec<u64> = lkeys.iter().map(|x| x.parse::<u64>().unwrap() ).collect();
 
-    qkeys.sort(); qkeys.reverse();
-    lkeys.sort(); lkeys.reverse();
+    qkeys.sort_by(compare_f32_descending);
+    lkeys.sort(compare_u64_descending);
 
     eprintln!("Mean read quality thresholds\n");
     for (t, data) in q_threshold_data.iter() {
@@ -605,7 +605,6 @@ fn compare_f32_ascending(a: &f32, b: &f32) -> Ordering {
     
 }
 
-#[allow(dead_code)]
 fn compare_f32_descending(a: &f32, b: &f32) -> Ordering {
 
     // Will get killed with NAN (R.I.P)
@@ -1152,6 +1151,14 @@ mod tests {
         test_data.sort_by(compare_f32_ascending);
         assert_eq!(test_data, vec![1.0, 2.0, 5.0]);
     }
+
+    #[test]
+    fn test_compare_f32_descending() {
+        let mut test_data: Vec<f32> = vec![1.0, 5.0, 2.0];
+        test_data.sort_by(compare_f32_descending);
+        assert_eq!(test_data, vec![5.0, 2.0, 1.0]);
+    }
+
 
     // Mean read error
 
