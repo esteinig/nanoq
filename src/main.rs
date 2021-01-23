@@ -322,7 +322,7 @@ fn retain_indexed_quality_reads(read_qualities: Vec<f32>, read_lengths: Vec<u64>
 
 }
 
-fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut read_qualities: Vec<u64>, detail: bool, top: u64) -> Result<(u64, u64, u64, u64, u64, f64, f64), Error> {
+fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut read_qualities: Vec<f32>, detail: bool, top: u64) -> Result<(u64, u64, u64, u64, u64, f64, f64), Error> {
 
     let mean_read_length = get_mean_read_length(&read_lengths);
     let mean_read_quality = get_mean_read_quality(&read_qualities);
@@ -368,14 +368,14 @@ Median read quality: {:.1}
             indexed_lengths.push((i, *q));
         }
 
-        &indexed_lengths.sort_by(compare_indexed_tuples_descending);
+        &indexed_lengths.sort_by(compare_indexed_tuples_descending_u64);
 
-        let mut indexed_qualities: Vec<(usize, u64)> = Vec::new();
+        let mut indexed_qualities: Vec<(usize, f32)> = Vec::new();
         for (i, q) in read_qualities.iter().enumerate() {
             indexed_qualities.push((i, *q));
         }
 
-        &indexed_qualities.sort_by(compare_indexed_tuples_descending);
+        &indexed_qualities.sort_by(compare_indexed_tuples_descending_f64);
         
          // Read lengths
         eprintln!("Top ranking read lengths\n");
@@ -455,7 +455,21 @@ fn get_input_handle(fastx: String) -> Result<Box<dyn Read>, Error> {
     }
 }
 
-fn compare_indexed_tuples_descending(a: &(usize, u64), b: &(usize, u64)) -> Ordering {
+fn compare_indexed_tuples_descending_f32(a: &(usize, f32), b: &(usize, f32)) -> Ordering {
+
+    // Will get killed with NAN (R.I.P)
+    // but we should never see NAN
+
+    if a.1 < b.1 {
+        return Ordering::Greater;
+    } else if a.1 > b.1 {
+        return Ordering::Less; 
+    }
+    Ordering::Equal
+   
+}
+
+fn compare_indexed_tuples_descending_u64(a: &(usize, u64), b: &(usize, u64)) -> Ordering {
 
     // Will get killed with NAN (R.I.P)
     // but we should never see NAN
@@ -1018,13 +1032,21 @@ mod tests {
     // Ordering
 
     #[test]
-    fn test_compare_indexed_tuples_descending() {
+    fn test_compare_indexed_tuples_descending_u64() {
         let mut test_data: Vec<(usize, u64)> = vec![(0, 30), (1, 10), (2, 50)];
-        test_data.sort_by(compare_indexed_tuples_descending);
+        test_data.sort_by(compare_indexed_tuples_descending_u64);
         assert_eq!(test_data, vec![(2, 50), (0, 30), (1, 10)]);
         assert_eq!(test_data.sort_by_key(|tup| tup.1).reverse(), vec![(2, 50), (0, 30), (1, 10)]);
     }
     
+    #[test]
+    fn test_compare_indexed_tuples_descending_f32() {
+        let mut test_data: Vec<(usize, f32)> = vec![(0, 30.0), (1, 10.0), (2, 50.0)];
+        test_data.sort_by(compare_indexed_tuples_descending_f32);
+        assert_eq!(test_data, vec![(2, 50.0), (0, 30.0), (1, 10.0)]);
+        assert_eq!(test_data.sort_by_key(|tup| tup.1).reverse(), vec![(2, 50.0), (0, 30.0), (1, 10.0)]);
+    }
+
     #[test]
     fn test_compare_u64_descending() {
         let mut test_data: Vec<u64> = vec![1,5,2];
