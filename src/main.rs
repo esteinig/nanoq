@@ -408,7 +408,7 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
     for (l, q) in read_lengths.iter().zip(read_qualities.iter()){ // must be unsorted
         for tq in &q_thresholds {
             if q > &tq {
-                let (mut qcount, mut qbp) = q_threshold_data.entry(tq.to_string()).or_insert(vec![0, 0]));
+                let (mut qcount, mut qbp) = q_threshold_data.entry(tq.to_string()).or_insert(vec![0, 0]);
                 qcount += 1;
                 qbp += l;
             }
