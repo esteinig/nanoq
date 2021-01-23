@@ -44,9 +44,9 @@ fn main() -> Result<(), Error> {
     let top: u64 = cli.value_of("TOP").unwrap_or("5").parse().unwrap();
     let crab: bool = cli.is_present("CRAB");
     
-    let detail: u64 = cli.occurrences_of("DETAIL");
+    let detail = cli.occurrences_of("DETAIL");
 
-    println!("Detail: {:}", detail);
+    println!("Detail: {:?}", detail);
 
     if keep_percent > 0.0 || keep_bases > 0 {
 
