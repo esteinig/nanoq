@@ -124,7 +124,7 @@ fn crabcast_filter(fastx: String, output: String, min_length: u64, max_length: u
 
         let quality_values = record.qual().to_vec();
         let mean_error = get_mean_error(&quality_values);
-        let mean_quality: f32 = -10f32*mean_error.log(10)
+        let mean_quality: f32 = -10f32*mean_error.log(10.0);
 
         let seqlen = record.seq().len() as u64;
                 
@@ -168,7 +168,7 @@ fn needlecast_filter(fastx: String, output: String, min_length: u64, max_length:
         // Quality scores present:
         if let Some(qual) = seqrec.qual() {
             let mean_error = get_mean_error(&qual);
-            let mean_quality: f32 = -10f32*mean_error.log(10)
+            let mean_quality: f32 = -10f32*mean_error.log(10.0);
             // Fastq filter
             if seqlen >= min_length && mean_quality >= min_quality && seqlen <= max_length {
                 reads += 1;
@@ -212,7 +212,7 @@ fn needlecast_stats(fastx: &String) -> Result<(u64, u64, Vec<u64>, Vec<f32>), Er
         // Quality scores:
         if let Some(qual) = seqrec.qual() {
             let mean_error = get_mean_error(&qual);
-            let mean_quality: f32 = -10f32*mean_error.log(10)
+            let mean_quality: f32 = -10f32*mean_error.log(10.0);
             read_qualities.push(mean_quality);
         } 
         
@@ -284,11 +284,11 @@ fn needlecast_index_filter(fastx: &String, output: String, indices: HashMap<usiz
 
 // Base functions
 
-fn retain_indexed_quality_reads(read_qualities: Vec<u64>, read_lengths: Vec<u64>, keep_percent: f64, keep_bases: usize) -> Result<Vec<(usize, u64)>, Error> {
+fn retain_indexed_quality_reads(read_qualities: Vec<f32>, read_lengths: Vec<u64>, keep_percent: f64, keep_bases: usize) -> Result<Vec<(usize, f32)>, Error> {
 
     // Index quality values by read amd fo;ter by kee-Percent or keep_bases
 
-    let mut indexed_qualities: Vec<(usize, u64)> = Vec::new();
+    let mut indexed_qualities: Vec<(usize, f32)> = Vec::new();
     for (i, q) in read_qualities.iter().enumerate() {
         indexed_qualities.push((i, *q));
     }
@@ -301,7 +301,7 @@ fn retain_indexed_quality_reads(read_qualities: Vec<u64>, read_lengths: Vec<u64>
     let mut _indexed_qualities_retain = &indexed_qualities[0.._limit];
 
     // Apply keep_bases 
-    let mut indexed_qualities_retain: Vec<(usize, u64)> = Vec::new();
+    let mut indexed_qualities_retain: Vec<(usize, f32)> = Vec::new();
     if keep_bases > 0 {
         let mut bp_sum: usize = 0;
         for qtup in _indexed_qualities_retain.iter() {
@@ -1044,7 +1044,7 @@ mod tests {
     #[test]
     fn test_mean_error_qscore() {
         let mean_error = get_mean_error(b"IIIIIIJJJJJJ");
-        let mean_quality: f32 = -10f32*mean_error.log(10);
+        let mean_quality: f32 = -10f32*mean_error.log(10.0);
         assert_eq!(mean_quality, 40 as f32);
     }
 
