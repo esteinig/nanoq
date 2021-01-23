@@ -433,7 +433,7 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
     for k in qkeys.iter() {
         let data = &q_threshold_data[&k.to_string()];
 
-        let percent_reads = (data[0] as f64 / reads as f64)*100 as f64;
+        let percent_reads = (data[0] as f64 / *reads as f64)*100 as f64;
         println!("{:} {:} {:}", percent_reads, reads, data[0]);
         let nreads = data[0].to_formatted_string(&Locale::en);
         let bp = data[1].to_formatted_string(&Locale::en); // Mbp
@@ -446,7 +446,7 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
     for k in lkeys.iter() {
         let data = &l_threshold_data[&k.to_string()];
 
-        let percent_reads = (data[0] as f64 / reads as f64)*100 as f64;
+        let percent_reads = (data[0] as f64 / *reads as f64)*100 as f64;
         let nreads = data[0].to_formatted_string(&Locale::en);
         let bp =  data[1].to_formatted_string(&Locale::en);
 
