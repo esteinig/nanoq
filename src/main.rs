@@ -882,7 +882,7 @@ mod tests {
             median_read_length, 
             mean_read_quality, 
             median_read_quality
-        ) = eprint_stats(reads, base_pairs, read_lengths, read_qualities, true, 5).unwrap(); // detailed
+        ) = eprint_stats(reads, base_pairs, read_lengths, read_qualities, 1, 5).unwrap(); // detailed
 
         assert_eq!(read_length_n50, 20);
         assert_eq!(max_read_length, 30);
@@ -900,7 +900,7 @@ mod tests {
         let base_pairs: u64 = 80;
         let read_lengths: Vec<u64> = vec![20, 10, 30, 20, 10];
         let read_qualities: Vec<f32> = vec![10.0, 20.0, 20.0, 30.0];
-        eprint_stats(reads, base_pairs, read_lengths, read_qualities, true, 10).unwrap(); // panics at implausible top param
+        eprint_stats(reads, base_pairs, read_lengths, read_qualities, 1, 10).unwrap(); // panics at implausible top param
     }
 
 
@@ -1045,8 +1045,13 @@ mod tests {
     fn test_compare_indexed_tuples_descending_f32() {
         let mut test_data: Vec<(usize, f32)> = vec![(0, 30.0), (1, 10.0), (2, 50.0)];
         test_data.sort_by(compare_indexed_tuples_descending_f32);
+
+        let key_sorted: Vec<(usize, f32)> = vec![(0, 30.0), (1, 10.0), (2, 50.0)];
+        key_sorted.sort_by_key(|tup| tup.1)
+        key_sorted.reverse()
+
         assert_eq!(test_data, vec![(2, 50.0), (0, 30.0), (1, 10.0)]);
-        assert_eq!(test_data.sort_by_key(|tup| tup.1).reverse(), vec![(2, 50.0), (0, 30.0), (1, 10.0)]);
+        assert_eq!(key_sorted, vec![(2, 50.0), (0, 30.0), (1, 10.0)]);
     }
 
     #[test]
@@ -1058,7 +1063,7 @@ mod tests {
 
     #[test]
     fn test_compare_f32_ascending() {
-        let mut test_data: Vec<u64> = vec![1.0, 5.0, 2.0];
+        let mut test_data: Vec<f32> = vec![1.0, 5.0, 2.0];
         test_data.sort_by(compare_f32_ascending);
         assert_eq!(test_data, vec![1.0, 2.0, 5.0]);
     }
