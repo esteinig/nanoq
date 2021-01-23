@@ -496,8 +496,7 @@ fn compare_u64_descending(a: &u64, b: &u64) -> Ordering {
     Ordering::Equal
 }
 
-#[allow(dead_code)]
-fn compare_f64_ascending(a: &f64, b: &f64) -> Ordering {
+fn compare_f32_ascending(a: &f32, b: &f32) -> Ordering {
 
     // Will get killed with NAN (R.I.P)
     // but we should never see NAN
@@ -512,7 +511,7 @@ fn compare_f64_ascending(a: &f64, b: &f64) -> Ordering {
 }
 
 #[allow(dead_code)]
-fn compare_f64_descending(a: &f64, b: &f64) -> Ordering {
+fn compare_f32_descending(a: &f32, b: &f32) -> Ordering {
 
     // Will get killed with NAN (R.I.P)
     // but we should never see NAN
@@ -593,7 +592,7 @@ fn get_median_read_quality(numbers: &mut Vec<f32>) -> f64 {
 
     // Compute the median of a vector of single-precision floats
 
-    numbers.sort();
+    numbers.sort_by(compare_f32_ascending);
 
     let mid = numbers.len() / 2;
     if numbers.len() % 2 == 0 {
@@ -1049,9 +1048,16 @@ mod tests {
 
     #[test]
     fn test_compare_u64_descending() {
-        let mut test_data: Vec<u64> = vec![1,5,2];
+        let mut test_data: Vec<u64> = vec![1, 5, 2];
         test_data.sort_by(compare_u64_descending);
-        assert_eq!(test_data, vec![5,2,1]);
+        assert_eq!(test_data, vec![5, 2, 1]);
+    }
+
+    #[test]
+    fn test_compare_f32_ascending() {
+        let mut test_data: Vec<u64> = vec![1.0, 5.0, 2.0];
+        test_data.sort_by(compare_f32_ascending);
+        assert_eq!(test_data, vec![1.0, 2.0, 5.0]);
     }
 
     // Mean read error
