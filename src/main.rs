@@ -338,7 +338,7 @@ Nanoq Read Summary
 
 Number of reads:      {:}
 Number of bases:      {:}
-N50:                  {:}
+N50 read length:      {:}
 Longest read:         {:} 
 Shortest read:        {:}
 Mean read length:     {:}
