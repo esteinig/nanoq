@@ -726,7 +726,7 @@ mod tests {
         assert_eq!(reads, 1);
         assert_eq!(base_pairs, 12);
         assert_eq!(read_lengths, vec![12]);
-        assert_eq!(read_qualities, vec![40.0]);
+        assert_eq!(read_qualities, vec![40.471283]);
     }
 
     #[test]
@@ -766,7 +766,7 @@ mod tests {
         assert_eq!(reads, 1);
         assert_eq!(base_pairs, 12);
         assert_eq!(read_lengths, vec![12]);
-        assert_eq!(read_qualities, vec![40.0]);
+        assert_eq!(read_qualities, vec![40.471283]);
     }
 
     #[test]
@@ -1075,7 +1075,7 @@ mod tests {
     fn test_mean_error_qscore() {
         let mean_error = get_mean_error(b"IIIIIIJJJJJJ");
         let mean_quality: f32 = -10f32*mean_error.log(10.0);
-        assert_eq!(mean_quality, 40 as f32);
+        assert_eq!(mean_quality, 40.471283);
     }
 
     // N50
