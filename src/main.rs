@@ -423,6 +423,10 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
 
     println!("{:?} {:?}", q_threshold_counts, l_threshold_counts);
 
+    for (i , (treshold, count)) in q_threshold_counts.enumerate(){
+        println!("{}", i);
+    }
+
 //     let length_str = eprintln!("
     
 // Reads above quality thresholds
