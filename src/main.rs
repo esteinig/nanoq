@@ -422,13 +422,16 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
         }
     } 
 
-    let mut qt_vec: Vec<(String, Vec<f32>)> = q_threshold_data.values().cloned().collect();
-    let mut lt_vec: Vec<(String, Vec<u64>)> = l_threshold_data.values().cloned().collect();
+    let mut qkeys: Vec<u64>  = q_threshold_data.keys().cloned().collect();
+    let mut lkeys: Vec<u64> = l_threshold_data.keys().cloned().collect();
 
-    qt_vec.sort_by(|a, b| (a.0.parse::<u64>().unwrap() ).cmp(&b.0.parse::<u64>().unwrap()));
-    lt_vec.sort_by(|a, b| (a.0.parse::<u64>().unwrap() ).cmp(&b.0.parse::<u64>().unwrap()));
+    qkeys.sort_by(
+        |a, b| a.parse::<u64>().unwrap().comp(b.parse::<u64>().unwrap())
+    ); qkeys.reverse();
 
-
+    lkeys.sort_by(
+        |a, b| a.parse::<u64>().unwrap().comp(b.parse::<u64>().unwrap())
+    ); lkeys.reverse();
 
     eprintln!("Mean read quality thresholds\n");
     for (t, data) in q_threshold_data.iter() {
