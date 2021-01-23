@@ -44,12 +44,7 @@ fn main() -> Result<(), Error> {
     let top: u64 = cli.value_of("TOP").unwrap_or("5").parse().unwrap();
     let crab: bool = cli.is_present("CRAB");
     
-    let detail: u64 = match cli.occurrences_of("d") {
-        0 => 0,    // no details
-        1 => 1,    // top ranks
-        2 => 2,    // top ranks + thresholds
-        3 | _ => 2 // anything more not effective
-    };
+    let detail: u64 = cli.occurrences_of("d");
 
     println!("Detail: {:}", detail);
 
