@@ -433,12 +433,12 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
     for k in qkeys.iter() {
         let data = &q_threshold_data[&k.to_string()];
 
-        let percent_reads = (data[0] / reads)*100;
+        let percent_reads = (data[0] as f64 / reads as f64)*100;
         println!("{:} {:} {:}", percent_reads, reads, data[0]);
         let nreads = data[0].to_formatted_string(&Locale::en);
         let bp = data[1].to_formatted_string(&Locale::en); // Mbp
 
-        eprintln!(">{:<2}: {:} ({:.2}%) {:}", k, nreads, percent_reads, bp);
+        eprintln!(">{:<2}: {:} ({:}%) {:}", k, nreads, percent_reads, bp);
     }
     eprintln!("");
 
@@ -451,7 +451,7 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
         let bp =  data[1].to_formatted_string(&Locale::en);
 
 
-        eprintln!(">{:<9}: {:} ({:.2}%) {:}", k.to_formatted_string(&Locale::en), nreads, percent_reads, bp);
+        eprintln!(">{:<9}: {:} ({:}%) {:}", k.to_formatted_string(&Locale::en), nreads, percent_reads, bp);
     }
     eprintln!("");
 
