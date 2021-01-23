@@ -294,7 +294,7 @@ fn retain_indexed_quality_reads(read_qualities: Vec<f32>, read_lengths: Vec<u64>
     }
 
     // Sort (read index, qual) descending
-    indexed_qualities.sort_by(compare_indexed_tuples_descending);
+    indexed_qualities.sort_by(compare_indexed_tuples_descending_f32);
 
     // Apply keep_percent (0 -> keep all)
     let _limit: usize = (indexed_qualities.len() as f64 * keep_percent) as usize;
@@ -375,7 +375,7 @@ Median read quality: {:.1}
             indexed_qualities.push((i, *q));
         }
 
-        &indexed_qualities.sort_by(compare_indexed_tuples_descending_f64);
+        &indexed_qualities.sort_by(compare_indexed_tuples_descending_f32);
         
          // Read lengths
         eprintln!("Top ranking read lengths\n");
