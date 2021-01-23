@@ -421,10 +421,10 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
         }
     } 
 
-    let mut qkeys: Vec<String>  = q_threshold_data.keys().cloned().collect();
-    let mut lkeys: Vec<String> = l_threshold_data.keys().cloned().collect(); 
-    let qkeys: Vec<f32> = qkeys.iter().map(|x| x.parse::<f32>().unwrap() ).collect();
-    let lkeys: Vec<u64> = lkeys.iter().map(|x| x.parse::<u64>().unwrap() ).collect();
+    let qkeys: Vec<String>  = q_threshold_data.keys().cloned().collect();
+    let lkeys: Vec<String> = l_threshold_data.keys().cloned().collect(); 
+    let mut qkeys: Vec<f32> = qkeys.iter().map(|x| x.parse::<f32>().unwrap() ).collect();
+    let mut lkeys: Vec<u64> = lkeys.iter().map(|x| x.parse::<u64>().unwrap() ).collect();
 
     qkeys.sort_by(compare_f32_descending);
     lkeys.sort_by(compare_u64_descending);
