@@ -1,7 +1,7 @@
 # nanoq <a href='https://github.com/esteinig'><img src='docs/nanoq.png' align="right" height="270" /></a>
 
 ![](https://img.shields.io/badge/lang-rust-black.svg)
-![](https://img.shields.io/badge/version-0.2.0-purple.svg)
+![](https://img.shields.io/badge/version-0.2.1-purple.svg)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3707754.svg)](https://doi.org/10.5281/zenodo.3707754)
 
 Minimal but speedy quality control for nanopore reads.
