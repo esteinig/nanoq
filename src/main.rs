@@ -437,7 +437,7 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
         let nreads = data[0].to_formatted_string(&Locale::en);
         let bp = data[1].to_formatted_string(&Locale::en);
 
-        eprintln!(">{:<2}: {:<8} reads ({:}%) {:<12} bp", k, nreads, percent_reads, bp);
+        eprintln!(">{:<2}: {:<8} reads ({:}%) {:<16} bp", k, nreads, percent_reads, bp);
     }
     eprintln!("");
 
@@ -450,7 +450,7 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
         let bp = data[1].to_formatted_string(&Locale::en);
 
 
-        eprintln!(">{:<8}: {:<8} reads ({:.4}%) {:<12} bp", k.to_formatted_string(&Locale::en), nreads, percent_reads, bp);
+        eprintln!(">{:<8}: {:<8} reads ({:.4}%) {:<16} bp", k.to_formatted_string(&Locale::en), nreads, percent_reads, bp);
     }
     eprintln!("");
 
