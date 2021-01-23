@@ -393,35 +393,35 @@ Median read quality:  {:.2}
 
 fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &u64) -> Result<(String, String), Error> {
 
-    // pretty specific right now
+    // pretty specific right now make a hashmap for next version
 
-    let q5 : u64 = 0;
-    let q5_bp: u64 = 0;
-    let q7 : u64 = 0;
-    let q7_bp: u64 = 0;
-    let q10 : u64 = 0;
-    let q10_bp: u64 = 0;
-    let q15 : u64 = 0;
-    let q15_bp: u64 = 0;
-    let q20 : u64 = 0;
-    let q20_bp: u64 = 0;
+    let mut q5 : u64 = 0;
+    let mut q5_bp: u64 = 0;
+    let mut q7 : u64 = 0;
+    let mut q7_bp: u64 = 0;
+    let mut q10 : u64 = 0;
+    let mut q10_bp: u64 = 0;
+    let mut q15 : u64 = 0;
+    let mut q15_bp: u64 = 0;
+    let mut q20 : u64 = 0;
+    let mut q20_bp: u64 = 0;
 
-    let l200 : u64 = 0;
-    let l200_bp: u64 = 0;
-    let l500 : u64 = 0; 
-    let l500_bp: u64 = 0;
-    let l1000 : u64 = 0; 
-    let l1000_bp: u64 = 0;
-    let l5000 : u64 = 0;
-    let l5000_bp: u64 = 0;
-    let l10000 : u64 = 0; 
-    let l10000_bp: u64 = 0;
-    let l50000 : u64 = 0; 
-    let l50000_bp: u64 = 0;
-    let l100000 : u64 = 0; 
-    let l100000_bp: u64 = 0;
-    let l1000000 : u64 = 0; 
-    let l1000000_bp: u64 = 0;
+    let mut l200 : u64 = 0;
+    let mut l200_bp: u64 = 0;
+    let mut l500 : u64 = 0; 
+    let mut l500_bp: u64 = 0;
+    let mut l1000 : u64 = 0; 
+    let mut l1000_bp: u64 = 0;
+    let mut l5000 : u64 = 0;
+    let mut l5000_bp: u64 = 0;
+    let mut l10000 : u64 = 0; 
+    let mut l10000_bp: u64 = 0;
+    let mut l50000 : u64 = 0; 
+    let mut l50000_bp: u64 = 0;
+    let mut l100000 : u64 = 0; 
+    let mut l100000_bp: u64 = 0;
+    let mut l1000000 : u64 = 0; 
+    let mut l1000000_bp: u64 = 0;
 
     for (l, q) in read_lengths.iter().zip(read_qualities.iter()){ // unsorted
         if q > &5.0 {
