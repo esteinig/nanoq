@@ -100,15 +100,24 @@ done
 
 # Benchmarks
 
-Benchmarks evaluate processing speed of a simple length filter and computation of summary statistics on the first 100,000 reads of the [Zymo mock community](https://github.com/LomanLab/mockcommunity) (Release 2 Even, GridION) [@zymo] running comparisons to [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong).
+Benchmarks evaluate processing speed of a long-read filter and computation of summary statistics on the first 100,000 reads (`test.fq.gz` in Docker container) of the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) (`GridION`) using the `nanoq:v0.2.0` [`Benchmark`](paper/Benchmarks) image with comparison to [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong)
 
-Summary statistic commands:
+![nanoq benchmarks](benchmarks.png?raw=true "Nanoq benchmarks" )
 
+**Filter (fq)**:
 
-Filter commands:
+| program         |  command                                   | mean sec (+/- sd)   |  ~ reads / sec  | speedup |
+| -------------   | ---------------------------------------------------|---------------------| ----------------|---------|
+| nanofilt        | `cat test.fq | NanoFilt -l 5000 > /dev/null`       | 35.42 (0.396)       | 2,283           | 1.00 x  |
+| filtlong        | `filtlong --min_length 5000 test.fq > /dev/null`   | 20.28 (0.396)       | 4,930           | 2.15 x  |
+| nanoq           | `cat test.fq | nanoq -l 5000 > /dev/null`          | 05.01 (1.442)       | 19,960          | 8.74 x  |
 
+**Summary statistics (fq)**:
 
-While `rust-bio` is slightly faster than `needletail` in these specific benchmarks, `needletail` is the default mode as it supports `gz` and `fasta` formats natively.
+| program         |  example command                | threads  | mean sec (+/- sd) |  reads / sec    | speedup |
+| -------------   | --------------------------------|----------|--------------------| ----------------|---------|
+| nanostat        | `NanoStat --fastq test.fq -t 4` | 4        | 40.01 (2.649)      | 2,499           | 1.00 x  |
+| nanoq           | `cat test.fq | nanoq`           | 1        | 04.93 (1.441)      | 20,283          | 8.11 x  |
 
 # Availability
 

@@ -20,10 +20,10 @@ fn command_line_interface<'a>() -> ArgMatches<'a> {
         .arg(Arg::with_name("OUTPUT").short("o").long("output").takes_value(true).help("Fastx output file [-]"))
         .arg(Arg::with_name("MINLEN").short("l").long("min_length").takes_value(true).help("Minimum sequence length [0]"))
         .arg(Arg::with_name("MAXLEN").short("m").long("max_length").takes_value(true).help("Maximum sequence length [0]"))
-        .arg(Arg::with_name("QUALITY").short("q").long("min_quality").takes_value(true).help("Minimum average seq quality [0]"))
-        .arg(Arg::with_name("PERCENT").short("p").long("keep_percent").takes_value(true).help("Keep best percent quality bases on reads (0 - 100) [0]"))
-        .arg(Arg::with_name("BASES").short("b").long("keep_bases").takes_value(true).help("Keep reads with best quality number of bases [0]"))
-        .arg(Arg::with_name("CRAB").short("c").long("crab").takes_value(false).help("Use the rust-bio parser (fastq) [false]"))
+        .arg(Arg::with_name("QUALITY").short("q").long("min_quality").takes_value(true).help("Minimum average sequence quality [0]"))
+        .arg(Arg::with_name("PERCENT").short("p").long("keep_percent").takes_value(true).help("Keep best percent quality bases [0]"))
+        .arg(Arg::with_name("BASES").short("b").long("keep_bases").takes_value(true).help("Keep reads with best quality bases [0]"))
+        .arg(Arg::with_name("CRAB").short("c").long("crab").takes_value(false).help("Rust-Bio parser (fastq only) [false]"))
         .arg(Arg::with_name("DETAIL").short("d").long("detail").multiple(true).help("Print detailed read summary [false]"))
         .arg(Arg::with_name("TOP").short("t").long("top").takes_value(true).help("Print <top> length + quality reads [5]"))
     .get_matches()
@@ -433,11 +433,11 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
     for k in qkeys.iter() {
         let data = &q_threshold_data[&k.to_string()];
 
-        let percent_reads = (data[0] / reads) as f64;
+        let percent_reads = (data[0] / reads)*100;
         let nreads = data[0].to_formatted_string(&Locale::en);
         let bp = data[1].to_formatted_string(&Locale::en); // Mbp
 
-        eprintln!(">{:<2}: {:} ({:}%) {:}", k, nreads, percent_reads, bp);
+        eprintln!(">{:<2}: {:} ({:.2}%) {:}", k, nreads, percent_reads, bp);
     }
     eprintln!("");
 
@@ -445,7 +445,7 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
     for k in lkeys.iter() {
         let data = &l_threshold_data[&k.to_string()];
 
-        let percent_reads: f64 = (data[0] / reads) as f64;
+        let percent_reads = (data[0] / reads)*100;
         let nreads = data[0].to_formatted_string(&Locale::en);
         let bp =  data[1].to_formatted_string(&Locale::en);
 
