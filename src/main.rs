@@ -684,7 +684,7 @@ mod tests {
         assert_eq!(reads, 1);
         assert_eq!(base_pairs, 12);
         assert_eq!(read_lengths, vec![12]);
-        assert_eq!(read_qualities, vec![40.0]);
+        assert_eq!(read_qualities, vec![40.471283]);  // mean avg read qual - avg read q score is not unsigned integer!
     }
 
     #[test]
@@ -889,7 +889,7 @@ mod tests {
         assert_eq!(min_read_length, 10);
         assert_eq!(mean_read_length, 18);
         assert_eq!(median_read_length, 20);
-        assert_eq!(mean_read_quality, 18.0);
+        assert_eq!(mean_read_quality, 20.0);
         assert_eq!(median_read_quality, 20.0);
     }
 
@@ -1124,7 +1124,7 @@ mod tests {
 
     #[test]
     fn test_median_read_quality_odd() {
-        let median_quality = get_median_read_quality(&mut vec![10.0, 10.0, 20.0, 30.0]);
+        let median_quality = get_median_read_quality(&mut vec![10.0, 10.0, 20.0, 30.0, 30.0]);
         assert_eq!(median_quality, 20.0);
     }
 
