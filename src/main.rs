@@ -431,7 +431,7 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
 
     eprintln!("Mean read quality thresholds\n");
     for k in qkeys.iter() {
-        let data = q_threshold_data[&k.to_string()];
+        let data = &q_threshold_data[&k.to_string()];
 
         let percent_reads: f64 = ((data[0] / reads) as f64)*100.0;
         let nreads = data[0].to_formatted_string(&Locale::en);
@@ -445,7 +445,7 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
 
     eprintln!("Mean read length thresholds\n");
     for k in lkeys.iter() {
-        let data = l_threshold_data[&k.to_string()];
+        let data = &l_threshold_data[&k.to_string()];
 
         let percent_reads: f64 = ((data[0] / reads) as f64)*100.0;
         let nreads = data[0].to_formatted_string(&Locale::en);
