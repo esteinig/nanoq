@@ -393,93 +393,36 @@ Median read quality:  {:.2}
 
 fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &u64) -> Result<(String, String), Error> {
 
-    // pretty specific right now make a hashmap for next version
+    // Threshold summary prints
 
-    let mut q5 : u64 = 0;
-    let mut q5_bp: u64 = 0;
-    let mut q7 : u64 = 0;
-    let mut q7_bp: u64 = 0;
-    let mut q10 : u64 = 0;
-    let mut q10_bp: u64 = 0;
-    let mut q15 : u64 = 0;
-    let mut q15_bp: u64 = 0;
-    let mut q20 : u64 = 0;
-    let mut q20_bp: u64 = 0;
-
-    let mut l200 : u64 = 0;
-    let mut l200_bp: u64 = 0;
-    let mut l500 : u64 = 0; 
-    let mut l500_bp: u64 = 0;
-    let mut l1000 : u64 = 0; 
-    let mut l1000_bp: u64 = 0;
-    let mut l5000 : u64 = 0;
-    let mut l5000_bp: u64 = 0;
-    let mut l10000 : u64 = 0; 
-    let mut l10000_bp: u64 = 0;
-    let mut l50000 : u64 = 0; 
-    let mut l50000_bp: u64 = 0;
-    let mut l100000 : u64 = 0; 
-    let mut l100000_bp: u64 = 0;
-    let mut l1000000 : u64 = 0; 
-    let mut l1000000_bp: u64 = 0;
+    q_thresholds = vec![5.0, 7.0, 10.0, 15.0, 20.0];
+    q_threshold_counts: HashMap<usize, u64> = ;
+    q_threshold_bp: HashMap<usize, u64> = ;
 
     for (l, q) in read_lengths.iter().zip(read_qualities.iter()){ // unsorted
-        if q > &5.0 {
-            q5 += 1;
-            q5_bp += l;
-        } else if q > &7.0 {
-            q7 += 1;
-            q7_bp+= l;
-        }  else if q > &10.0 {
-            q10 += 1;
-            q10_bp += l;
-        }  else if q > &15.0 {
-            q15 += 1;
-            q15_bp += l;
-        }  else if q > &20.0 {
-            q20 += 1;
-            q20_bp += l;
-        }  
-
-        if l > &200 {
-            l200 += 1;
-            l200_bp += l;
-        } else if l > &500 {
-            l500 += 1;
-        }  else if l > &1000 {
-            l1000 += 1;
-        }  else if l > &5000 {
-            l5000 += 1;
-        }  else if l > &10000 {
-            l10000 += 1;
-        }  else if l > &50000 {
-            l50000 += 1;
-        }  else if l > &100000 {
-            l100000 += 1;
-        }  else if l > &1000000 {
-            l1000000 += 1;
-        }  
+        
+        println!("{} {}", l, q);
 
     } 
 
-    let length_str = format!("
+//     let length_str = eprintln!("
     
-    Reads above quality thresholds
+// Reads above quality thresholds
 
-    >Q5  {:}  {:.1}%  {:}
-    >Q7  {:}  {:.1}%  {:}
-    >Q10 {:}  {:.1}%  {:}
-    >Q15 {:}  {:.1}%  {:}
-    >Q20 {:}  {:.1}%  {:}
-    ", 
-    q5.to_formatted_string(&Locale::en), (reads / q5_bp) as f64*100.0, q5_bp.to_formatted_string(&Locale::en),
-    q7.to_formatted_string(&Locale::en), (reads / q7_bp) as f64*100.0, q7_bp.to_formatted_string(&Locale::en),
-    q10.to_formatted_string(&Locale::en), (reads / q10_bp) as f64*100.0, q10_bp.to_formatted_string(&Locale::en),
-    q15.to_formatted_string(&Locale::en), (reads / q15_bp) as f64*100.0, q15_bp.to_formatted_string(&Locale::en),
-    q20.to_formatted_string(&Locale::en), (reads / q20_bp) as f64*100.0, q20_bp.to_formatted_string(&Locale::en)
-    );
+// >Q5  {:}  {:.1}%  {:}
+// >Q7  {:}  {:.1}%  {:}
+// >Q10 {:}  {:.1}%  {:}
+// >Q15 {:}  {:.1}%  {:}
+// >Q20 {:}  {:.1}%  {:}
+//     ", 
+//     q5.to_formatted_string(&Locale::en), (reads / q5_bp) as f64*100.0, q5_bp.to_formatted_string(&Locale::en),
+//     q7.to_formatted_string(&Locale::en), (reads / q7_bp) as f64*100.0, q7_bp.to_formatted_string(&Locale::en),
+//     q10.to_formatted_string(&Locale::en), (reads / q10_bp) as f64*100.0, q10_bp.to_formatted_string(&Locale::en),
+//     q15.to_formatted_string(&Locale::en), (reads / q15_bp) as f64*100.0, q15_bp.to_formatted_string(&Locale::en),
+//     q20.to_formatted_string(&Locale::en), (reads / q20_bp) as f64*100.0, q20_bp.to_formatted_string(&Locale::en)
+//     );
 
-    let quality_str = String::from("");
+//     let quality_str = String::from("");
 
     Ok((length_str, quality_str))
 
