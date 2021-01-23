@@ -422,7 +422,7 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
         }
     } 
 
-    eprintln!!("Mean read quality thresholds", t, data);
+    eprintln!("Mean read quality thresholds\n");
     for (t, data) in q_threshold_data.iter().sorted() {
         let percent_reads: f64 = (data[0] / reads) as f64*100.0;
         let nreads = data[0].to_formatted_string(&Locale::en);
