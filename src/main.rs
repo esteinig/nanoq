@@ -453,7 +453,7 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
 
         let _gap = if k < &10  { " " } else { "" };
 
-        eprintln!(">{:} bp: {:}{:} ({:.4}%) {:}", k.to_formatted_string(&Locale::en), _gap, nreads, percent_reads, bp);
+        eprintln!(">{:<8} bp: {:}{:} ({:.4}%) {:}", k.to_formatted_string(&Locale::en), _gap, nreads, percent_reads, bp);
     }
     eprintln!("");
 
