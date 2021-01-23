@@ -427,7 +427,7 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
         let percent_reads: f64 = (data[0] / reads) as f64*100.0;
         let nreads = data[0].to_formatted_string(&Locale::en);
         let bp = data[1].to_formatted_string(&Locale::en);
-        eprintln!!(">Q{:}: {:} ({:.2}%) {:}", t, nreads, percent_reads, bp);
+        eprintln!(">Q{:}: {:} ({:.2}%) {:}", t, nreads, percent_reads, bp);
     }
 
 //     let length_str = eprintln!("
