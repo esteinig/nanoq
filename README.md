@@ -227,14 +227,18 @@ Benchmarks evaluate processing speed of a long-read filter and computation of su
 
 ![nanoq benchmarks](paper/benchmarks.png?raw=true "Nanoq benchmarks")
 
-| program         |  task  | mean sec (+/- sd)   |  ~ reads / sec  | speedup |
-| -------------   | -------|---------------------|-----------------|---------|
-| nanofilt        | filter | 35.42 (0.396)       | 2,283           | 1.00 x  |
-| filtlong        | filter | 20.28 (0.396)       | 4,930           | 2.15 x  |
-| nanoq           | filter |  05.01 (1.442)      | 19,960          | 8.74 x  |
-| nanostat        | stats  | 40.01 (2.649)       | 2,499           | 1.00 x  |
-| nanoq           | stats  | 04.93 (1.441)       | 20,283          | 8.11 x  |
-
+| program         | ftype  |task   | mean sec (+/- sd)   |  ~ reads / sec  | speedup |
+| -------------   | -------|-------|---------------------|-----------------|---------|
+| nanofilt        | fq     |filter | 35.42 (0.396)       | 2,283           | 1.00 x  |
+| filtlong        | fq     |filter | 18.53 (13.00)       | 4,930           | 2.15 x  |
+| nanoq           | fq     |filter |  05.01 (1.442)      | 19,960          | 8.74 x  |
+| nanostat        | fq     |stats  | 40.01 (2.649)       | 2,499           | 1.00 x  |
+| nanoq           | fq     |stats  | 04.93 (1.441)       | 20,283          | 8.11 x  |
+| nanofilt        | fq.gz  |filter | 21.93 (0.396)       | 2,283           | 1.00 x  |
+| filtlong        | fq.gz  |filter | 21.93 (12.03)       | 4,930           | 2.15 x  |
+| nanoq           | fq.gz  |filter |  05.01 (1.442)      | 19,960          | 8.74 x  |
+| nanostat        | fq.gz  |stats  | 40.01 (2.649)       | 2,499           | 1.00 x  |
+| nanoq           | fq.gz  |stats  | 04.93 (1.441)       | 20,283          | 8.11 x  |
 
 
 ## Dependencies
