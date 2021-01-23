@@ -8,7 +8,7 @@ Minimal but speedy quality control for nanopore reads.
 
 ## Overview
 
-**`v0.2.0`**
+**`v0.2.1`**
 
 - [Purpose](#purpose)
 - [Install](#install)
@@ -42,7 +42,7 @@ cargo install nanoq
 Currently on this channel but will be in `BioConda`:
 
 ```
-conda install -c conda-forge -c esteinig nanoq=0.2.0
+conda install -c conda-forge -c esteinig nanoq=0.2.1
 ```
 
 ### `Docker`
@@ -188,11 +188,8 @@ Median read quality:  9.49
 
 Mean read quality thresholds (Q)
 
-27.409 100000 27409
 >10: 27,409 (27.41%) 121,046,940
-86.89099999999999 100000 86891
 >7 : 86,891 (86.89%) 360,326,143
-94.17999999999999 100000 94180
 >5 : 94,180 (94.18%) 387,336,238
 
 Mean read length thresholds (bp)
