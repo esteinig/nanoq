@@ -504,7 +504,7 @@ fn print_top_ranking(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, top: &u
     
         // Read lengths
     eprintln!("Top ranking read lengths\n");
-    for i in 0..top {
+    for i in 0..*top {
         let (_, length) = indexed_lengths[i as usize];
         eprintln!("{}. {:} bp", i+1, length);
     }
@@ -512,7 +512,7 @@ fn print_top_ranking(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, top: &u
 
     // Read quality
     eprintln!("Top ranking mean read qualities\n");
-    for i in 0..top {
+    for i in 0..*top {
         let (_, qual) = indexed_qualities[i as usize];
         eprintln!("{}. Q {:.2}", i+1, qual);
     }
