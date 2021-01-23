@@ -1038,7 +1038,6 @@ mod tests {
         let mut test_data: Vec<(usize, u64)> = vec![(0, 30), (1, 10), (2, 50)];
         test_data.sort_by(compare_indexed_tuples_descending_u64);
         assert_eq!(test_data, vec![(2, 50), (0, 30), (1, 10)]);
-        assert_eq!(test_data.sort_by_key(|tup| tup.1).reverse(), vec![(2, 50), (0, 30), (1, 10)]);
     }
     
     #[test]
