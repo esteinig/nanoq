@@ -391,7 +391,7 @@ Median read quality:  {:.2}
 
 }
 
-fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &u64) -> Result<(String, String), Error> {
+fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &u64) -> Result<(), Error> {
 
     // Threshold summary prints
 
@@ -424,7 +424,7 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
 
 //     let quality_str = String::from("");
 
-    Ok((length_str, quality_str))
+    Ok(())
 
 }
 
