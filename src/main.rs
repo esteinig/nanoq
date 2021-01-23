@@ -401,30 +401,22 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
     let q_thresholds: Vec<f32> = vec![5.0, 7.0, 10.0, 15.0, 20.0];
     let mut q_threshold_counts: HashMap<String, u64> = HashMap::new();
     let mut q_threshold_lengths: HashMap<String, u64> = HashMap::new();
-    for t in &q_thresholds { 
-        q_threshold_counts.insert(t.to_string(), 0); 
-        q_threshold_lengths.insert(t.to_string(), 0); 
-    };
 
     let l_thresholds: Vec<u64> = vec![200, 500, 1000, 5000, 10000, 50000, 100000, 1000000];
     let mut l_threshold_counts: HashMap<String, u64> = HashMap::new();
     let mut l_threshold_lengths: HashMap<String, u64> = HashMap::new();
-    for t in &l_thresholds { 
-        l_threshold_counts.insert(t.to_string(), 0);
-        l_threshold_lengths.insert(t.to_string(), 0);
-     };
 
     for (l, q) in read_lengths.iter().zip(read_qualities.iter()){ // must be unsorted
         for tq in &q_thresholds {
             if q > &tq {
-                q_threshold_counts[&tq.to_string()] += 1;
-                q_threshold_lengths[&tq.to_string()] += l;
+                q_threshold_counts.entry(&tq.to_string()).or_insert(0) += 1;
+                q_threshold_lengths.entry(&tq.to_string()).or_insert(0) += l;
             }
         }
         for tl in &l_thresholds {
             if l > &tl {
-                l_threshold_counts[&tl.to_string()] += 1;
-                l_threshold_lengths[&tl.to_string()] += l;
+                l_threshold_counts.entry(&tl.to_string()).or_insert(0) += 1;
+                l_threshold_lengths.entry(&tl.to_string()).or_insert(0) += l;
             }
         }
     } 
