@@ -29,7 +29,7 @@ Quality scores are computed for basecalls from nanopore sequencing data, as outl
 
 ## Install
 
-### `Cargo`
+#### `Cargo`
 
 If you have [`Rust`](https://www.rust-lang.org/tools/install) and `Cargo` installed:
 
@@ -229,4 +229,4 @@ Avoided name collision with `nanoqc` and dropped the `c` to arrive at `nanoq` [n
 
 ## Contributions
 
-We welcome any and all suggestions or pull requests. Please feel free to open an issue in the repositorty on `GitHub`.
+We welcome any and all suggestions or pull requests. Please feel free to open an issue in the repository on `GitHub`.
