@@ -1047,8 +1047,8 @@ mod tests {
         test_data.sort_by(compare_indexed_tuples_descending_f32);
 
         let key_sorted: Vec<(usize, f32)> = vec![(0, 30.0), (1, 10.0), (2, 50.0)];
-        key_sorted.sort_by_key(|tup| tup.1)
-        key_sorted.reverse()
+        key_sorted.sort_by_key(|tup| tup.1);
+        key_sorted.reverse();
 
         assert_eq!(test_data, vec![(2, 50.0), (0, 30.0), (1, 10.0)]);
         assert_eq!(key_sorted, vec![(2, 50.0), (0, 30.0), (1, 10.0)]);
