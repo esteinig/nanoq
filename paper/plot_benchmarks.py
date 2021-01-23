@@ -44,7 +44,7 @@ def plot_data(data: pandas.DataFrame) -> None:
     )
     seaborn.barplot(
         y='time', x='ftype', hue='tool', data=stats_data,
-        ax=axes[1], palette="Blues"
+        ax=axes[1], palette="Blues", hue_order=["nanostat", "nanoq"]
     )
 
     plt.xlabel("")
