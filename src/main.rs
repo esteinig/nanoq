@@ -10,7 +10,6 @@ use needletail::parser::Format;
 use needletail::parser::FastxReader;
 use std::collections::HashMap;
 use num_format::{Locale, ToFormattedString};
-use itertools::Itertools;
 
 fn command_line_interface<'a>() -> ArgMatches<'a> {
 
