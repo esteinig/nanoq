@@ -333,18 +333,18 @@ fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut rea
 
         eprintln!(
             "
-Nanoq v0.2.0: Read Summary
-==============================
+Nanoq Read Summary
+====================
 
-Number of reads:     {:}
-Number of bases:     {:}
-N50:                 {:}
-Longest read:        {:} 
-Shortest read:       {:}
-Mean read length:    {:}
-Median read length:  {:} 
-Mean read quality:   {:.1} 
-Median read quality: {:.1}
+Number of reads:      {:}
+Number of bases:      {:}
+N50:                  {:}
+Longest read:         {:} 
+Shortest read:        {:}
+Mean read length:     {:}
+Median read length:   {:} 
+Mean read quality:    {:.1} 
+Median read quality:  {:.1}
             ",
             reads.to_formatted_string(&Locale::en), 
             base_pairs.to_formatted_string(&Locale::en), 
