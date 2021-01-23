@@ -317,9 +317,12 @@ fn retain_indexed_quality_reads(read_qualities: Vec<f32>, read_lengths: Vec<u64>
 }
 
 fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut read_qualities: Vec<f32>, detail: u64, top: u64) -> Result<(u64, u64, u64, u64, u64, f64, f64), Error> {
+    
+    // required for zip implementation below
+    let _read_lengths_unsorted = read_lengths.to_vec();
+    let _read_qualities_unsorted = read_lengths.to_vec();
 
-
-    // all sort the vectors or sort independent
+    // all sort the vectors or sort independent of sorts, vectors are sorted
     let mean_read_length = get_mean_read_length(&read_lengths);
     let mean_read_quality = get_mean_read_quality(&read_qualities);
     let median_read_length = get_median_read_length(&mut read_lengths);
@@ -363,10 +366,10 @@ Median read quality:  {:.2}
         
     if detail > 1 {
         // thought unsorted values but sorted due to borrows [read up]
-        print_thresholds(read_lengths, read_qualities, reads);
+        print_thresholds(&_read_lengths_unsorted, &_read_qualities_unsorted, &reads);
         if detail > 2 {
             // unsorted values
-            print_top_ranking(read_lengths, read_qualities, top);
+            print_top_ranking(&read_lengths, &read_qualities, &top);
         }
     }
 
@@ -391,16 +394,21 @@ Median read quality:  {:.2}
 
 }
 
-fn print_thresholds(read_lengths: Vec<u64>, read_qualities: Vec<f32>, reads: u64) -> Result<(), Error> {
+fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &u64) -> Result<(), Error> {
 
     // Threshold summary prints
 
-    let q_thresholds = vec![5.0, 7.0, 10.0, 15.0, 20.0];
-    let q_threshold_counts: HashMap<usize, u64> = HashMap::new();
+    let q_thresholds: Vec<f32> = vec![5.0, 7.0, 10.0, 15.0, 20.0];
+    
+    let q_threshold_counts: HashMap<f32, u64> = HashMap::new();
+    for t in q_thresholds { q_threshold_counts.insert(t, 0) };
+
+    let q_thresholds_bp: Vec<u64> = vec![200, 500, 1000, 5000, 10000, 50000, 100000, 1000000];
+
     let q_threshold_bp: HashMap<usize, u64> = HashMap::new();
+    for t in q_thresholds { q_threshold_counts.insert(t, 0) };
 
     for (l, q) in read_lengths.iter().zip(read_qualities.iter()){ // unsorted
-        
         println!("{} {}", l, q);
 
     } 
@@ -428,7 +436,7 @@ fn print_thresholds(read_lengths: Vec<u64>, read_qualities: Vec<f32>, reads: u64
 
 }
 
-fn print_top_ranking(read_lengths: Vec<u64>, read_qualities: Vec<f32>, top: u64) -> Result<(), Error> {
+fn print_top_ranking(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, top: &u64) -> Result<(), Error> {
 
     // Index length and quality vecs
 
@@ -448,7 +456,7 @@ fn print_top_ranking(read_lengths: Vec<u64>, read_qualities: Vec<f32>, top: u64)
     
         // Read lengths
     eprintln!("Top ranking read lengths\n");
-    for i in 0..top {
+    for i in 0..*top {
         let (_, length) = indexed_lengths[i as usize];
         eprintln!("{}. {:} bp", i+1, length);
     }
@@ -456,7 +464,7 @@ fn print_top_ranking(read_lengths: Vec<u64>, read_qualities: Vec<f32>, top: u64)
 
     // Read quality
     eprintln!("Top ranking mean read qualities\n");
-    for i in 0..top {
+    for i in 0..*top {
         let (_, qual) = indexed_qualities[i as usize];
         eprintln!("{}. Q {:.2}", i+1, qual);
     }
