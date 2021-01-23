@@ -422,8 +422,13 @@ fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &
         }
     } 
 
-    q_threshold_data.iter().sort_by(|a, b| (a.0 as f32).cmp(&b.0 as f32));
-    l_threshold_data.iter().sort_by(|a, b| (a.0 as u64).cmp(&b.0 as u64));
+    let qt_vec: Vec<(f32, Vec<u64>)> = q_threshold_data.iter().collect();
+    let lt_vec: Vec<(u64, Vec<u64>)> = l_threshold_data.iter().collect();
+
+    qt_vec.iter().sort_by(|a, b| a.0.cmp(&b.0));
+    lt_vec.iter().sort_by(|a, b| a.0.cmp(&b.0));
+
+
 
     eprintln!("Mean read quality thresholds\n");
     for (t, data) in q_threshold_data.iter() {
