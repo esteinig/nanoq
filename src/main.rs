@@ -318,6 +318,8 @@ fn retain_indexed_quality_reads(read_qualities: Vec<f32>, read_lengths: Vec<u64>
 
 fn eprint_stats(reads: u64, base_pairs: u64, mut read_lengths: Vec<u64>, mut read_qualities: Vec<f32>, detail: u64, top: u64) -> Result<(u64, u64, u64, u64, u64, f64, f64), Error> {
 
+
+    // all sort the vectors or sort independent
     let mean_read_length = get_mean_read_length(&read_lengths);
     let mean_read_quality = get_mean_read_quality(&read_qualities);
     let median_read_length = get_median_read_length(&mut read_lengths);
@@ -357,18 +359,16 @@ Median read quality:  {:.2}
             median_read_quality
         );
 
-
-        if detail > 1 {
-            
-            print_thresholds(&read_lengths, &read_qualities, &reads);
-
-            if detail > 2 {
-
-                print_top_ranking(&read_lengths, &read_qualities, &top);
-
-            }
-        }
         
+        
+    if detail > 1 {
+        // thought unsorted values but sorted due to borrows [read up]
+        print_thresholds(read_lengths, read_qualities, reads);
+        if detail > 2 {
+            // unsorted values
+            print_top_ranking(&read_lengths, &read_qualities, &top);
+        }
+    }
 
 
     } else {
@@ -391,7 +391,7 @@ Median read quality:  {:.2}
 
 }
 
-fn print_thresholds(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, reads: &u64) -> Result<(), Error> {
+fn print_thresholds(read_lengths: Vec<u64>, read_qualities: Vec<f32>, reads: u64) -> Result<(), Error> {
 
     // Threshold summary prints
 
