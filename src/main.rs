@@ -473,7 +473,7 @@ fn print_top_ranking(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, top: &u
     eprintln!("Top ranking read lengths\n");
     for i in 0..*top {
         let (_, length) = indexed_lengths[i as usize];
-        eprintln!("{}. {:} bp", i+1, length);
+        eprintln!("{}. {:} bp", i+1, length.to_formatted_string(&Locale::en));
     }
     eprintln!("");
 
