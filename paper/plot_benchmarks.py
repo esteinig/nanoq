@@ -33,7 +33,7 @@ def plot_data(data: pandas.DataFrame) -> None:
         )
     )
 
-    data = data[data["ftype" =! "crab"]]  # exlude rust bio parser for now, slightly slower than needletail
+    data = data[data["ftype"] != "crab"]]  # exlude rust bio parser for now, slightly slower than needletail
 
     filter_data = data[data['mode'] == 'filt']
     stats_data = data[data['mode'] == 'stat']
@@ -51,7 +51,7 @@ def plot_data(data: pandas.DataFrame) -> None:
     plt.ylabel("seconds\n")
     axes[0].title.set_text('Read filter')
     axes[1].title.set_text('Read statistics')
-    
+
     plt.tight_layout()
     fig.savefig('benchmarks.png')
 
