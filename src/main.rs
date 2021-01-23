@@ -51,7 +51,7 @@ fn main() -> Result<(), Error> {
         3 | _ => 2 // anything more not effective
     };
 
-    println!("{}", detail)
+    println!("{}", detail);
 
     if keep_percent > 0.0 || keep_bases > 0 {
 
