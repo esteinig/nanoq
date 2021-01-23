@@ -496,18 +496,18 @@ fn print_top_ranking(read_lengths: &Vec<u64>, read_qualities: &Vec<f32>, top: &u
     &indexed_qualities.sort_by(compare_indexed_tuples_descending_f32);
     
         // Read lengths
-    eprintln!("Top ranking read lengths\n");
+    eprintln!("Top ranking read lengths (bp)\n");
     for i in 0..*top {
         let (_, length) = indexed_lengths[i as usize];
-        eprintln!("{}. {:} bp", i+1, length.to_formatted_string(&Locale::en));
+        eprintln!("{}. {:<12}", i+1, length.to_formatted_string(&Locale::en));
     }
     eprintln!("");
 
     // Read quality
-    eprintln!("Top ranking mean read qualities\n");
+    eprintln!("Top ranking mean read qualities (Q)\n");
     for i in 0..*top {
         let (_, qual) = indexed_qualities[i as usize];
-        eprintln!("{}. Q {:.2}", i+1, qual);
+        eprintln!("{}. {:.2}", i+1, qual);
     }
     eprintln!("");
 
