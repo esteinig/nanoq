@@ -33,13 +33,14 @@ def plot_data(data: pandas.DataFrame) -> None:
         )
     )
 
-    data = data[data["ftype"] != "crab"]  # exlude bio parser for now, slightly slower than needletail
+    data = data[data["ftype"] != "crab")]  # exlude bio parser for now, slightly slower than needletail
 
     for mode, _data in data.groupby("mode"):
         for tool, __data in _data.groupby("tool"):
-            mean_seconds = __data['time'].mean()
-            std_seconds = __data['time'].std()
-            print(f"Mode: {mode} - Tool: {tool} - Mean: {mean_seconds} - Standard Deviation: {std_seconds}")
+            for ftype, ___data in _data.groupby("ftype")
+            mean_seconds = ___data['time'].mean()
+            std_seconds = ___data['time'].std()
+            print(f"Mode: {mode} Ftype: {ftype} - Tool: {tool} - Mean: {mean_seconds} - Standard Deviation: {std_seconds}")
 
     filter_data = data[data['mode'] == 'filt']
     stats_data = data[data['mode'] == 'stat']
