@@ -387,7 +387,7 @@ Median read quality:  {:.1}
                 let (_, qual) = indexed_qualities[i as usize];
                 eprintln!("{}. Q{:}", i+1, qual);
             }
-
+            eprintln!("");
 
             // Read length thresholds
         }
