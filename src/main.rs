@@ -589,9 +589,9 @@ fn get_mean_read_length(numbers: &Vec<u64>) -> u64 {
 
 }
 
-fn get_median_read_quality(numbers: &mut Vec<u64>) -> f64 {
+fn get_median_read_quality(numbers: &mut Vec<f32>) -> f64 {
 
-    // Compute the median of a vector of double-precision floats
+    // Compute the median of a vector of single-precision floats
 
     numbers.sort();
 
@@ -604,11 +604,11 @@ fn get_median_read_quality(numbers: &mut Vec<u64>) -> f64 {
 
 }
 
-fn get_mean_read_quality(numbers: &Vec<u64>) -> f64 {
+fn get_mean_read_quality(numbers: &Vec<f32>) -> f64 {
 
-    // Compute the mean of a vector of double-precision floats
+    // Compute the mean of a vector of single-precision floats
 
-    let sum: u64 = numbers.iter().sum();
+    let sum: f32 = numbers.iter().sum();
 
     sum as f64 / numbers.len() as f64
 
@@ -1097,8 +1097,8 @@ mod tests {
 
     #[test]
     fn test_mean_read_quality() {
-        let mean_quality = get_mean_read_quality(&mut vec![10, 10, 20, 30]);
-        assert_eq!(mean_quality, 17.5 as f32);
+        let mean_quality = get_mean_read_quality(&mut vec![10.0, 10.0, 20.0, 30.0]);
+        assert_eq!(mean_quality, 17.5);
     }
 
     
@@ -1111,14 +1111,14 @@ mod tests {
 
     #[test]
     fn test_median_read_quality_even() {
-        let median_quality = get_median_read_quality(&mut vec![10, 10, 20, 30]);
-        assert_eq!(median_quality, 15 as f32);
+        let median_quality = get_median_read_quality(&mut vec![10.0, 10.0, 20.0, 30.0]);
+        assert_eq!(median_quality, 15.0);
     }
 
     #[test]
     fn test_median_read_quality_odd() {
-        let median_quality = get_median_read_quality(&mut vec![10, 10, 20, 30, 40]);
-        assert_eq!(median_quality, 20 as f32);
+        let median_quality = get_median_read_quality(&mut vec![10.0, 10.0, 20.0, 30.0]);
+        assert_eq!(median_quality, 20.0);
     }
 
     // Read lengths
