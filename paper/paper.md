@@ -17,7 +17,7 @@ authors:
     orcid: 0000-0002-4300-455X
     affiliation: 1
 affiliations:
-  - name: The Peter Doherty Institute for Infection and Immunity, Melbourne University, Australia
+  - name: The Peter Doherty Institute for Infection and Immunity, The University of Melbourne, Australia
     index: 1
 date: 11 January 2021
 bibliography: paper.bib
