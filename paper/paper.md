@@ -25,15 +25,15 @@ bibliography: paper.bib
 
 # Summary
 
-Nanopore sequencing is now routinely integrated in a variety of genomics applications, including whole genome assembly[@human_genome] and real-time infectious disease surveillance [@covid]. As a consequence, the amount of nanopore sequence data in the public domain has increased rapidly in the last few years. One of the first steps in any workflow is to assess the quality of reads and obtain basic summary statistics after basecalling raw nanopore signal, and to filter low quality reads. [`NanoPack`](https://github.com/wdecoster/nanopack) (`biopython` parser) [@nanopack; @biopython], [`Filtlong`](https://github.com/rrwick/Filtlong) ([`Klib`](https://github.com/attractivechaos/klib) parser) and [`MinIONQC`](https://github.com/roblanf/minion_qc/blob/master/README.md) (summary file parser) [@minionqc] are common tools used to filter and obtain summary statistics from nanopore reads. However, these tools can be relatively slow due to bottlenecks in read parsing (`NanoPack`, `Filtlong`), i.e. iteration speed over the reads while extracting relevant information, are not immediately usable due to reliance on summary files (`MinIONQC`), or focus on data exploration and visualization. We therefore implement `nanoq`, a command line tool to accelerate summary and quality control for nanopore reads in *Rust*. 
+Nanopore sequencing is now routinely integrated in a variety of genomics applications, including whole genome assembly [@human_genome] and real-time infectious disease surveillance [@covid]. As a consequence, the amount of nanopore sequence data in the public domain has increased rapidly in the last few years. One of the first steps in any workflow is to assess the quality of reads and obtain basic summary statistics after basecalling raw nanopore signal, and to filter low quality reads. [`NanoPack`](https://github.com/wdecoster/nanopack) (`biopython` parser) [@nanopack], [`Filtlong`](https://github.com/rrwick/Filtlong) ([`Klib`](https://github.com/attractivechaos/klib) parser) and [`MinIONQC`](https://github.com/roblanf/minion_qc/blob/master/README.md) (summary file parser) [@minionqc] are common tools used to filter and obtain summary statistics from nanopore reads. However, these tools can be relatively slow due to bottlenecks in read parsing (`NanoPack`, `Filtlong`), are not immediately usable due to reliance on summary files (`MinIONQC`), or focus on data exploration and visualization. We therefore implement `nanoq`, a command line tool to accelerate summary and quality control for nanopore reads in `Rust`. 
 
-# Statement of Need
+# Statement of need
 
 A common practice for quality control and filtering of reads for length and quality is to use a sequencing summary file as index to speed up iteration and computation over millions of individual reads and their precomputed metrics from the basecalling process (e.g. the main acess mode for `MinIONQC`), which requires access to signal level data or shared summary files. With increasing throughput on scalable nanopore platforms like GridION or PromethION, fast quality control of sequence reads and the ability to generate summary statistics on-the-fly are required. `Nanoq` is highly competitive in processing speed (see benchmarks) and can be effectively applied to nanopore data from the public domain, where sequencing summaries are unavailable, as part of automated pipelines, in streaming applications, or directly from the command line to check on the progress of active sequencing runs.
 
 # Applications
 
-`Nanoq` is implemented in *Rust* using the read parsers from [`needletail`](https://github.com/onecodex/needletail) and [`Rust-Bio`](https://github.com/rust-bio/rust-bio) [@rustbio].
+`Nanoq` is implemented in `Rust` using the read parsers from [`needletail`](https://github.com/onecodex/needletail) and [`Rust-Bio`](https://github.com/rust-bio/rust-bio) [@rustbio].
 
 Tests can be run within the `nanoq` repository:
 
@@ -100,9 +100,9 @@ done
 
 # Benchmarks
 
-Benchmarks evaluate processing speed of a long-read filter and computation of summary statistics on the first 100,000 reads (`test.fq.gz` in Docker container) of the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) (`GridION`) using the `nanoq:v0.2.0` [`Benchmark`](paper/Benchmarks) image with comparison to [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong)
+Benchmarks evaluate processing speed of a long-read filter and computation of summary statistics on the first 100,000 reads (`test.fq.gz` in Docker container) of the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) [@zymo] (`GridION`) using the `nanoq:v0.2.0` [`Benchmark`](paper/Benchmarks) image with comparison to [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong)
 
-![nanoq benchmarks](benchmarks.png?raw=true "Nanoq benchmarks" )
+![Nanoq benchmarks compared to Filtlong and Nanopack on 100,000 reads of the Zymo mock community](benchmarks.png?raw=true "Nanoq benchmarks" )
 
 | program         | ftype  |task   | mean sec (+/- sd)   |  ~ reads / sec  | speedup |
 | -------------   | -------|-------|---------------------|-----------------|---------|
@@ -130,7 +130,7 @@ Benchmarks evaluate processing speed of a long-read filter and computation of su
 
 # Acknowledgements
 
-We would like to thank the `Rust-Bio` community, the [`seq_io`](https://github.com/markschl/seq_io) project and the `OneCodex` team for developing the *Rust* read parsing crates. ES was funded by the Queensland Genomics Far North Queensland project and a joint grant by HOT NORTH and the Center for Policy Relevant Infectious Disease Simulation and Mathematical Modelling (NHMRC: #1131932).
+We would like to thank the `Rust-Bio` community, the [`seq_io`](https://github.com/markschl/seq_io) project and the `OneCodex` team for developing the `Rust` read parsing crates. ES was funded by the Queensland Genomics Far North Queensland project and a joint grant by HOT NORTH and the Center for Policy Relevant Infectious Disease Simulation and Mathematical Modelling (NHMRC: #1131932).
 
 # References
 
