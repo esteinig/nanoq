@@ -47,7 +47,7 @@ conda install -c conda-forge -c esteinig nanoq=0.2.1
 
 #### `Docker`
 
-`Docker` container is based on the light `Alpine` OS (~ 20 MB container size)
+`Docker` image is based on the light `Alpine OS` (~ 21 MB)
 
 ```
 docker pull esteinig/nanoq:latest
