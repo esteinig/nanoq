@@ -39,10 +39,10 @@ cargo install nanoq
 
 #### `Conda`
 
-Currently on this channel but will be in `BioConda`:
+Install prebuilt package using `BioConda`:
 
 ```
-conda install -c conda-forge -c esteinig nanoq=0.2.1
+conda install -c conda-forge -c bioconda nanoq=0.2.1
 ```
 
 #### `Docker`
