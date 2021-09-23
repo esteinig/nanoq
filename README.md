@@ -197,7 +197,7 @@ TBD
 
 ## Dependencies
 
-`Nanoq` uses the [`needletail`](https://github.com/onecodex/needletail) library from `OneCodex`. 
+`Nanoq` uses [`needletail`](https://github.com/onecodex/needletail) for read operations and [`niffler`](https://github.com/luizirber/niffler/) for output compression. 
 
 ## Etymology
 
