@@ -124,8 +124,8 @@ impl ReadSet {
     /// let expected = 1110;
     /// assert_eq!(actual, expected);
     /// ```
-    pub fn bases(&self) -> u32 {
-        self.read_lengths.iter().sum()
+    pub fn bases(&self) -> u64 {
+        self.read_lengths.iter().fold(0u64, |sum, i| sum + (*i as u64))
     }
     /// Get the range of read lengths
     ///
@@ -148,8 +148,8 @@ impl ReadSet {
     /// let expected = 370;
     /// assert_eq!(actual, expected);
     /// ```
-    pub fn mean_length(&self) -> u32 {
-        self.bases() / self.reads()
+    pub fn mean_length(&self) -> u64 {
+        self.bases() / self.reads() as u64
     }
     /// Get the median of read lengths
     ///
@@ -178,13 +178,13 @@ impl ReadSet {
     /// let expected = 1000;
     /// assert_eq!(actual, expected);
     /// ```
-    pub fn n50(&mut self) -> u32 {
+    pub fn n50(&mut self) -> u64 {
         self.read_lengths.sort();
-        self.read_lengths.reverse(); // Slightly faster than .sort_by
+        self.read_lengths.reverse();
         let _stop = self.bases() / 2;
-        let mut n50: u32 = 0;
-        let mut _cum_sum: u32 = 0;
-        for x in self.read_lengths.iter() {
+        let mut n50: u64 = 0;
+        let mut _cum_sum: u64 = 0;
+        for x in self.read_lengths.iter().map(|&i| i as u64){
             _cum_sum += x;
             if _cum_sum >= _stop {
                 n50 += x;
