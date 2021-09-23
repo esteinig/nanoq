@@ -1,4 +1,4 @@
-{% set version = "0.2.1" %}
+{% set version = "0.7.0" %}
 
 # conda build -c esteinig -c conda-forge .
 
@@ -16,9 +16,9 @@ requirements:
   build:
       - {{ compiler('cxx') }}
   host:
-      - rust>=1.39
+      - rust>=1.53
   run:
-      - rust>=1.39
+      - rust>=1.53
 test:
   commands:
     - nanoq -h

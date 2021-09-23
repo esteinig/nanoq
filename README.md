@@ -1,14 +1,14 @@
 # nanoq <a href='https://github.com/esteinig'><img src='docs/nanoq.png' align="right" height="270" /></a>
 
 ![](https://img.shields.io/badge/lang-rust-black.svg)
-![](https://img.shields.io/badge/version-0.2.1-purple.svg)
+![](https://img.shields.io/badge/version-0.7.0-purple.svg)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3707754.svg)](https://doi.org/10.5281/zenodo.3707754)
 
 Minimal but speedy quality control for nanopore reads.
 
 ## Overview
 
-**`v0.2.1`**
+**`v0.7.0`**
 
 - [Purpose](#purpose)
 - [Install](#install)
@@ -23,9 +23,7 @@ Minimal but speedy quality control for nanopore reads.
 
 ## Purpose
 
-Basic sequence quality control and computation of summary statistics can be a bit slow due to bottlenecks in read parsing. `Nanoq` attempts to perform these operations on `fastx` files using the `needletail` and `rust-bio` libraries with either a single-pass operation for defaulty summary statistics and filtering, or a two-pass operation enabling filtering methods similar to [`Filtlong`](https://github.com/rrwick/Filtlong).
-
-Quality scores are computed for basecalls from nanopore sequencing data, as outlined in the [technical documentation](https://community.nanoporetech.com/technical_documents/data-analysis/).
+`Nanoq` implements fast sequence read and quality filtering and produces simpel reports. Quality scores are computed for basecalls from nanopore sequencing data, as outlined in the [technical documentation](https://community.nanoporetech.com/technical_documents/data-analysis/) or in this [blog post](https://gigabaseorgigabyte.wordpress.com/2017/06/26/averaging-basecall-quality-scores-the-right-way/).
 
 ## Install
 
@@ -42,99 +40,100 @@ cargo install nanoq
 Currently on this channel but will be in `BioConda`:
 
 ```
-conda install -c conda-forge -c esteinig nanoq=0.2.1
+conda install -c conda-forge -c esteinig nanoq=0.7.0
 ```
 
 #### `Docker`
 
-`Docker` image is based on the light `Alpine OS` (~ 21 MB)
+`Docker` image is based on `Alpine OS` (~ 20 MB)
 
 ```
 docker pull esteinig/nanoq:latest
 ```
 
-#### `Singularity`
-
-```
-singularity pull docker://esteinig/nanoq:latest
-```
-
 ## Usage
 
-Tests can be run within the `nanoq` repository:
-
-```
-cargo test
-```
-
-`Nanoq` accepts a file or stream of sequence reads in `fast{a/q}` and compressed formats on `stdin`:
+`Nanoq` accepts a file (`--input`) or stream (`stdin`) of reads in `fast{a,q}.{gz,bz2,xz}` format and outputs reads to file (`--output`) or stream (`stdout`).
 
 ```bash
-cat test.fq | nanoq
+nanoq -i test1.fq.gz -o test2.fq
+cat test1.fq.gz | nanoq > test2.fq
 ```
 
-Reads filtered by minimum read length (`--length`) and mean read quality (`--quality`) are output to `stdout`:
+Output compression is inferred from file extensions (`gz`, `bz2`, `lzma`).
 
 ```bash
-cat test.fq | nanoq -l 1000 -q 10 > reads.fq 
+nanoq -i test1.fq -o test2.fq.gz
 ```
 
-Extended two-pass filtering analogous to `Filtlong` removes the worst 20% of bases using sorted reads by quality (`--keep_percent`) or the worst quality reads until approximately 500 Mbp remain (`--keep_bases`): 
+Output compression can be specified manually with `--output-type` and `--compress-level`.
 
 ```bash
-nanoq -f test.fq -p 80 -b 500000000  > reads.fq 
+nanoq -i test1.fq -O g -c 9 -o test2.fq.cmp
 ```
 
-Live sequencing run data directory:
+Reads can be filtered by minimum read length (`--min-len`), maximum length (`--max-len`) or mean read quality (`--min-qual`).
 
 ```bash
-RUN=/data/nanopore/run
+nanoq -i test.fq -l 1000 -q 10 -m 10000 > reads.fq 
 ```
 
-Check total run statistics of active run:
+Read summaries without output can be obtained by directing to `/dev/null` or using the stats flag (`--stats`):
 
 ```bash
-find $RUN -name *.fastq -print0 | xargs -0 cat | nanoq
+nanoq -i test.fq > /dev/null
+nanoq -i test.fq -s
 ```
 
-Check per-barcode statistics of active run:
+Read qualities may be excluded from filters and statistics to speed up read iteration in some cases (`--fast`).
+
+```bash
+nanoq -i test1.fq.gz -f -s
+```
+
+`Nanoq` can be used to check on active sequencing runs and barcoded samples.
+
+```bash
+find /data/nanopore/run -name *.fastq -print0 | xargs -0 cat | nanoq -s
+```
 
 ```bash
 for i in {01..12}; do
-  find $RUN -name barcode${i}.fastq -print0 | xargs -0 cat | nanoq
+  find /data/nanopore/run -name barcode${i}.fastq -print0 | xargs -0 cat | nanoq -s
 done
 ```
 
 ### Parameters
 
 ```
-nanoq 0.2.1
+nanoq 0.7.0
 
-Fast quality control and summary statistics for nanopore reads
+Read filters and summary reports for nanopore data
 
 USAGE:
     nanoq [FLAGS] [OPTIONS]
 
 FLAGS:
-    -c, --crab       Rust-Bio parser (fastq only) [false]
-    -d, --detail     Print detailed read summary [false]
+    -f, --fast       Fast mode, do not consider quality values
     -h, --help       Prints help information
+    -s, --stats      Statistics only, reads to /dev/null
     -V, --version    Prints version information
+    -v, --verbose    Pretty print output statistics
 
 OPTIONS:
-    -f, --fastx <FASTX>             Fastx input file [-]
-    -o, --output <OUTPUT>           Fastx output file [-]
-    -m, --max_length <MAXLEN>       Maximum sequence length [0]
-    -l, --min_length <MINLEN>       Minimum sequence length [0]
-    -q, --min_quality <QUALITY>     Minimum average sequence quality [0]
-    -b, --keep_bases <BASES>        Keep reads with best quality number of bases [0]
-    -p, --keep_percent <PERCENT>    Keep best percent quality bases on reads [0]
-    -t, --top <TOP>                 Print <top> length + quality reads [5]
+    -c, --compress-level <1-9>     Compression level to use if compressing output [default: 6]
+    -i, --input <input>            Fast{a,q}.{gz,xz,bz}, stdin if not present
+    -m, --max-len <INT>            Maximum read length filter (bp) [default: 0]
+    -l, --min-len <INT>            Minimum read length filter (bp) [default: 0]
+    -m, --min-qual <FLOAT>         Minimum average read quality filter (Q) [default: 0]
+    -o, --output <output>          Output filepath, stdout if not present
+    -O, --output-type <u|b|g|l>    u: uncompressed; b: Bzip2; g: Gzip; l: Lzma
+    -t, --top <INT>                Number of top reads in verbose summary [default: 5]
 ```
 
 ### Output
 
-Basic summary statistics are output to `stderr`: 
+A basic read summary is output to `stderr`: 
 
 ```bash
 100000 400398234 5154 44888 5 4003 3256 8.90 9.49
@@ -142,86 +141,63 @@ Basic summary statistics are output to `stderr`:
 
 * number of reads
 * number of base pairs
-* N50 read length
+* read length N50
 * longest and shorted reads
 * mean and median read length
 * mean and median read quality 
 
-Extended output analogous to `NanoStat` can be obtained using multiple `--detail` flags:
+Extended summaries analogous to `NanoStat` can be obtained using multiple `--verbose` flags:
 
 ```bash
-cat test.fq | nanoq -d -d -d
+nanoq -i test.fq -f -s -vv
 ```
 
 ```
 Nanoq Read Summary
 ====================
 
-Number of reads:      100,000
-Number of bases:      400,398,234
-N50 read length:      5,154
-Longest read:         44,888
+Number of reads:      100000
+Number of bases:      400398234
+N50 read length:      5154
+Longest read:         44888 
 Shortest read:        5
-Mean read length:     4,003
-Median read length:   3,256
-Mean read quality:    8.90
-Median read quality:  9.49
+Mean read length:     4003
+Median read length:   3256 
+Mean read quality:    NaN 
+Median read quality:  NaN
 
-Mean read quality thresholds (Q)
 
->10: 27,409 (27.41%) 121,046,940
->7 : 86,891 (86.89%) 360,326,143
->5 : 94,180 (94.18%) 387,336,238
+Read length thresholds (bp)
 
-Mean read length thresholds (bp)
+> 200       99104             99.1%
+> 500       96406             96.4%
+> 1000      90837             90.8%
+> 2000      73579             73.6%
+> 5000      25515             25.5%
+> 10000     4987              05.0%
+> 30000     47                00.0%
+> 50000     0                 00.0%
+> 100000    0                 00.0%
+> 1000000   0                 00.0%
 
->30,000   : 47 (0.05%) 1,555,019
->10,000   : 4,987 (4.99%) 71,601,161
->5,000    : 25,515 (25.52%) 207,924,723
->1,000    : 90,837 (90.84%) 395,158,043
->500      : 96,406 (96.41%) 399,281,265
->200      : 99,104 (99.10%) 400,340,531
 
 Top ranking read lengths (bp)
 
-1. 44,888
-2. 40,044
-3. 37,441
-4. 36,543
-5. 35,630
-
-Top ranking mean read qualities (Q)
-
-1. 12.07
-2. 11.92
-3. 11.87
-4. 11.87
-5. 11.86
+1. 44888       
+2. 40044       
+3. 37441       
+4. 36543       
+5. 35630
 ```
 
 ## Benchmarks
 
-Benchmarks evaluate processing speed of a long-read filter and computation of summary statistics on the first 100,000 reads (`test.fq.gz` in Docker Benchmark image) of the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) (`GridION`) using the `nanoq:v0.2.0` [`Benchmark`](paper/Benchmarks) image with comparison to [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong)
-
-![nanoq benchmarks](paper/benchmarks.png?raw=true "Nanoq benchmarks")
-
-| program         | ftype  |task   | mean sec (+/- sd)   |  ~ reads / sec  | speedup |
-| -------------   | -------|-------|---------------------|-----------------|---------|
-| nanofilt        | fq     |filter | 35.25 (0.35)        | 2,836           | 1.00 x  |
-| filtlong        | fq     |filter | 16.71 (0.47)        | 5,984           | 2.11 x  |
-| nanoq           | fq     |filter | 03.63 (0.45)        | 27,548          | 9.71 x  |
-| nanostat        | fq     |stats  | 37.39 (0.50)        | 2,674           | 1.00 x  |
-| nanoq           | fq     |stats  | 03.57 (0.57)        | 28,011          | 10.4 x  |
-| nanofilt        | fq.gz  |filter | 35.58 (0.36)        | 2,810           | 1.00 x  |
-| filtlong        | fq.gz  |filter | 23.84 (0.60)        | 4,195           | 1.49 x  |
-| nanoq           | fq.gz  |filter | 06.37 (0.41)        | 14,858          | 5.28 x  |
-| nanostat        | fq.gz  |stats  | 42.21 (0.37)        | 2,369           | 1.00 x  |
-| nanoq           | fq.gz  |stats  | 06.30 (0.28)        | 15,873          | 6.70 x  |
+TBD
 
 
 ## Dependencies
 
-`Nanoq` uses [`rust-bio`](https://rust-bio.github.io/) which has a ton of great contributors and the [`needletail`](https://github.com/onecodex/needletail) library from OneCodex. 
+`Nanoq` uses the [`needletail`](https://github.com/onecodex/needletail) library from `OneCodex`. 
 
 ## Etymology
 

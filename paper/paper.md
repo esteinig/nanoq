@@ -54,7 +54,13 @@ Output compression can be specified manually with `--output-type` and `--compres
 nanoq -i test1.fq -O g -c 9 -o test2.fq.cmp
 ```
 
-## Summary statistics and read filters
+## Read filters and summaries
+
+Reads can be filtered by minimum read length (`--min-len`), maximum length (`--max-len`) or mean read quality (`--min-qual`).
+
+```bash
+nanoq -i test.fq -l 1000 -q 10 -m 10000 > reads.fq 
+```
 
 Read set summary statistics are output to `stderr`: 
 
@@ -87,7 +93,7 @@ nanoq -i test1.fq.gz -f -s
 Extended summaries analogous to `NanoStat` can be obtained using multiple `--verbose` flag to show thresholds and top ranking reads (`--top`) - .
 
 ```bash
-nanoq -i test.fq -t 10 -f -s -vvv
+nanoq -i test.fq -t 5 -f -s -vvv
 ```
 
 ```
@@ -128,11 +134,6 @@ Top ranking read lengths (bp)
 5. 35630
 ```
 
-Reads can be filtered by minimum read length (`--min-len`), maximum length (`--max-len`) or mean read quality (`--min-qual`).
-
-```bash
-nanoq -i test.fq -l 1000 -q 10 -m 10000 > reads.fq 
-```
 
 ## Active run inspection
 
@@ -150,7 +151,7 @@ done
 
 # Benchmarks
 
-Benchmarks evaluate processing speed of a simple filter and summary statistics on the first 100,000 reads (`test.fq.gz` in Docker container) of the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) [@zymo] (`GridION`) with comparisons to the commonly used tools [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong)
+Benchmarks evaluate processing speed of a simple filter and summary statistics of the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) [@zymo] (`GridION`) with comparisons to the commonly used tools [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong).
 
 Tasks:
 
@@ -158,6 +159,8 @@ Tasks:
   * `stats`: read set statistics, reads into `/dev/null`
 
 ![Nanoq benchmarks on 100,000 reads of the Zymo mock community compared to Filtlong and Nanopack (10 replicates)](benchmarks.png?raw=true "Nanoq benchmarks" )
+
+## Zymo: 100,000 reads
 
 | program         | ftype  |task   | mean sec (+/- sd)   |  ~ reads / sec  | speedup |
 | -------------   | -------|-------|---------------------|-----------------|---------|
@@ -189,6 +192,8 @@ Commands used for stats task:
   * `NanoStat --fastq test.fq --threads 4`
   * `nanoq --input test.fq --stats` (single thread)
   * `nanoq --input test.fq --stats --fast` (single thread)
+
+## Zymo: 3,491,078 reads (1,122,254,937 bp)
 
 
 # Availability

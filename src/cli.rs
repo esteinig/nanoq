@@ -3,7 +3,7 @@ use structopt::StructOpt;
 use thiserror::Error;
 use std::ffi::OsStr;
 
-/// Nanopore read filters and summaries
+/// Read filters and summary reports for nanopore data
 #[derive(Debug, StructOpt)]
 #[structopt()]
 pub struct Cli {
