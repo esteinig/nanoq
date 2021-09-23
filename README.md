@@ -53,7 +53,7 @@ docker pull esteinig/nanoq:latest
 
 ## Usage
 
-`Nanoq` accepts a file (`--input`) or stream (`stdin`) of reads in `fast{a,q}.{gz,bz2,xz}` format and outputs reads to file (`--output`) or stream (`stdout`).
+`Nanoq` accepts a file (`-i / --input`) or stream (`stdin`) of reads in `fast{a,q}.{gz,bz2,xz}` format and outputs reads to file (`-o / --output`) or stream (`stdout`).
 
 ```bash
 nanoq -i test1.fq.gz -o test2.fq
@@ -66,26 +66,26 @@ Output compression is inferred from file extensions (`gz`, `bz2`, `lzma`).
 nanoq -i test1.fq -o test2.fq.gz
 ```
 
-Output compression can be specified manually with `--output-type` and `--compress-level`.
+Output compression can be specified manually with `-O / --output-type` and `-c / --compress-level`.
 
 ```bash
 nanoq -i test1.fq -O g -c 9 -o test2.fq.cmp
 ```
 
-Reads can be filtered by minimum read length (`--min-len`), maximum length (`--max-len`) or mean read quality (`--min-qual`).
+Reads can be filtered by minimum read length (`-l / --min-len`), maximum length (`-m / --max-len`) or mean read quality (`--min-qual`).
 
 ```bash
 nanoq -i test.fq -l 1000 -q 10 -m 10000 > reads.fq 
 ```
 
-Read summaries without output can be obtained by directing to `/dev/null` or using the stats flag (`--stats`):
+Read summaries without output can be obtained by directing to `/dev/null` or using the stats flag (`-s / --stats`):
 
 ```bash
 nanoq -i test.fq > /dev/null
 nanoq -i test.fq -s
 ```
 
-Read qualities may be excluded from filters and statistics to speed up read iteration in some cases (`--fast`).
+Read qualities may be excluded from filters and statistics to speed up read iteration in some cases (`-f / --fast`).
 
 ```bash
 nanoq -i test1.fq.gz -f -s
@@ -146,7 +146,7 @@ A basic read summary is output to `stderr`:
 * mean and median read length
 * mean and median read quality 
 
-Extended summaries analogous to `NanoStat` can be obtained using multiple `--verbose` flags:
+Extended summaries analogous to `NanoStat` can be obtained using multiple `-v / --verbose` flags:
 
 ```bash
 nanoq -i test.fq -f -s -vv
