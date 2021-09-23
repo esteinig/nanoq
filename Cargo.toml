@@ -17,7 +17,10 @@ include = [
 ]
 
 [dependencies]
+structopt = "0.3"
 clap = "2.33.0"
-bio = "0.32.0"
-needletail = "0.4"
-num-format = "0.4.0"
+anyhow = "1.0"
+indoc = "1.0"
+needletail = "0.4.1"
+thiserror = "1.0"
+niffler = "2.3"
