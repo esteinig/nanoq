@@ -72,7 +72,7 @@ Output compression can be specified manually with `-O / --output-type` and `-c /
 nanoq -i test1.fq -O g -c 9 -o test2.fq.cmp
 ```
 
-Reads can be filtered by minimum read length (`-l / --min-len`), maximum length (`-m / --max-len`) or mean read quality (`--min-qual`).
+Reads can be filtered by minimum read length (`-l / --min-len`), maximum read length (`-m / --max-len`) or average read quality (`-q / --min-qual`).
 
 ```bash
 nanoq -i test.fq -l 1000 -q 10 -m 10000 > reads.fq 
