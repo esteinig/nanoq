@@ -1,29 +1,29 @@
-FROM continuumio/miniconda3
+FROM continuumio/miniconda3:master
+
+# Build from source directory
 
 LABEL name="nanoq-benchmarks"
-LABEL version="0.2  .0"
+LABEL version="0.7.0"
 LABEL author="esteinig"
 
-RUN apt-get update && apt-get install curl build-essential git -y
+RUN apt-get update && apt-get install curl build-essential time -y
 
 ENV CONDA_DIR=/opt/conda
 
-ENV NANOQ_VERSION=v0.2.0
+ENV NANOQ_VERSION=v0.7.0
 ENV PATH=/opt/conda/bin:/rust/.cargo/bin:$PATH
 ENV CARGO_HOME=/rust/.cargo
 ENV RUSTUP_HOME=/rust/.rustup
 
-RUN mkdir /data
-
-ADD run_benchmarks.sh /usr/local/bin 
-ADD plot_benchmarks.py /usr/local/bin
-ADD test.fq.gz /data
-
 RUN conda install -c conda-forge -c bioconda -c esteinig --yes \
-    nanostat nanofilt filtlong pandas seaborn
+    nanostat=1.5.0 nanofilt=2.8.0 filtlong=0.2.1 pandas seaborn
     
 RUN mkdir /rust && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 
-RUN git clone -b $NANOQ_VERSION --single-branch https://github.com/esteinig/nanoq.git
-RUN cd ./nanoq && cargo build --release && mv target/release/nanoq /usr/local/bin
+ADD target/release/nanoq /usr/local/bin/
+ADD paper/run_benchmarks.sh /usr/local/bin 
 
+RUN mkdir /data /benchmarks
+
+RUN echo '#!/bin/bash \n /usr/bin/time -f "%e %M" $@' > /usr/bin/t
+RUN chmod +x /usr/bin/t

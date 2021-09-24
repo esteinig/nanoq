@@ -1,6 +1,6 @@
+use anyhow::Result;
 use indoc::eprintdoc;
 use thiserror::Error;
-use anyhow::Result;
 
 /// A collection of custom errors relating to the utility components for this package.
 #[derive(Error, Debug, PartialEq)]
@@ -12,10 +12,14 @@ pub enum UtilityError {
 
 }
 
-/// Create a read set object
+/// ReadSet object
 ///
 /// Read set objects are mutable to allow
 /// sorting of read length and quality vectors
+///
+/// * `read_lengths` - a vector of read lengths
+/// * `read_qualities` - a vector of read qualities
+/// 
 #[derive(Debug)]
 pub struct ReadSet {
     pub read_lengths: Vec<u32>,
@@ -25,13 +29,14 @@ pub struct ReadSet {
 impl ReadSet {
     /// Print a summary of the read set to stderr
     ///
-    /// * `detail` - verbosity of summary message
+    /// * `verbosity` - detail of summary message
     ///     * 0: standard output without headers
     ///     * 1: standard output with pretty headers
     ///     * 2: add length and quality thresholds
     ///     * 3: add top ranked read statistics
     ///
-    /// * `top` - show top ranking lengths and qualities
+    /// * `top` - number of top ranking read lengths 
+    ///     and qualities to show in output
     ///
     /// # Example
     /// 
@@ -40,10 +45,7 @@ impl ReadSet {
     ///     read_lengths: !vec[10, 100, 1000],
     ///     read_qualities: !vec[10.0, 11.0, 12.0],
     /// }
-    /// read_set.summary(0, 3)
-    /// read_set.summary(1, 3)
-    /// read_set.summary(2, 3)
-    /// read_set.summary(3, 3)
+    /// read_set.summary(0, 3);
     /// ```
     pub fn summary(&mut self, verbosity: &u8, top: usize) -> Result<(), UtilityError> {
 
@@ -229,7 +231,10 @@ impl ReadSet {
         }
         
     }
-
+    /// Print read length and quality thresholds to stderr
+    ///
+    /// Used internally by the `summary` method. Creates 
+    /// an instance of the `ThresholdCounter` struct.
     fn print_thresholds(&self){
         let mut thresholds = ThresholdCounter::new();
         let length_thresholds = thresholds.length(&self.read_lengths);
@@ -307,7 +312,9 @@ impl ReadSet {
         }
 
     }
-
+    /// Print top ranking read lengths and qualities to stderr
+    ///
+    /// Used internally by the summary method.
     fn print_ranking(&mut self, top: usize){
 
         self.read_lengths.sort();
@@ -331,6 +338,9 @@ impl ReadSet {
 
 }
 
+/// Count reads at defined length and quality thresholds
+///
+/// Used internally by the `print_thresholds` method.
 struct ThresholdCounter {    
     // read quality
     q5: u64,
@@ -355,6 +365,16 @@ struct ThresholdCounter {
 }
 
 impl ThresholdCounter {
+    /// Create a new threshold counter
+    ///
+    /// Creates an instance of `ThresholdCounter`
+    /// with internal threshold counts set to zero.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// let counter = ThresholdCounter::new();
+    /// ```
     fn new() -> Self {
         ThresholdCounter {
             q5: 0,
@@ -377,6 +397,23 @@ impl ThresholdCounter {
             l1000000: 0,
         }
     }
+    /// Get read quality threshold counts
+    ///
+    /// Returns a tuple of counts for eight 
+    /// average read quality thresholds (>=)
+    ///
+    /// * `read_qualities`: a vector of read qualities
+    ///     obtained from the `NeedleCast` methods
+    ///     `filter` or `filter_length`
+    /// 
+    /// # Example
+    ///
+    /// ```rust
+    /// let expected = (3, 2, 1, 0, 0, 0, 0, 0);
+    /// let counter = ThresholdCounter::new();
+    /// let actual = counter.quality(vec![5.0, 7.0, 10.0]);
+    /// assert_eq!(actual, expected);
+    /// ```
     fn quality(&mut self, read_qualities: &Vec<f32>) -> (u64, u64, u64, u64, u64, u64, u64, u64) {
 
         for q in read_qualities.iter() {
@@ -407,7 +444,23 @@ impl ThresholdCounter {
         }
         (self.q5, self.q7, self.q10, self.q12, self.q15, self.q20, self.q25, self.q30)
     }
-
+    /// Get read length threshold counts
+    ///
+    /// Returns a tuple of counts for ten 
+    /// read length thresholds (>=)
+    ///
+    /// * `read_lengths`: a vector of read lengths
+    ///     obtained from the `NeedleCast` methods
+    ///     `filter` or `filter_length`
+    /// 
+    /// # Example
+    ///
+    /// ```rust
+    /// let expected = (3, 2, 1, 0, 0, 0, 0, 0, 0, 0);
+    /// let counter = ThresholdCounter::new();
+    /// let actual = counter.length(vec![200, 500, 1000]);
+    /// assert_eq!(actual, expected);
+    /// ```
     fn length(&mut self, read_lengths: &Vec<u32>) -> (u64, u64, u64, u64, u64, u64, u64, u64, u64, u64) {
 
         for l in read_lengths.iter() {

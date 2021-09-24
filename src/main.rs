@@ -11,9 +11,12 @@ mod cli;
 mod needlecast;
 mod utils;
 
+/// Nanoq application
+///
+/// Run the application from arguments provided 
+/// by the command line interface.
 fn main() -> Result<()> {
     let args: Cli = Cli::from_args();
-
     let mut needle_cast = NeedleCast::new(&args);
 
     let (read_lengths, read_qualities) = match args.fast {
@@ -25,7 +28,6 @@ fn main() -> Result<()> {
                     .context("unable to process reads")?
     };
     
-
     let mut read_set = ReadSet {
         read_lengths, read_qualities,
     };
@@ -34,5 +36,4 @@ fn main() -> Result<()> {
         .context("unable to obtain read summary")?;
 
     Ok(())
-
 }

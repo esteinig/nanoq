@@ -74,7 +74,7 @@ pub struct Cli {
     )]
     pub stats: bool,
 
-    /// Fast mode, do not consider quality values.
+    /// Ignore quality values if present.
     #[structopt(
         short,
         long
@@ -178,16 +178,6 @@ fn parse_compression_level(s: &str) -> Result<niffler::Level, CliError> {
 mod tests {
     use super::*;
 
-    #[test]
-    fn no_args_given_raises_error() {
-        let passed_args = vec!["nanoq"];
-        let args: Result<Cli, clap::Error> = Cli::from_iter_safe(passed_args);
-
-        let actual = args.unwrap_err().kind;
-        let expected = clap::ErrorKind::MissingRequiredArgument;
-
-        assert_eq!(actual, expected)
-    }
 
     #[test]
     fn no_input_file_given_raises_error() {
