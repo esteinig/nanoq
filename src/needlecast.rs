@@ -4,26 +4,14 @@
 use needletail::{FastxReader, parse_fastx_file, parse_fastx_stdin};
 use std::io::{BufWriter, Write};
 use std::io::{stdout, sink};
-use thiserror::Error;
+use needletail::errors::ParseError;
 use std::fs::File;
 
 use crate::cli::Cli;
-use crate::cli::CompressionExt;
+use crate::utils::CompressionExt;
 
 
 // Niffler output compression adopted from Michael B. Hall - Rasusa (https://github.com/mbhall88/rasusa)
-
-/// A collection of custom errors relating to the working with fastx files.
-#[derive(Error, Debug)]
-pub enum FastxError {
-
-    /// Indicates that a sequence record could not be parsed.
-    #[error("Failed to parse sequence record")]
-    ParseError {
-        source: needletail::errors::ParseError,
-    },
-
-}
 
 /// NeedleCast object
 ///
@@ -45,25 +33,26 @@ impl NeedleCast {
     ///
     /// # Example
     ///
-    /// ```rust
-    /// let args = Cli::from_iter(&["nanoq"]);
-    /// let nc = NeedleCast::new(&args);
+    /// ```compile
+    /// let cli = nanoq::cli::Cli::from_iter(&["nanoq"]);
+    /// let caster = nanoq::needlecast::NeedleCast::new(&args);
     /// ```
-    pub fn new(args: &Cli) -> Self {
+    #[cfg(not(tarpaulin_include))]
+    pub fn new(cli: &Cli) -> Self {
 
-        let reader = match &args.input {
+        let reader = match &cli.input {
             Some(file) => parse_fastx_file(file).expect("failed to get file reader"),
             None => parse_fastx_stdin().expect("failed to get stdin reader"),
         };
-        let writer = match &args.output {
+        let writer = match &cli.output {
             None => {
-                if args.stats {
+                if cli.stats {
                     Box::new(sink())
                 } else {
-                    match args.output_type {
+                    match cli.output_type {
                         None => Box::new(stdout()),
                         Some(fmt) => niffler::basic::get_writer(
-                            Box::new(stdout()), fmt, args.compress_level
+                            Box::new(stdout()), fmt, cli.compress_level
                         ).expect("failed to get compressed stdout writer"),
                     }
                 }
@@ -73,18 +62,17 @@ impl NeedleCast {
                 let file = File::create(&output).expect("failed to create output file");
                 let file_handle = Box::new(BufWriter::new(file));
 
-                let fmt = match args.output_type {
+                let fmt = match cli.output_type {
                     None => niffler::Format::from_path(&output),
                     Some(f) => f,
                 };
                 niffler::get_writer(
-                    file_handle, fmt, args.compress_level
+                    file_handle, fmt, cli.compress_level
                 ).expect("failed to get compressed file writer")
-            }
+            },
         };
         NeedleCast {
-            reader, 
-            writer
+            reader, writer
         }
     }
     /// Filter reads and store lengths and qualities
@@ -96,45 +84,45 @@ impl NeedleCast {
     /// 
     /// # Errors
     /// 
-    /// If the sequence record cannot be parsed a variant
-    /// of the `Needletail` `FastxError` is returned 
+    /// If the sequence record cannot be parsed a 
+    /// `needletail::errors::ParseError` is returned
     ///
     /// # Example
     ///
-    /// ```rust
-    /// let args = Cli::from_iter(&["nanoq"]);
-    /// let nc = NeedleCast::new(&args);
-    /// nc.filter(0, 0, 0);
+    /// ```compile
+    /// use structopt::StructOpt;
+    ///
+    /// let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test.fq", "-o", "/dev/null"]);
+    /// let mut caster = NeedleCast::new(&cli);
+    /// let (read_lengths, read_quals) = caster.filter(0, 0, 0.0).unwrap();
+    ///
+    /// assert_eq!(read_lengths, vec![4]);
+    /// assert_eq!(read_quals, vec![40.0]);
     /// ```
-    pub fn filter(&mut self, min_length: u32, max_length: u32, min_quality: f32) -> Result<(Vec<u32>, Vec<f32>), FastxError> {
+    pub fn filter(&mut self, min_length: u32, max_length: u32, min_quality: f32) -> Result<(Vec<u32>, Vec<f32>), ParseError> {
         let mut read_lengths: Vec<u32> = vec![];
         let mut read_qualities: Vec<f32> = vec![];
 
         let max_length: u32 = if max_length <= 0 { u32::MAX } else { max_length };
         while let Some(record) = self.reader.next() {
-            match record {
-                Ok(rec) => {
-                    let seqlen = rec.num_bases() as u32;  // NANOQ READ LENGTH LIMIT: ~ 4.2 x 10e9
-                    // Quality scores present (FASTQ not FASTA)
-                    if let Some(qual) = rec.qual() {
-                        let mean_error_prob = mean_error_probability(&qual);
-                        let mean_quality: f32 = -10f32*mean_error_prob.log(10.0);
-                        // FASTQ filter
-                        if seqlen >= min_length && mean_quality >= min_quality && seqlen <= max_length {
-                            read_lengths.push(seqlen);
-                            read_qualities.push(mean_quality);
-                            rec.write(&mut self.writer, None).expect("failed to write fastq record");
-                        }
-                    } else {
-                        // FASTA filter
-                        if seqlen >= min_length && seqlen <= max_length {
-                            read_lengths.push(seqlen);
-                            rec.write(&mut self.writer, None).expect("failed to write fasta record");
-                        }
-                    }
-
-                },
-                Err(err) => return Err(FastxError::ParseError { source: err }),
+            let rec = record.expect("failed to parse record");
+            let seqlen = rec.num_bases() as u32;  // NANOQ READ LENGTH LIMIT: ~ 4.2 x 10e9
+            // Quality scores present (FASTQ not FASTA)
+            if let Some(qual) = rec.qual() {
+                let mean_error_prob = mean_error_probability(&qual);
+                let mean_quality: f32 = -10f32*mean_error_prob.log(10.0);
+                // FASTQ
+                if seqlen >= min_length && seqlen <= max_length && mean_quality >= min_quality {
+                    read_lengths.push(seqlen);
+                    read_qualities.push(mean_quality);
+                    rec.write(&mut self.writer, None).expect("failed to write fastq record");
+                }
+            } else {
+                // FASTA filter
+                if seqlen >= min_length && seqlen <= max_length {
+                    read_lengths.push(seqlen);
+                    rec.write(&mut self.writer, None).expect("failed to write fasta record");
+                }
             }
         }
         Ok((read_lengths, read_qualities))
@@ -151,32 +139,27 @@ impl NeedleCast {
     /// 
     /// # Errors
     /// 
-    /// If the sequence record cannot be parsed a variant
-    /// of the `Needletail` `FastxError` is returned 
+    /// If the sequence record cannot be parsed a
+    /// `needletail::errors::ParseError` is returned
     ///
     /// # Example
     ///
-    /// ```rust
-    /// let args = Cli::from_iter(&["nanoq"]);
-    /// let nc = NeedleCast::new(&args);
-    /// nc.filter_length(0, 0, 0);
+    /// ```compile
+    /// let cli = nanoq::cli::Cli::from_iter(&["nanoq"]);
+    /// let caster = nanoq::needlecast::NeedleCast::new(&cli);
+    /// caster.filter_length(0, 0);
     /// ```
-    pub fn filter_length(&mut self, min_length: u32, max_length: u32) -> Result<(Vec<u32>, Vec<f32>), FastxError> {
+    pub fn filter_length(&mut self, min_length: u32, max_length: u32) -> Result<(Vec<u32>, Vec<f32>), ParseError> {
         let mut read_lengths: Vec<u32> = vec![];
         let read_qualities: Vec<f32> = vec![];
 
         let max_length: u32 = if max_length <= 0 { u32::MAX } else { max_length };
         while let Some(record) = self.reader.next() {
-            match record {
-                Ok(rec) => {
-                    let seqlen = rec.num_bases() as u32;
-                    if seqlen >= min_length && seqlen <= max_length {
-                        read_lengths.push(seqlen);
-                        rec.write(&mut self.writer, None).expect("failed to write fastq record");
-                    }
-
-                },
-                Err(err) => return Err(FastxError::ParseError { source: err }),
+            let rec  = record.expect("failed to parse record");
+            let seqlen = rec.num_bases() as u32;
+            if seqlen >= min_length && seqlen <= max_length {
+                read_lengths.push(seqlen);
+                rec.write(&mut self.writer, None).expect("failed to write fastq record");
             }
         }
         Ok((read_lengths, read_qualities))
@@ -197,13 +180,18 @@ impl NeedleCast {
 ///
 /// # Example
 /// 
-/// ```compile
-/// while let Some(record) = reader.next() {
-///     let seqrec = record.expect("invalid record");
-///     let qual_bytes = record.qual().expect("invalid quality bytes");
-///     let error_prob = mean_error_probability(&qual_bytes);
-///     let mean_error = -10f32*error_prob.log(10.0);
-/// }
+/// ```rust
+/// use needletail::parser::{FastqReader, FastxReader};
+/// let fastq = b"@id\nACGT\n+\nIIII";
+///
+/// let mut reader = FastqReader::new(&fastq[..]);
+/// let record = reader.next().unwrap().unwrap();
+/// let qual_bytes = record.qual().unwrap();
+/// let error_prob = mean_error_probability(&qual_bytes);
+/// let mean_qual = -10f32*error_prob.log(10.0);
+/// 
+/// assert_eq!(error_prob, 0.0001);
+/// assert_eq!(mean_qual, 40.0);
 /// ```
 fn mean_error_probability(quality_bytes: &[u8]) -> f32 {
     let mut sum: f32 = 0.0;
@@ -211,4 +199,135 @@ fn mean_error_probability(quality_bytes: &[u8]) -> f32 {
         sum += 10f32.powf((q-33u8) as f32 / -10f32)  
     }
     sum / quality_bytes.len() as f32  // mean error probability
+}
+
+#[cfg(test)]
+#[cfg(not(tarpaulin_include))]  // weirdly includes some should_panic
+mod tests {
+    use super::*;
+
+    #[test]
+    fn mean_error_probablity_and_quality_score() {
+        
+        use needletail::parser::{FastqReader, FastxReader};
+        let fastq = b"@id\nACGT\n+\nIIII";
+        
+        let mut reader = FastqReader::new(&fastq[..]);
+        let record = reader.next().unwrap().unwrap();
+        let qual_bytes = record.qual().unwrap();
+
+        let error_prob = mean_error_probability(&qual_bytes);
+        let mean_qual = -10f32*error_prob.log(10.0);
+
+        assert_eq!(error_prob, 0.0001);
+        assert_eq!(mean_qual, 40.0);
+    }
+
+    #[test]
+    fn needlecast_filter_fq_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fq", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli);
+        let (read_lengths, read_quals) = 
+            caster.filter(0, 0, 0.0).unwrap();
+        
+        assert_eq!(read_lengths, vec![4]);
+        assert_eq!(read_quals, vec![40.0]);
+    }
+
+    #[test]
+    fn needlecast_filter_length_fq_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fq", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli);
+        let (read_lengths, read_quals) = 
+            caster.filter_length(0, 0).unwrap();
+        
+        assert_eq!(read_lengths, vec![4]);
+        assert_eq!(read_quals, vec![]);
+    }
+
+
+    #[test]
+    fn needlecast_filter_fa_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fa", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli);
+        let (read_lengths, read_quals) = 
+            caster.filter(0, 0, 0.0).unwrap();
+        
+        assert_eq!(read_lengths, vec![4]);
+        assert_eq!(read_quals, vec![]);
+    }
+
+    #[test]
+    fn needlecast_filter_length_fa_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fa", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli);
+        let (read_lengths, read_quals) = 
+            caster.filter_length(0, 0).unwrap();
+        
+        assert_eq!(read_lengths, vec![4]);
+        assert_eq!(read_quals, vec![]);
+    }
+
+
+    #[test]
+    #[should_panic]
+    fn needlecast_filter_fa_fmt_bad() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_bad1.fa", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli);
+        caster.filter(0, 0, 0.0).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn needlecast_filter_fq_fmt_bad() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_bad1.fq", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli);
+        caster.filter(0, 0, 0.0).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn needlecast_filter_fq_sep_bad() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_bad2.fq", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli);
+        caster.filter(0, 0, 0.0).unwrap();
+    }
+
+    #[test]
+    #[should_panic]
+    fn needlecast_filter_length_fq_fmt_bad() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_bad1.fq", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli);
+        caster.filter_length(0, 0).unwrap();
+        
+    }
+
+    #[test]
+    #[should_panic]
+    fn needlecast_filter_length_fq_sep_bad() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_bad2.fq", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli);
+        caster.filter_length(0, 0).unwrap();
+    }
+
+
+
 }

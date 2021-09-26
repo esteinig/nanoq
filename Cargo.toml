@@ -29,6 +29,6 @@ thiserror = "1.0"
 niffler = "2.3"
 
 [dev-dependencies]
-assert_cmd = "0.10"
+assert_cmd = "2.0.1"
 predicates = "1"
 tempfile = "3.1.0"

@@ -1,7 +1,6 @@
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use structopt::StructOpt;
 use thiserror::Error;
-use std::ffi::OsStr;
 
 /// Read filters and summary reports for nanopore data
 #[derive(Debug, StructOpt)]
@@ -43,7 +42,7 @@ pub struct Cli {
 
     /// Minimum average read quality filter (Q).
     #[structopt(
-        short,
+        short="q",
         long,
         value_name = "FLOAT", 
         default_value = "0" 
@@ -54,9 +53,9 @@ pub struct Cli {
     #[structopt(
         short,
         long,
-        parse(from_occurrences)
+        parse(from_occurrences = parse_verbosity)
     )]
-    pub verbose: u8,
+    pub verbose: u64,
 
     /// Number of top reads in verbose summary.  
     #[structopt(
@@ -124,28 +123,18 @@ pub enum CliError {
 }
 
 
-// Adopted from Michael B. Hall - Rasusa (https://github.com/mbhall88/rasusa)
-
-pub trait CompressionExt {
-    fn from_path<S: AsRef<OsStr> + ?Sized>(p: &S) -> Self;
-}
-
-/// Attempts to infer the compression type from the file extension. 
-/// If the extension is not known, then Uncompressed is returned.
-impl CompressionExt for niffler::compression::Format {
-    fn from_path<S: AsRef<OsStr> + ?Sized>(p: &S) -> Self {
-        let path = Path::new(p);
-        match path.extension().map(|s| s.to_str()) {
-            Some(Some("gz")) => Self::Gzip,
-            Some(Some("bz") | Some("bz2")) => Self::Bzip,
-            Some(Some("lzma")) => Self::Lzma,
-            _ => Self::No,
-        }
+/// Utility function to parse verbosity occurences
+///
+/// Up to three verbosity flags are allowed (-vvv), if more
+/// are specified (-vvvv) the highest allowed value is returned
+pub fn parse_verbosity(v: u64) -> u64 {
+    match v {
+        0 | 1 | 2 | 3 => v,
+        _ => 3,
     }
 }
 
-
-/// Utility function to parse compression format raising error if no valid format is provided
+/// Utility function to parse compression format 
 fn parse_compression_format(s: &str) -> Result<niffler::compression::Format, CliError> {
     match s {
         "b" | "B" => Ok(niffler::Format::Bzip),
@@ -156,7 +145,7 @@ fn parse_compression_format(s: &str) -> Result<niffler::compression::Format, Cli
     }
 }
 
-/// Utility function to validate compression level is in allowed range
+/// Utility function to parse and validate compression level
 #[allow(clippy::redundant_clone)]
 fn parse_compression_level(s: &str) -> Result<niffler::Level, CliError> {
     let lvl = match s.parse::<u8>() {
@@ -174,21 +163,167 @@ fn parse_compression_level(s: &str) -> Result<niffler::Level, CliError> {
     Ok(lvl)
 }
 
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
-
     #[test]
-    fn no_input_file_given_raises_error() {
-        let passed_args = vec!["nanoq", "-l", "1000"];
+    fn invalid_compression_format() {
+        let passed_args = vec!["nanoq", "-O", "t"];
         let args: Result<Cli, clap::Error> = Cli::from_iter_safe(passed_args);
 
         let actual = args.unwrap_err().kind;
-        let expected = clap::ErrorKind::MissingRequiredArgument;
+        let expected = clap::ErrorKind::InvalidValue;
 
         assert_eq!(actual, expected)
     }
 
+    #[test]
+    fn invalid_compression_level() {
+        let passed_args = vec!["nanoq", "-c", "10"];
+        let args: Result<Cli, clap::Error> = Cli::from_iter_safe(passed_args);
 
+        let actual = args.unwrap_err().kind;
+        let expected = clap::ErrorKind::ValueValidation;
+
+        assert_eq!(actual, expected)
+    }
+
+    #[test]
+    fn verbosity_exceeds_limit() {
+        let passed_args = vec!["nanoq", "-vvvv"];
+        let args = Cli::from_iter_safe(passed_args);
+        
+        let actual = args.unwrap().verbose;
+        let expected = 3;
+
+        assert_eq!(actual, expected)
+    }
+
+    #[test]
+    fn invalid_min_len() {
+        let passed_args = vec!["nanoq", "-l", "test"];
+        let args: Result<Cli, clap::Error> = Cli::from_iter_safe(passed_args);
+
+        let actual = args.unwrap_err().kind;
+        let expected = clap::ErrorKind::ValueValidation;
+
+        assert_eq!(actual, expected)
+    }
+
+    #[test]
+    fn invalid_max_len() {
+        let passed_args = vec!["nanoq", "-m", "test"];
+        let args: Result<Cli, clap::Error> = Cli::from_iter_safe(passed_args);
+
+        let actual = args.unwrap_err().kind;
+        let expected = clap::ErrorKind::ValueValidation;
+
+        assert_eq!(actual, expected)
+    }
+
+    #[test]
+    fn invalid_min_qual() {
+        let passed_args = vec!["nanoq", "-q", "test"];
+        let args: Result<Cli, clap::Error> = Cli::from_iter_safe(passed_args);
+
+        let actual = args.unwrap_err().kind;
+        let expected = clap::ErrorKind::ValueValidation;
+
+        assert_eq!(actual, expected)
+    }
+
+    #[test]
+    fn invalid_to_value() {
+        let passed_args = vec!["nanoq", "-t", "test"];
+        let args: Result<Cli, clap::Error> = Cli::from_iter_safe(passed_args);
+
+        let actual = args.unwrap_err().kind;
+        let expected = clap::ErrorKind::ValueValidation;
+
+        assert_eq!(actual, expected)
+    }
+
+    #[test]
+    fn valid_stats_flag() {
+        let passed_args = vec!["nanoq", "-s"];
+        let args: Result<Cli, clap::Error> = Cli::from_iter_safe(passed_args);
+
+        let actual = args.unwrap().stats;
+        let expected = true;
+
+        assert_eq!(actual, expected)
+    }
+
+    #[test]
+    fn valid_fast_flag() {
+        let passed_args = vec!["nanoq", "-f"];
+        let args: Result<Cli, clap::Error> = Cli::from_iter_safe(passed_args);
+
+        let actual = args.unwrap().fast;
+        let expected = true;
+
+        assert_eq!(actual, expected)
+    }
+
+    #[test]
+    fn valid_verbosity_level() {
+        let passed_args = vec!["nanoq", "-vv"];
+        let args = Cli::from_iter_safe(passed_args);
+
+        let actual = args.unwrap().verbose;
+        let expected = 2;
+
+        assert_eq!(actual, expected)
+    }
+
+    #[test]
+    fn verbosity_from_occurrences() {
+        assert_eq!(parse_verbosity(0), 0);
+        assert_eq!(parse_verbosity(1), 1);
+        assert_eq!(parse_verbosity(2), 2);
+        assert_eq!(parse_verbosity(3), 3);
+        assert_eq!(parse_verbosity(4), 3);
+        assert_eq!(parse_verbosity(666), 3);
+    }
+
+    #[test]
+    fn compression_format_from_str() {
+        let mut s = "B";
+        assert_eq!(parse_compression_format(s).unwrap(), niffler::Format::Bzip);
+
+        s = "g";
+        assert_eq!(parse_compression_format(s).unwrap(), niffler::Format::Gzip);
+
+        s = "l";
+        assert_eq!(parse_compression_format(s).unwrap(), niffler::Format::Lzma);
+
+        s = "U";
+        assert_eq!(parse_compression_format(s).unwrap(), niffler::Format::No);
+
+        s = "a";
+        assert_eq!(
+            parse_compression_format(s).unwrap_err(),
+            CliError::InvalidCompressionFormat(s.to_string())
+        );
+    }
+
+    #[test]
+    fn compression_level_in_range() {
+        assert!(parse_compression_level("1").is_ok());
+        assert!(parse_compression_level("2").is_ok());
+        assert!(parse_compression_level("3").is_ok());
+        assert!(parse_compression_level("4").is_ok());
+        assert!(parse_compression_level("5").is_ok());
+        assert!(parse_compression_level("6").is_ok());
+        assert!(parse_compression_level("7").is_ok());
+        assert!(parse_compression_level("8").is_ok());
+        assert!(parse_compression_level("9").is_ok());
+        assert!(parse_compression_level("0").is_err());
+        assert!(parse_compression_level("10").is_err());
+        assert!(parse_compression_level("f").is_err());
+        assert!(parse_compression_level("5.5").is_err());
+        assert!(parse_compression_level("-3").is_err());
+    }
 }
