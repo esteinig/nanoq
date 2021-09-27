@@ -161,7 +161,7 @@ Tools:
 * `nanostat=1.5.0` 
 * `nanofilt=2.8.0`
 * `filtlong=0.2.1`
-* `nanoq=0.7.0`
+* `nanoq=0.8.0`
 
 Commands used for `stats` task:
 
