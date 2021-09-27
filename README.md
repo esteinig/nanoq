@@ -260,17 +260,27 @@ done
 
 
 ![Nanoq benchmarks on 3.5 million reads of the Zymo mock community (10 replicates)](paper/benchmarks_zymo_full.png?raw=true "Nanoq benchmarks" )
-![Nanoq benchmarks on 100,000 reads of the Zymo mock community (10 replicates)](paper/benchmarks_zymo.png?raw=true "Nanoq benchmarks" )
 
 ### `stats` + `zymo.full.fq`
 
-| command         | mem (sd)         | sec (sd)           |  reads / sec    | speedup |
-| ----------------|------------------|--------------------|-----------------|---------|
+| command         | mem (sd)         | sec (sd)           |  reads / sec    | speedup  |
+| ----------------|------------------|--------------------|-----------------|----------|
 | nanostat        | 741.4 (0.09)     | 1260. (13.9)       | 2,770           | 01.00 x  |
 | nanostat-t8     | 741.4 (0.10)     | 1249. (9.12)       | 2,795           | 01.00 x  |
 | nanoq           | 35.83 (0.06)     | 94.51 (0.43)       | 36,938          | 13.34 x  |
 | rust-bio        | 43.20 (0.08)     | 06.54 (0.05)       | 533,803         | 192.7 x  |
 | nanoq-fast      | **22.18** (0.07) | **02.85** (0.02)   | 1,224,939       | 442.1 x  |
+
+### `filter` + `zymo.full.fq`
+
+| command         | mb (sd)           | sec (sd)           |  reads / sec    | speedup  |
+| ----------------|-------------------|--------------------|-----------------|----------|
+| nanofilt        | 67.47 (0.13)      | 1160. (20.2)       | 3,009           | 01.00 x  |
+| filtlong        | 1516. (5.98)      | 420.6 (4.53)       | 8,360           | 02.78 x  |
+| nanoq           | 11.93 (0.06)      | 94.93 (0.45)       | 36,775          | 12.22 x  |
+| nanoq-fast      | **08.05** (0.05)  | **03.90** (0.30)   | 895,148         | 297.5 x  |
+
+![Nanoq benchmarks on 100,000 reads of the Zymo mock community (10 replicates)](paper/benchmarks_zymo.png?raw=true "Nanoq benchmarks" )
 
 ### `stats` + `zymo.fq`
 
@@ -282,7 +292,6 @@ done
 | rust-bio        | 16.61 (0.08)     | 00.22 (0.00)       | 100,000         | 36.23 x  |
 | nanoq-fast      | **03.81** (0.05) | **00.08** (0.00)   | 100,000         | 36.23 x  |
 
-
 ### `stats` + `zymo.fq.gz`
 
 | command         | mem (sd)         | sec (sd)           |  reads / sec    | speedup  |
@@ -293,20 +302,10 @@ done
 | rust-bio        | **01.59** (0.06) | 05.06 (0.04)       | 19,762          | 08.09 x  |
 | nanoq-fast      | 03.95 (0.07)     | **03.15** (0.02)   | 31,746          | 13.01 x  |
 
-
-### `filter` + `zymo.full.fq`
-
-| command         | mb (sd)           | sec (sd)           |  reads / sec    | speedup |
-| ----------------|-------------------|--------------------|-----------------|---------|
-| nanofilt        | 67.47 (0.13)      | 1160. (20.2)       | 3,009           | 01.00 x  |
-| filtlong        | 1516. (5.98)      | 420.6 (4.53)       | 8,360           | 02.78 x  |
-| nanoq           | 11.93 (0.06)      | 94.93 (0.45)       | 36,775          | 12.22 x  |
-| nanoq-fast      | **08.05** (0.05)  | **03.90** (0.30)   | 895,148         | 297.5 x  |
-
 ### `filter` + `zymo.fq`
 
-| command         | mb (sd)           | sec (sd)           |  reads / sec    | speedup |
-| ----------------|-------------------|--------------------|-----------------|---------|
+| command         | mb (sd)           | sec (sd)           |  reads / sec    | speedup  |
+| ----------------|-------------------|--------------------|-----------------|----------|
 | nanofilt        | 66.29 (0.15)      | 33.01 (0.24)       | 3,029           | 01.00 x  |
 | filtlong        | 274.5 (0.04)      | 08.49 (0.01)       | 11,778          | 03.89 x  |
 | nanoq           | 03.61 (0.04)      | 02.81 (0.28)       | 35,587          | 11.75 x  |
@@ -314,14 +313,12 @@ done
 
 ### `filter` + `zymo.fq.gz`
 
-| command         | mb (sd)           | sec (sd)           |  reads / sec    | speedup |
-| ----------------|-------------------|--------------------|-----------------|---------|
+| command         | mb (sd)           | sec (sd)           |  reads / sec    | speedup  |
+| ----------------|-------------------|--------------------|-----------------|----------|
 | nanofilt        | **01.57** (0.07)  | 33.48 (0.35)       | 2,986           | 01.00 x  |
 | filtlong        | 274.2 (0.04)      | 16.45 (0.09)       | 6,079           | 02.04 x  |
 | nanoq           | 03.68 (0.06)      | 05.77 (0.04)       | 17,331          | 05.80 x  |
 | nanoq-fast      | 03.45 (0.07)      | **03.20** (0.02)   | 31,250          | 10.47 x  |
-
-
 
 ## Dependencies
 
