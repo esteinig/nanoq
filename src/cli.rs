@@ -7,46 +7,23 @@ use thiserror::Error;
 #[structopt()]
 pub struct Cli {
     /// Fast{a,q}.{gz,xz,bz}, stdin if not present.
-    #[structopt(
-        short,
-        long,
-        parse(from_os_str)
-    )]
+    #[structopt(short, long, parse(from_os_str))]
     pub input: Option<PathBuf>,
 
     /// Output filepath, stdout if not present.
-    #[structopt(
-        short, 
-        long, 
-        parse(from_os_str)
-    )]
+    #[structopt(short, long, parse(from_os_str))]
     pub output: Option<PathBuf>,
 
     /// Minimum read length filter (bp).
-    #[structopt(
-        short = "l",
-        long,
-        value_name = "INT", 
-        default_value = "0"
-    )]
+    #[structopt(short = "l", long, value_name = "INT", default_value = "0")]
     pub min_len: u32,
 
     /// Maximum read length filter (bp).
-    #[structopt(
-        short = "m",
-        long,
-        value_name = "INT", 
-        default_value = "0" 
-    )]
+    #[structopt(short = "m", long, value_name = "INT", default_value = "0")]
     pub max_len: u32,
 
     /// Minimum average read quality filter (Q).
-    #[structopt(
-        short="q",
-        long,
-        value_name = "FLOAT", 
-        default_value = "0" 
-    )]
+    #[structopt(short = "q", long, value_name = "FLOAT", default_value = "0")]
     pub min_qual: f32,
 
     /// Pretty print output statistics.  
@@ -58,40 +35,29 @@ pub struct Cli {
     pub verbose: u64,
 
     /// Number of top reads in verbose summary.  
-    #[structopt(
-        short,
-        long,
-        value_name = "INT", 
-        default_value = "5" 
-    )]
+    #[structopt(short, long, value_name = "INT", default_value = "5")]
     pub top: usize,
 
     /// Statistics only, reads to /dev/null.
-    #[structopt(
-        short,
-        long
-    )]
+    #[structopt(short, long)]
     pub stats: bool,
 
     /// Ignore quality values if present.
-    #[structopt(
-        short,
-        long
-    )]
+    #[structopt(short, long)]
     pub fast: bool,
 
     /// u: uncompressed; b: Bzip2; g: Gzip; l: Lzma
     ///
-    /// Nanoq will attempt to infer the output compression format automatically 
+    /// Nanoq will attempt to infer the output compression format automatically
     /// from the filename extension. This option is used to override that.
     /// If writing to stdout, the default is uncompressed
     #[structopt(
         short = "O", 
-        long, 
+        long,
         value_name = "u|b|g|l", 
-        parse(try_from_str = parse_compression_format), 
+        parse(try_from_str = parse_compression_format),
         possible_values = &["u", "b", "g", "l"], 
-        case_insensitive = true, 
+        case_insensitive = true,
         hide_possible_values = true
     )]
     pub output_type: Option<niffler::compression::Format>,
@@ -99,19 +65,17 @@ pub struct Cli {
     /// Compression level to use if compressing output.
     #[structopt(
         short = "c", 
-        long, 
-        parse(try_from_str = parse_compression_level), 
+        long,
+        parse(try_from_str = parse_compression_level),
         default_value="6", 
         value_name = "1-9"
     )]
     pub compress_level: niffler::Level,
 }
 
-
 /// A collection of custom errors relating to the command line interface for this package.
 #[derive(Error, Debug, PartialEq)]
 pub enum CliError {
-
     /// Indicates that a string cannot be parsed into a [`CompressionFormat`](#compressionformat).
     #[error("{0} is not a valid output format")]
     InvalidCompressionFormat(String),
@@ -119,9 +83,7 @@ pub enum CliError {
     /// Indicates that a string cannot be parsed into a [`CompressionLevel`](#compressionlevel).
     #[error("{0} is not a valid compression level [1-9]")]
     InvalidCompressionLevel(String),
-
 }
-
 
 /// Utility function to parse verbosity occurences
 ///
@@ -134,7 +96,7 @@ pub fn parse_verbosity(v: u64) -> u64 {
     }
 }
 
-/// Utility function to parse compression format 
+/// Utility function to parse compression format
 fn parse_compression_format(s: &str) -> Result<niffler::compression::Format, CliError> {
     match s {
         "b" | "B" => Ok(niffler::Format::Bzip),
@@ -158,11 +120,10 @@ fn parse_compression_level(s: &str) -> Result<niffler::Level, CliError> {
         Ok(7) => niffler::Level::Seven,
         Ok(8) => niffler::Level::Eight,
         Ok(9) => niffler::Level::Nine,
-        _ => return Err(CliError::InvalidCompressionLevel(s.to_string()))
+        _ => return Err(CliError::InvalidCompressionLevel(s.to_string())),
     };
     Ok(lvl)
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -194,7 +155,7 @@ mod tests {
     fn verbosity_exceeds_limit() {
         let passed_args = vec!["nanoq", "-vvvv"];
         let args = Cli::from_iter_safe(passed_args);
-        
+
         let actual = args.unwrap().verbose;
         let expected = 3;
 

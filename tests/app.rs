@@ -40,7 +40,7 @@ fn valid_inputs_raises_no_errors() -> Result<(), Box<dyn std::error::Error>> {
         "-c",
         "9",
         "-l",
-        "5000"
+        "5000",
     ]);
 
     cmd.assert().success();
@@ -49,13 +49,9 @@ fn valid_inputs_raises_no_errors() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn valid_input_output_stdout_ok() -> Result<(), Box<dyn std::error::Error>>
-{
+fn valid_input_output_stdout_ok() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin(env!("CARGO_PKG_NAME"))?;
-    cmd.args(vec![
-        "-i",
-        "tests/cases/test_ok.fq"
-    ]);
+    cmd.args(vec!["-i", "tests/cases/test_ok.fq"]);
 
     cmd.assert().success();
 
