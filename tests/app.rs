@@ -49,7 +49,7 @@ fn valid_inputs_raises_no_errors() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn input_and_output_filetypes_different_raises_no_errors() -> Result<(), Box<dyn std::error::Error>>
+fn valid_input_output_stdout_ok() -> Result<(), Box<dyn std::error::Error>>
 {
     let mut cmd = Command::cargo_bin(env!("CARGO_PKG_NAME"))?;
     cmd.args(vec![

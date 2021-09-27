@@ -202,7 +202,7 @@ fn mean_error_probability(quality_bytes: &[u8]) -> f32 {
 }
 
 #[cfg(test)]
-#[cfg(not(tarpaulin_include))]  // weirdly includes some should_panic
+#[cfg(not(tarpaulin_include))]  // weirdly includes line from [should_panic] tests
 mod tests {
     use super::*;
 

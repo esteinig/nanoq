@@ -267,7 +267,7 @@ impl ReadSet {
             let qsum: f32 = self.read_qualities.iter().sum();
             qsum / self.read_qualities.len() as f32
         } else {
-            0.0
+            f32::NAN
         }
     }
     /// Get the median of read qualities
@@ -289,7 +289,7 @@ impl ReadSet {
                 self.read_qualities[mid]
             }
         } else {
-            0.0
+            f32::NAN
         }
         
     }
@@ -626,9 +626,10 @@ mod tests {
     #[test]
     fn percent_functions_ok() {
         let plength = get_length_percent(3, 4);
-        assert_eq!(plength, 75.0);
         let pqual = get_quality_percent(3, 4);
-        assert_eq!(pqual, 75.0);  
+
+        assert_eq!(plength, 75.0);
+        assert_eq!(pqual, 75.0); 
     }
 
     #[test]
@@ -663,7 +664,6 @@ mod tests {
         read_set_odd.summary(&2, 5).unwrap();
         read_set_odd.summary(&3, 5).unwrap();
 
-
         let error = read_set_odd.summary(&4, 5).unwrap_err();
         assert_eq!(error, UtilityError::InvalidVerbosity("4".to_string()));
 
@@ -676,30 +676,35 @@ mod tests {
             vec![10, 1000], vec![]
         );
 
-        assert_eq!(read_set_noqual.mean_quality(), 0.0);
-        assert_eq!(read_set_noqual.median_quality(), 0.0);
+        assert!(read_set_noqual.mean_quality().is_nan());
+        assert!(read_set_noqual.median_quality().is_nan());
 
         read_set_noqual.print_thresholds();
+        read_set_noqual.print_ranking(3);
+        read_set_noqual.summary(&3, 3).unwrap();
+
     }
 
     #[test]
     fn read_set_methods_empty_ok() {
 
-        
         let mut read_set_none = ReadSet::new(
             vec![], vec![]
         );
         assert_eq!(read_set_none.mean_length(), 0);
         assert_eq!(read_set_none.median_length(), 0);
-        assert_eq!(read_set_none.mean_quality(), 0.0);
-        assert_eq!(read_set_none.median_quality(), 0.0);
+        assert!(read_set_none.mean_quality().is_nan());
+        assert!(read_set_none.median_quality().is_nan());
         assert_eq!(read_set_none.range_length(), [0, 0]);
+
+        read_set_none.print_thresholds();
+        read_set_none.print_ranking(3);
+        read_set_none.summary(&3, 3).unwrap();
     }
 
     #[test]
     fn read_set_methods_one_ok() {
 
-        
         let mut read_set_none = ReadSet::new(
             vec![10], vec![8.0]
         );
@@ -708,6 +713,10 @@ mod tests {
         assert_eq!(read_set_none.mean_quality(), 8.0);
         assert_eq!(read_set_none.median_quality(), 8.0);
         assert_eq!(read_set_none.range_length(), [10, 10]);
+
+        read_set_none.print_thresholds();
+        read_set_none.print_ranking(3);
+        read_set_none.summary(&3, 3).unwrap();
     }
 
 }

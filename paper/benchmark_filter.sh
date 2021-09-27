@@ -77,6 +77,7 @@ done
 # compressed
 for f in /data/*.fq.gz; do 
     for i in {1..11}; do
-        t NanoStat --fastq $f --threads 1 2> benchmark; tail -1 benchmark >> nanostat_stat_fq.gz
+        (t gunzip -c $f| NanoFilt --length 5000 > /dev/null) 2> benchmark 
+        tail -1 benchmark >> nanofilt_filt_fq.gz
     done
 done
