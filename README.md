@@ -4,7 +4,7 @@
 ![](https://img.shields.io/badge/version-0.7.0-purple.svg)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3707754.svg)](https://doi.org/10.5281/zenodo.3707754)
 
-Minimal but speedy quality control for nanopore reads.
+Minimal but ultra-speedy quality control for nanopore reads.
 
 ## Overview
 
@@ -29,23 +29,17 @@ Minimal but speedy quality control for nanopore reads.
 
 #### `Cargo`
 
-If you have [`Rust`](https://www.rust-lang.org/tools/install) and `Cargo` installed:
-
 ```
 cargo install nanoq
 ```
 
 #### `Conda`
 
-Currently on this channel but will be in `BioConda`:
-
 ```
-conda install -c conda-forge -c esteinig nanoq=0.7.0
+conda install -c bioconda nanoq=0.7.0
 ```
 
 #### `Docker`
-
-`Docker` image is based on `Alpine OS` (~ 20 MB)
 
 ```
 docker pull esteinig/nanoq:latest
@@ -53,7 +47,7 @@ docker pull esteinig/nanoq:latest
 
 ## Usage
 
-`Nanoq` accepts a file (`-i / --input`) or stream (`stdin`) of reads in `fast{a,q}.{gz,bz2,xz}` format and outputs reads to file (`-o / --output`) or stream (`stdout`).
+`Nanoq` accepts a file (`-i`) or stream (`stdin`) of reads in `fast{a,q}.{gz,bz2,xz}` format and outputs reads to file (`-o`) or stream (`stdout`).
 
 ```bash
 nanoq -i test1.fq.gz -o test2.fq
@@ -66,26 +60,26 @@ Output compression is inferred from file extensions (`gz`, `bz2`, `lzma`).
 nanoq -i test1.fq -o test2.fq.gz
 ```
 
-Output compression can be specified manually with `-O / --output-type` and `-c / --compress-level`.
+Output compression can be specified manually with `-O` and `-c`.
 
 ```bash
 nanoq -i test1.fq -O g -c 9 -o test2.fq.cmp
 ```
 
-Reads can be filtered by minimum read length (`-l / --min-len`), maximum read length (`-m / --max-len`) or average read quality (`-q / --min-qual`).
+Reads can be filtered by minimum read length (`-l`), maximum read length (`-m`) or average read quality (`-q`).
 
 ```bash
 nanoq -i test.fq -l 1000 -q 10 -m 10000 > reads.fq 
 ```
 
-Read summaries without output can be obtained by directing to `/dev/null` or using the stats flag (`-s / --stats`):
+Read summaries without output can be obtained by directing to `/dev/null` or using the stats flag (`-s`):
 
 ```bash
 nanoq -i test.fq > /dev/null
 nanoq -i test.fq -s
 ```
 
-Read qualities may be excluded from filters and statistics to speed up read iteration in some cases (`-f / --fast`).
+Read qualities may be excluded from filters and statistics to speed up read iteration in some cases (`-f`).
 
 ```bash
 nanoq -i test1.fq.gz -f -s
@@ -141,12 +135,15 @@ A basic read summary is output to `stderr`:
 
 * number of reads
 * number of base pairs
-* read length N50
-* longest and shorted reads
-* mean and median read length
-* mean and median read quality 
+* N50 read length 
+* longest read
+* shorted reads
+* mean read length
+* median read length
+* mean read quality 
+* median read quality
 
-Extended summaries analogous to `NanoStat` can be obtained using multiple `-v / --verbose` flags:
+Extended summaries analogous to `NanoStat` can be obtained using multiple `-v` flags:
 
 ```bash
 nanoq -i test.fq -f -s -vv
@@ -192,7 +189,137 @@ Top ranking read lengths (bp)
 
 ## Benchmarks
 
-TBD
+
+Benchmarks evaluate processing speed and memory consumption of a basic read length filter and summary statistics on the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) (`GridION`) with comparisons to  [`rust-bio-tools`](https://github.com/rust-bio/rust-bio-tools), [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong). Time to completion and maximum memory consumption were measured using `/usr/bin/time -f "%e %M"`, speedup is relative to the slowest command in the set. We note that summary statistics from `rust-bio-tools` do not compute read quality score and are therefore comparable to `nanoq-fast`.
+
+Tasks:
+
+  * `stats`: basic read set summaries
+  * `filter`: minimum read length filter (into `/dev/null`)
+
+Tools:
+
+* `rust-bio-tools=0.28.0`
+* `nanostat=1.5.0` 
+* `nanofilt=2.8.0`
+* `filtlong=0.2.1`
+* `nanoq=0.7.0`
+
+Commands used for `stats` task:
+
+  * `nanostat` (fq + fq.gz)  --> `NanoStat --fastq test.fq --threads 1` 
+  * `nanostat-t8` (fq + fq.gz) --> `NanoStat --fastq test.fq --threads 8` 
+  * `rust-bio` (fq) --> `rbt sequence-stats --fastq < test.fq`
+  * `rust-bio` (fq.gz) --> `zcat test.fq.gz | rbt sequence-stats --fastq`
+  * `nanoq` (fq + fq.gz) --> `nanoq --input test.fq --stats` 
+  * `nanoq-fast` (fq + fq.gz) --> `nanoq --input test.fq --stats --fast` 
+
+Commands used for `filter` task:
+
+  * `filtlong` (fq + fq.gz) --> `filtlong --min_length 5000 test.fq > /dev/null`  
+  * `nanofilt` (fq) --> `NanoFilt --fastq test.fq --length 5000 > /dev/null` 
+  * `nanofilt` (fq.gz) --> `gunzip -c test.fq.gz | NanoFilt --length 5000 > /dev/null` 
+  * `nanoq` (fq + fq.gz) --> `nanoq --input test.fq --min-len 5000 > /dev/null` 
+  * `nanoq-fast` (fq + fq.gz) --> `nanoq --input test.fq --min-len 5000 --fast > /dev/null` 
+
+Files:
+
+  * `zymo.fq`: uncompressed (100,000 reads, ~400 Mbp)
+  * `zymo.fq.gz`: compressed (100,000 reads, ~400 Mbp)
+  * `zymo.full.fq`: uncompressed (3,491,078 reads, ~14 Gbp)
+
+Data preparation:
+
+```bash
+wget "https://nanopore.s3.climb.ac.uk/Zymo-GridION-EVEN-BB-SN.fq.gz"
+zcat Zymo-GridION-EVEN-BB-SN.fq.gz > zymo.full.fq
+head -400000 zymo.full.fq > zymo.fq && gzip -k zymo.fq
+```
+
+Elapsed real time and maximum resident set size:
+
+```bash
+echo '#!/bin/bash \n /usr/bin/time -f "%e %M" $@' > /usr/bin/t
+```
+
+Task and command execution:
+
+Commands were run in replicates of 10 with a mounted benchmark data volume in the provided `Docker` container. An additional cold start iteration for each command was not considered in the final benchmarks. 
+
+```bash
+for i in {1..11}; do
+  for f in /data/*.fq; do 
+    t nanoq -f- s -i $f 2> benchmark
+    tail -1 benchmark >> nanoq_stat_fq
+  done
+done
+```
+
+## Benchmark results
+
+
+![Nanoq benchmarks on 3.5 million reads of the Zymo mock community (10 replicates)](paper/benchmarks_zymo_full.png?raw=true "Nanoq benchmarks" )
+![Nanoq benchmarks on 100,000 reads of the Zymo mock community (10 replicates)](paper/benchmarks_zymo.png?raw=true "Nanoq benchmarks" )
+
+### `stats` + `zymo.full.fq`
+
+| command         | mem (sd)         | sec (sd)           |  reads / sec    | speedup |
+| ----------------|------------------|--------------------|-----------------|---------|
+| nanostat        | 741.4 (0.09)     | 1260. (13.9)       | 2,770           | 01.00 x  |
+| nanostat-t8     | 741.4 (0.10)     | 1249. (9.12)       | 2,795           | 01.00 x  |
+| nanoq           | 35.83 (0.06)     | 94.51 (0.43)       | 36,938          | 13.34 x  |
+| rust-bio        | 43.20 (0.08)     | 06.54 (0.05)       | 533,803         | 192.7 x  |
+| nanoq-fast      | **22.18** (0.07) | **02.85** (0.02)   | 1,224,939       | 442.1 x  |
+
+### `stats` + `zymo.fq`
+
+| command         | mem (sd)         | sec (sd)           |  reads / sec    | speedup  |
+| ----------------|------------------|--------------------|-----------------|----------|
+| nanostat        | 79.64 (0.14)     | 36.22 (0.27)       | 2,760           | 01.00 x  |
+| nanostat-t8     | 79.53 (0.24)     | 36.06 (0.34)       | 2,776           | 01.00 x  |
+| nanoq           | 04.26 (0.09)     | 02.69 (0.02)       | 37,147          | 13.46 x  |
+| rust-bio        | 16.61 (0.08)     | 00.22 (0.00)       | 100,000         | 36.23 x  |
+| nanoq-fast      | **03.81** (0.05) | **00.08** (0.00)   | 100,000         | 36.23 x  |
+
+
+### `stats` + `zymo.fq.gz`
+
+| command         | mem (sd)         | sec (sd)           |  reads / sec    | speedup  |
+| ----------------|------------------|--------------------|-----------------|----------|
+| nanostat        | 79.46 (0.22)     | 40.98 (0.31)       | 2,440           | 01.00 x  |
+| nanostat-t8     | 79.43 (0.18)     | 41.01 (0.30)       | 2,438           | 01.00 x  |
+| nanoq           | 04.44 (0.09)     | 05.74 (0.04)       | 17,421          | 07.14 x  |
+| rust-bio        | **01.59** (0.06) | 05.06 (0.04)       | 19,762          | 08.09 x  |
+| nanoq-fast      | 03.95 (0.07)     | **03.15** (0.02)   | 31,746          | 13.01 x  |
+
+
+### `filter` + `zymo.full.fq`
+
+| command         | mb (sd)           | sec (sd)           |  reads / sec    | speedup |
+| ----------------|-------------------|--------------------|-----------------|---------|
+| nanofilt        | 67.47 (0.13)      | 1160. (20.2)       | 3,009           | 01.00 x  |
+| filtlong        | 1516. (5.98)      | 420.6 (4.53)       | 8,360           | 02.78 x  |
+| nanoq           | 11.93 (0.06)      | 94.93 (0.45)       | 36,775          | 12.22 x  |
+| nanoq-fast      | **08.05** (0.05)  | **03.90** (0.30)   | 895,148         | 297.5 x  |
+
+### `filter` + `zymo.fq`
+
+| command         | mb (sd)           | sec (sd)           |  reads / sec    | speedup |
+| ----------------|-------------------|--------------------|-----------------|---------|
+| nanofilt        | 66.29 (0.15)      | 33.01 (0.24)       | 3,029           | 01.00 x  |
+| filtlong        | 274.5 (0.04)      | 08.49 (0.01)       | 11,778          | 03.89 x  |
+| nanoq           | 03.61 (0.04)      | 02.81 (0.28)       | 35,587          | 11.75 x  |
+| nanoq-fast      | **03.26** (0.06)  | **00.12** (0.01)   | 100,000         | 33.01 x  |
+
+### `filter` + `zymo.fq.gz`
+
+| command         | mb (sd)           | sec (sd)           |  reads / sec    | speedup |
+| ----------------|-------------------|--------------------|-----------------|---------|
+| nanofilt        | **01.57** (0.07)  | 33.48 (0.35)       | 2,986           | 01.00 x  |
+| filtlong        | 274.2 (0.04)      | 16.45 (0.09)       | 6,079           | 02.04 x  |
+| nanoq           | 03.68 (0.06)      | 05.77 (0.04)       | 17,331          | 05.80 x  |
+| nanoq-fast      | 03.45 (0.07)      | **03.20** (0.02)   | 31,250          | 10.47 x  |
+
 
 
 ## Dependencies

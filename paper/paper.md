@@ -25,7 +25,7 @@ bibliography: paper.bib
 
 # Summary
 
-Nanopore sequencing is now routinely used in a variety of genomics applications, including whole genome assembly [@human_genome] and real-time infectious disease surveillance [@covid]. One of the first steps in many workflows is to assess the quality of reads and obtain basic summary statistics after basecalling signal data, as well as to filter fragmented or low quality reads. With increasing throughput on scalable nanopore platforms like `GridION` or `PromethION`, fast quality control of sequence reads and the ability to generate summary statistics on-the-fly are required. When computing minimum summary statistics, `Nanoq` is ~2x faster than `rust-bio-tools` (~5 Gbp and >1 million reads per second) and up to ~440x faster than commonly used alternatives. It offers nanopore-specific quality scores, read filtering options, output compression and can be applied to data from the public domain, as part of automated pipelines, in streaming applications, or to quickly check active sequencing runs.
+Nanopore sequencing is now routinely used in a variety of genomics applications, including whole genome assembly [@human_genome] and real-time infectious disease surveillance [@covid]. One of the first steps in many workflows is to assess the quality of reads and to obtain summary statistics, as well as to filter fragmented or low quality reads. With increasing throughput on scalable nanopore platforms like `GridION` or `PromethION`, fast quality control of sequence reads and the ability to generate summary statistics on-the-fly are required. When computing minimum summary statistics, `Nanoq` is ~2x faster than `rust-bio-tools` (~5 Gbp and >1 million reads per second) and up to ~440x faster than commonly used alternatives. It offers nanopore-specific quality scores, read filtering options and output compression. `Nanoq` can be applied to data from the public domain, as part of automated pipelines, in streaming applications, or to rapidly check progress of active sequencing runs.
 
 # Statement of need
 
@@ -148,7 +148,7 @@ done
 
 # Benchmarks
 
-Benchmarks evaluate processing speed and memory consumption of a basic read length filter and summary statistics on the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) [@zymo] (`GridION`) with comparisons to the commonly used tools [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong). Time to completion and maximum memory consumption were measured using `/usr/bin/time -f "%e %M"`, speedup is relative to the slowest command in the set. We note that summary statistics from `rust-bio-tools` do not compute read quality score and would therefore be comparable to `nanoq-fast`.
+Benchmarks evaluate processing speed and memory consumption of a basic read length filter and summary statistics on the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) [@zymo] (`GridION`) with comparisons to [`rust-bio-tools`](https://github.com/rust-bio/rust-bio-tools), [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong). Time to completion and maximum memory consumption were measured using `/usr/bin/time -f "%e %M"`, speedup is relative to the slowest command in the set. We note that summary statistics from `rust-bio-tools` do not compute read quality score and are therefore comparable to `nanoq-fast`.
 
 Tasks:
 
@@ -208,7 +208,7 @@ Commands were run in replicates of 10 with a mounted benchmark data volume in th
 for i in {1..11}; do
   for f in /data/*.fq; do 
     t nanoq -f- s -i $f 2> benchmark
-    tail -1 benchmark >> rbt_stat_fq
+    tail -1 benchmark >> nanoq_stat_fq
   done
 done
 ```
@@ -218,8 +218,6 @@ done
 
 ![Nanoq benchmarks on 3.5 million reads of the Zymo mock community (10 replicates)](benchmarks_zymo_full.png?raw=true "Nanoq benchmarks" )
 ![Nanoq benchmarks on 100,000 reads of the Zymo mock community (10 replicates)](benchmarks_zymo.png?raw=true "Nanoq benchmarks" )
-
-## Benchmark data
 
 ### `stats` + `zymo.full.fq`
 
@@ -293,7 +291,7 @@ done
 
 # Acknowledgements
 
-We would like to thank the `OneCodex` team for developing `needletail` and Michael Hall (@mbhall88) for compression inspiration from [Rasusa](https://github.com/mbhall88/rasusa). ES was funded by Genomics and a grant by HOT NORTH,  the Center for Policy Relevant Infectious Disease Simulation and Mathematical Modelling (NHMRC: #1131932) and Queensland Genomics.
+We would like to thank the `OneCodex` team for developing [`needletail`](htps://github.com/onecodex/needletail) and Michael Hall for code adoption from [Rasusa](https://github.com/mbhall88/rasusa). ES was funded by HOT NORTH and the Center for Policy Relevant Infectious Disease Simulation and Mathematical Modelling (NHMRC: #1131932).
 
 # References
 
