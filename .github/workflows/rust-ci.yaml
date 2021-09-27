@@ -1,8 +1,8 @@
 Based on https://github.com/actions-rs/meta/blob/master/recipes/msrv.md
 
-on: [ push, pull_request ]
-
 name: Rust CI
+
+on: [push, pull_request]
 
 env:
   CARGO_TERM_COLOR: always
@@ -12,7 +12,7 @@ jobs:
     name: Check Rust version ${{ matrix.rust }} on OS ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest ]
+        os: [ubuntu-latest, macos-latest]
         rust:
           - stable
           - 1.53.0
@@ -44,7 +44,7 @@ jobs:
     name: Test Rust version ${{ matrix.rust }} on OS ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ ubuntu-latest, macos-latest ]
+        os: [ubuntu-latest, macos-latest]
         rust:
           - stable
           - 1.53.0
