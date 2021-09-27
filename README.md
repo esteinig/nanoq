@@ -5,7 +5,7 @@
 ![](https://img.shields.io/badge/version-0.7.0-black.svg)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3707754.svg)](https://doi.org/10.5281/zenodo.3707754)
 
-Minimal but ultra-speedy quality control for nanopore reads.
+Ultra-fast quality control and summary reports for nanopore reads
 
 ## Overview
 
@@ -20,11 +20,11 @@ Minimal but ultra-speedy quality control for nanopore reads.
 - [Benchmarks](#benchmarks)
 - [Dependencies](#dependencies)
 - [Etymology](#etymology)
-- [Citing](#citing)
+- [Contributions](#Contributions)
 
 ## Purpose
 
-`Nanoq` implements fast sequence read and quality filtering and produces simple summary reports. Quality scores are computed for basecalls from nanopore sequencing data, as outlined in the [technical documentation](https://community.nanoporetech.com/technical_documents/data-analysis/) or in this [blog post](https://gigabaseorgigabyte.wordpress.com/2017/06/26/averaging-basecall-quality-scores-the-right-way/).
+`Nanoq` implements fast sequence read filtering and produces simple summary reports. Quality scores are computed for basecalls from nanopore sequencing data, as outlined in the [technical documentation](https://community.nanoporetech.com/technical_documents/data-analysis/) or in this [blog post](https://gigabaseorgigabyte.wordpress.com/2017/06/26/averaging-basecall-quality-scores-the-right-way/).
 
 ## Install
 

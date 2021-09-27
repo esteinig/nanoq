@@ -82,7 +82,7 @@ nanoq -i test.fq > /dev/null
 nanoq -i test.fq -s
 ```
 
-Read qualities may be excluded from filters and statistics to speed up read iteration in some cases (`-f`).
+Read qualities may be excluded from filters and statistics to speed up read iteration (`-f`).
 
 ```bash
 nanoq -i test1.fq.gz -f -s
