@@ -614,13 +614,12 @@ mod tests {
         let mut counter = ThresholdCounter::new();
 
         let exp_qual = [8, 7, 6, 5, 4, 3, 2, 1];
-        let actual_qual =
-            counter.quality(&vec![5.0, 7.0, 10.0, 12.0, 15.0, 20.0, 25.0, 30.0, 30.1]);
+        let actual_qual = counter.quality(&[5.0, 7.0, 10.0, 12.0, 15.0, 20.0, 25.0, 30.0, 30.1]);
 
         assert_eq!(actual_qual, exp_qual);
 
         let exp_len = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
-        let actual_len = counter.length(&vec![
+        let actual_len = counter.length(&[
             200, 500, 1000, 2000, 5000, 10000, 30000, 50000, 100000, 1000000, 1000001,
         ]);
 
@@ -629,19 +628,23 @@ mod tests {
 
     #[test]
     fn percent_functions_ok() {
+        use float_eq::float_eq;
+
         let plength = get_length_percent(3, 4);
         let pqual = get_quality_percent(3, 4);
 
-        assert_eq!(plength, 75.0);
-        assert_eq!(pqual, 75.0);
+        float_eq!(plength, 75.0, abs <= f64::EPSILON);
+        float_eq!(pqual, 75.0, abs <= f64::EPSILON);
     }
 
     #[test]
     fn read_set_methods_ok() {
+        use float_eq::float_eq;
+
         let mut read_set_even = ReadSet::new(vec![10, 1000], vec![10.0, 12.0]);
 
         assert_eq!(read_set_even.median_length(), 505);
-        assert_eq!(read_set_even.median_quality(), 11.0);
+        float_eq!(read_set_even.median_quality(), 11.0, abs <= f32::EPSILON);
 
         let mut read_set_odd = ReadSet::new(vec![10, 100, 1000], vec![10.0, 11.0, 12.0]);
 
@@ -651,8 +654,8 @@ mod tests {
         assert_eq!(read_set_odd.mean_length(), 370);
         assert_eq!(read_set_odd.median_length(), 100);
         assert_eq!(read_set_odd.n50(), 1000);
-        assert_eq!(read_set_odd.mean_quality(), 11.0);
-        assert_eq!(read_set_odd.median_quality(), 11.0);
+        float_eq!(read_set_odd.mean_quality(), 11.0, abs <= f32::EPSILON);
+        float_eq!(read_set_odd.median_quality(), 11.0, abs <= f32::EPSILON);
 
         read_set_odd.print_thresholds();
         read_set_odd.print_ranking(3);
@@ -695,11 +698,13 @@ mod tests {
 
     #[test]
     fn read_set_methods_one_ok() {
+        use float_eq::float_eq;
+
         let mut read_set_none = ReadSet::new(vec![10], vec![8.0]);
         assert_eq!(read_set_none.mean_length(), 10);
         assert_eq!(read_set_none.median_length(), 10);
-        assert_eq!(read_set_none.mean_quality(), 8.0);
-        assert_eq!(read_set_none.median_quality(), 8.0);
+        float_eq!(read_set_none.mean_quality(), 8.0, abs <= f32::EPSILON);
+        float_eq!(read_set_none.median_quality(), 8.0, abs <= f32::EPSILON);
         assert_eq!(read_set_none.range_length(), [10, 10]);
 
         read_set_none.print_thresholds();

@@ -219,18 +219,20 @@ mod tests {
 
     #[test]
     fn mean_error_probablity_and_quality_score() {
+        use float_eq::float_eq;
         use needletail::parser::{FastqReader, FastxReader};
+
         let fastq = b"@id\nACGT\n+\nIIII";
 
         let mut reader = FastqReader::new(&fastq[..]);
         let record = reader.next().unwrap().unwrap();
         let qual_bytes = record.qual().unwrap();
 
-        let error_prob = mean_error_probability(&qual_bytes);
+        let error_prob = mean_error_probability(qual_bytes);
         let mean_qual = -10f32 * error_prob.log(10.0);
 
-        assert_eq!(error_prob, 0.0001);
-        assert_eq!(mean_qual, 40.0);
+        float_eq!(error_prob, 0.0001, abs <= f32::EPSILON);
+        float_eq!(mean_qual, 40.0, abs <= f32::EPSILON);
     }
 
     #[test]

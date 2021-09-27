@@ -209,6 +209,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "float_eq"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "aa334a728fecaf0922f5735ede5f27c08fefc7c4e5b04c5efe02a3861b512f2e"
+
+[[package]]
 name = "getrandom"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -301,6 +307,7 @@ dependencies = [
  "anyhow",
  "assert_cmd",
  "clap",
+ "float_eq",
  "indoc",
  "needletail",
  "niffler",
