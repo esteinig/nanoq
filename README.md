@@ -1,7 +1,8 @@
 # nanoq <a href='https://github.com/esteinig'><img src='docs/nanoq.png' align="right" height="270" /></a>
 
-![](https://img.shields.io/badge/lang-rust-black.svg)
-![](https://img.shields.io/badge/version-0.7.0-purple.svg)
+[![build](https://github.com/esteinig/nanoq/actions/workflows/rust-ci.yaml/badge.svg?branch=master)](https://github.com/esteinig/nanoq/actions/workflows/rust-ci.yaml)
+[![codecov](https://codecov.io/gh/esteinig/nanoq/branch/master/graph/badge.svg?token=1X04YD8YOE)](https://codecov.io/gh/esteinig/nanoq)
+![](https://img.shields.io/badge/version-0.7.0-black.svg)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3707754.svg)](https://doi.org/10.5281/zenodo.3707754)
 
 Minimal but ultra-speedy quality control for nanopore reads.
