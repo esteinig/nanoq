@@ -125,7 +125,7 @@ def plot_data(data: pandas.DataFrame) -> None:
     axes1[0][1].title.set_text('Read stats (memory)')
     axes1[1][1].title.set_text('Read filter (memory)')
     
-    fig1.suptitle('Zymo subset (100k reads, 5 Gbp)', fontsize=14, fontweight="bold")
+    fig1.suptitle('Zymo subset (100k reads, 400 Mbp)', fontsize=14, fontweight="bold")
     plt.tight_layout()
     fig1.savefig('benchmarks_zymo.png')
 
