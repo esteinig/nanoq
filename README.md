@@ -24,7 +24,7 @@ Ultra-fast quality control and summary reports for nanopore reads
 
 ## Purpose
 
-`Nanoq` implements fast sequence read filtering and produces simple summary reports. Quality scores are computed for basecalls from nanopore sequencing data, as outlined in the [technical documentation](https://community.nanoporetech.com/technical_documents/data-analysis/) or in this [blog post](https://gigabaseorgigabyte.wordpress.com/2017/06/26/averaging-basecall-quality-scores-the-right-way/).
+`Nanoq` implements fast sequence read filtering and produces simple summary reports. Quality scores are computed for basecalls from nanopore sequencing data, as outlined in the [technical documentation](https://community.nanoporetech.com/technical_documents/data-analysis/) or this [blog post](https://gigabaseorgigabyte.wordpress.com/2017/06/26/averaging-basecall-quality-scores-the-right-way/).
 
 ## Install
 
@@ -32,18 +32,35 @@ Ultra-fast quality control and summary reports for nanopore reads
 
 ```
 cargo install nanoq
+nanoq -h
 ```
 
 #### `Conda`
 
 ```
 conda install -c bioconda nanoq=0.8.0
+nanoq -h
 ```
 
 #### `Docker`
 
 ```
 docker pull esteinig/nanoq:latest
+docker run esteinig/nanoq
+```
+
+#### `Binaries`
+
+Precompiled binaries for Linux and MacOS are attached to the latest release.
+
+```
+VERSION=0.8.0
+RELEASE=nanoq-${VERSION}-x86_64-unknown-linux-musl.tar.gz
+
+wget https://github.com/esteinig/nanoq/releases/download/${VERSION}/${RELEASE}
+tar xf nanoq-${VERSION}-x86_64-unknown-linux-musl.tar.gz
+
+nanoq-${VERSION}-x86_64-unknown-linux-musl/nanoq -h
 ```
 
 ## Usage
