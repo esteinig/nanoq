@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://github.com/esteinig/{{ name }}/archive/{{ version }}.tar.gz
-  sha256: a6548374db1439a6b325c872b5fe94d5fdaffbd10a3c6ede6a335f4c3293fa32
+  sha256: 5debb870f40377b386947db0e43cd4009cb89e04344db86472bbb43b353afe41
 
 build:
   number: 0
