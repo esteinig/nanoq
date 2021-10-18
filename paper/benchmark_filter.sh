@@ -23,7 +23,7 @@ done
 for f in /data/*.fq.gz; do
     for i in {1..11}; do 
         t nanoq --input $f --min-len 5000 --fast > /dev/null 2> benchmark 
-        tail -1 benchmark >> nanoqf_filt_fq.gz
+        tail -1 benchmark >> nanoqf_filt_gz
     done
 done
 
@@ -41,7 +41,7 @@ done
 for f in /data/*.fq.gz; do
     for i in {1..11}; do 
         t nanoq --input $f --min-len 5000 > /dev/null 2> benchmark 
-        tail -1 benchmark >> nanoq_filt_fq.gz
+        tail -1 benchmark >> nanoq_filt_gz
     done
 done
 
@@ -59,7 +59,7 @@ done
 for f in /data/*.fq; do 
     for i in {1..11}; do
         t filtlong --min_length 5000 $f > /dev/null 2> benchmark
-        tail -1 benchmark >> filtlong_filt_fq.gz
+        tail -1 benchmark >> filtlong_filt_gz
     done
 done
 
@@ -78,6 +78,6 @@ done
 for f in /data/*.fq.gz; do 
     for i in {1..11}; do
         (t gunzip -c $f| NanoFilt --length 5000 > /dev/null) 2> benchmark 
-        tail -1 benchmark >> nanofilt_filt_fq.gz
+        tail -1 benchmark >> nanofilt_filt_gz
     done
 done

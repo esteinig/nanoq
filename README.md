@@ -24,7 +24,11 @@ Ultra-fast quality control and summary reports for nanopore reads
 
 ## Purpose
 
-`Nanoq` implements fast sequence read filtering and produces simple summary reports. Quality scores are computed for basecalls from nanopore sequencing data, as outlined in the [technical documentation](https://community.nanoporetech.com/technical_documents/data-analysis/) or this [blog post](https://gigabaseorgigabyte.wordpress.com/2017/06/26/averaging-basecall-quality-scores-the-right-way/).
+`Nanoq` implements fast sequence read filtering and produces simple summary reports. Quality scores are computed for basecalls from nanopore sequencing data, as outlined in the [technical documentation](https://community.nanoporetech.com/technical_documents/data-analysis/) and this [blog post](https://gigabaseorgigabyte.wordpress.com/2017/06/26/averaging-basecall-quality-scores-the-right-way/). 
+
+## Performance
+
+`Nanoq` is about as fast as `seqtk-fqchk` for summary statistics of small uncompressed datasets (+ computes nanopore quality scores) and slightly faster on large uncompressed datasets (~1.5x). In `fast` mode (no quality scores), `nanoq` is faster than `rust-bio-tools` for summary statistics (~2-3x) and faster than commonly used read filtering methods (up to ~450x). Memory consumption is consistent and tends to be lower than alternative tools (~2-5x). 
 
 ## Install
 
@@ -68,20 +72,20 @@ nanoq-${VERSION}-x86_64-unknown-linux-musl/nanoq -h
 `Nanoq` accepts a file (`-i`) or stream (`stdin`) of reads in `fast{a,q}.{gz,bz2,xz}` format and outputs reads to file (`-o`) or stream (`stdout`).
 
 ```bash
-nanoq -i test1.fq.gz -o test2.fq
-cat test1.fq.gz | nanoq > test2.fq
+nanoq -i test.fq.gz -o reads.fq
+cat test.fq.gz | nanoq > reads.fq
 ```
 
 Output compression is inferred from file extensions (`gz`, `bz2`, `lzma`).
 
 ```bash
-nanoq -i test1.fq -o test2.fq.gz
+nanoq -i test.fq -o reads.fq.gz
 ```
 
 Output compression can be specified manually with `-O` and `-c`.
 
 ```bash
-nanoq -i test1.fq -O g -c 9 -o test2.fq.cmp
+nanoq -i test.fq -O g -c 9 -o reads.fq.cmp
 ```
 
 Reads can be filtered by minimum read length (`-l`), maximum read length (`-m`) or average read quality (`-q`).
@@ -97,10 +101,10 @@ nanoq -i test.fq > /dev/null
 nanoq -i test.fq -s
 ```
 
-Read qualities may be excluded from filters and statistics to speed up read iteration in some cases (`-f`).
+Read qualities may be excluded from filters and statistics to speed up read iteration (`-f`).
 
 ```bash
-nanoq -i test1.fq.gz -f -s
+nanoq -i test.fq.gz -f -s
 ```
 
 `Nanoq` can be used to check on active sequencing runs and barcoded samples.
@@ -161,7 +165,7 @@ A basic read summary is output to `stderr`:
 * mean read quality 
 * median read quality
 
-Extended summaries analogous to `NanoStat` can be obtained using multiple `-v` flags:
+Extended summaries analogous to `NanoStat` can be obtained using multiple `-v` flags, including the top (`-t`) read lengths and qualities:
 
 ```bash
 nanoq -i test.fq -f -s -vv
@@ -217,11 +221,12 @@ Tasks:
 
 Tools:
 
-* `rust-bio-tools=0.28.0`
-* `nanostat=1.5.0` 
-* `nanofilt=2.8.0`
-* `filtlong=0.2.1`
-* `nanoq=0.8.2`
+* `rust-bio-tools 0.28.0`
+* `nanostat 1.5.0` 
+* `nanofilt 2.8.0`
+* `filtlong 0.2.1`
+* `seqtk 1.3-r126`
+* `nanoq 0.8.2`
 
 Commands used for `stats` task:
 
@@ -229,6 +234,7 @@ Commands used for `stats` task:
   * `nanostat-t8` (fq + fq.gz) --> `NanoStat --fastq test.fq --threads 8` 
   * `rust-bio` (fq) --> `rbt sequence-stats --fastq < test.fq`
   * `rust-bio` (fq.gz) --> `zcat test.fq.gz | rbt sequence-stats --fastq`
+  * `seqtk-fqchk` (fq + fq.gz) --> `seqtk fqchk`
   * `nanoq` (fq + fq.gz) --> `nanoq --input test.fq --stats` 
   * `nanoq-fast` (fq + fq.gz) --> `nanoq --input test.fq --stats --fast` 
 
@@ -257,7 +263,7 @@ head -400000 zymo.full.fq > zymo.fq && gzip -k zymo.fq
 Elapsed real time and maximum resident set size:
 
 ```bash
-echo '#!/bin/bash \n /usr/bin/time -f "%e %M" $@' > /usr/bin/t
+/usr/bin/time -f "%e %M"
 ```
 
 Task and command execution:
@@ -267,7 +273,7 @@ Commands were run in replicates of 10 with a mounted benchmark data volume in th
 ```bash
 for i in {1..11}; do
   for f in /data/*.fq; do 
-    t nanoq -f- s -i $f 2> benchmark
+    /usr/bin/time -f "%e %M" nanoq -f- s -i $f 2> benchmark
     tail -1 benchmark >> nanoq_stat_fq
   done
 done
@@ -284,6 +290,7 @@ done
 | ----------------|------------------|--------------------|-----------------|----------|
 | nanostat        | 741.4 (0.09)     | 1260. (13.9)       | 2,770           | 01.00 x  |
 | nanostat-t8     | 741.4 (0.10)     | 1249. (9.12)       | 2,795           | 01.00 x  |
+| seqtk-fqchk     | 103.8 (0.14)     | 125.6 (0.02)       | 27,795          | 10.03 x  |
 | nanoq           | 35.83 (0.06)     | 94.51 (0.43)       | 36,938          | 13.34 x  |
 | rust-bio        | 43.20 (0.08)     | 06.54 (0.05)       | 533,803         | 192.7 x  |
 | nanoq-fast      | **22.18** (0.07) | **02.85** (0.02)   | 1,224,939       | 442.1 x  |
@@ -306,6 +313,7 @@ done
 | nanostat        | 79.64 (0.14)     | 36.22 (0.27)       | 2,760           | 01.00 x  |
 | nanostat-t8     | 79.53 (0.24)     | 36.06 (0.34)       | 2,776           | 01.00 x  |
 | nanoq           | 04.26 (0.09)     | 02.69 (0.02)       | 37,147          | 13.46 x  |
+| seqtk-fqchk     | 16.61 (0.07)     | 02.28 (0.05)       | 43,859          | 15.83 x  |
 | rust-bio        | 16.61 (0.08)     | 00.22 (0.00)       | 100,000         | 36.23 x  |
 | nanoq-fast      | **03.81** (0.05) | **00.08** (0.00)   | 100,000         | 36.23 x  |
 
@@ -317,7 +325,8 @@ done
 | nanostat-t8     | 79.43 (0.18)     | 41.01 (0.30)       | 2,438           | 01.00 x  |
 | nanoq           | 04.44 (0.09)     | 05.74 (0.04)       | 17,421          | 07.14 x  |
 | rust-bio        | **01.59** (0.06) | 05.06 (0.04)       | 19,762          | 08.09 x  |
-| nanoq-fast      | 03.95 (0.07)     | **03.15** (0.02)   | 31,746          | 13.01 x  |
+| nanoq-fast      | 03.95 (0.07)     | 03.15 (0.02)       | 31,746          | 13.01 x  |
+| seqtk-fqchk     | 53.09 (0.04)     | **02.29**  (0.06)  | 43,668          | 17.89 x  |
 
 ### `filter` + `zymo.fq`
 
