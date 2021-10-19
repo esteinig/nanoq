@@ -21,7 +21,23 @@ done
 # compressed
 for f in /data/*.fq.gz; do 
     for i in {1..11}; do
-        (t zcat $f | rbt sequence-stats -q) 2> benchmark; tail -1 benchmark >> rbt_stat_fq.gz
+        (t zcat $f | rbt sequence-stats -q) 2> benchmark; tail -1 benchmark >> rbt_stat_gz
+    done
+done
+
+# --> SEQTK FAST <--
+
+# uncompressed
+for f in /data/*.fq; do
+    for i in {1..11}; do 
+        t seqtk fqchk $f 2> benchmark; tail -1 benchmark >> seqtk_stat_fq
+    done
+done
+
+# compressed
+for f in /data/*.fq.gz; do
+    for i in {1..11}; do 
+        t seqtk fqchk $f 2> benchmark; tail -1 benchmark >> seqtk_stat_gz
     done
 done
 
@@ -37,7 +53,7 @@ done
 # compressed
 for f in /data/*.fq.gz; do
     for i in {1..11}; do 
-        t nanoq -f -s -i $f 2> benchmark; tail -1 benchmark >> nanoqf_stat_fq.gz
+        t nanoq -f -s -i $f 2> benchmark; tail -1 benchmark >> nanoqf_stat_gz
     done
 done
 
@@ -53,7 +69,7 @@ done
 # compressed
 for f in /data/*.fq.gz; do
     for i in {1..11}; do 
-        t nanoq -s -i $f 2> benchmark; tail -1 benchmark >> nanoqf_stat_fq.gz
+        t nanoq -s -i $f 2> benchmark; tail -1 benchmark >> nanoqf_stat_gz
     done
 done
 
@@ -69,7 +85,7 @@ done
 # compressed
 for f in /data/*.fq.gz; do 
     for i in {1..11}; do
-        t NanoStat --fastq $f --threads 1 2> benchmark; tail -1 benchmark >> nanostat_stat_fq.gz
+        t NanoStat --fastq $f --threads 1 2> benchmark; tail -1 benchmark >> nanostat_stat_gz
     done
 done
 
@@ -85,6 +101,6 @@ done
 # compressed
 for f in /data/*.fq.gz; do 
     for i in {1..11}; do
-        t NanoStat --fastq $f --threads 8 2> benchmark; tail -1 benchmark >> nanostat_stat_fq.gz
+        t NanoStat --fastq $f --threads 8 2> benchmark; tail -1 benchmark >> nanostat_stat_gz
     done
 done
