@@ -25,7 +25,7 @@ for f in /data/*.fq.gz; do
     done
 done
 
-# --> SEQTK FAST <--
+# --> SEQTK FQCHK <--
 
 # uncompressed
 for f in /data/*.fq; do

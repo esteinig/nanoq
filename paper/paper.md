@@ -25,7 +25,7 @@ bibliography: paper.bib
 
 # Summary
 
-Nanopore sequencing is now routinely used in a variety of genomics applications, including whole genome assembly [@human_genome] and real-time infectious disease surveillance [@covid]. One of the first steps in many workflows is to assess the quality of reads and to obtain summary statistics, as well as to filter fragmented or low quality reads. With increasing throughput on scalable nanopore platforms like `GridION` or `PromethION`, fast quality control of sequence reads and the ability to generate summary statistics on-the-fly are required. Benchmarks indicate that `nanoq` is about as fast as `seqtk fqchk` for small uncompressed data and ~1.5x as fast as `seqtk fqchk` for large uncompressed datasets. Without computing quality scores, `nanoq` is around ~2-3x faster than `rust-bio-tools` for summary statistics and up to ~450x faster than `NanoStats` (> 1.2 million reads per second). In read filtering applications, `nanoq` is faster than other commonly tools (`NanoFilt`, `Filtlong`). Memory consumption is consistent and tends to be lower than alternatives (~3-5x). `Nanoq` offers nanopore-specific quality scores, read filtering options and output compression. it can be applied to data from the public domain, as part of automated pipelines, in streaming applications, or to rapidly check progress of active sequencing runs.
+Nanopore sequencing is now routinely used in a variety of genomics applications, including whole genome assembly [@human_genome] and real-time infectious disease surveillance [@covid]. One of the first steps in many workflows is to assess the quality of reads and to obtain summary statistics, as well as to filter fragmented or low quality reads. With increasing throughput on scalable nanopore platforms like `GridION` or `PromethION`, fast quality control of sequence reads and the ability to generate summary statistics on-the-fly are required. Benchmarks indicate that `nanoq` is as fast as `seqtk` for small datasets (100,000 reads) and ~1.5x as fast for large datasets (3.5 million reads). Without computing quality scores, `nanoq` is around ~2-3x faster than `rust-bio-tools` and `seq-kit stats` for summary statistics, 44x faster than `seqtk` and up to ~450x faster than `NanoStats` (> 1.2 million reads per second). In read filtering applications, `nanoq` is faster than other commonly used tools (`NanoFilt`, `Filtlong`). Memory consumption is consistent and tends to be lower than alternative applications (~5-10x). `Nanoq` offers nanopore-specific quality scores, read filtering options and output compression. It can be applied to data from the public domain, as part of automated pipelines, in streaming applications, or to rapidly check progress of active sequencing runs.
 
 # Statement of need
 
@@ -33,7 +33,7 @@ Nanopore sequencing is now routinely used in a variety of genomics applications,
 
 # Benchmarks
 
-Benchmarks evaluate processing speed and memory consumption of a basic read length filter and summary statistics on the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) [@zymo] (`GridION`) with comparisons to [`seqtk fqchk`](https://github.com/lh3/seqtk), [`rust-bio-tools`](https://github.com/rust-bio/rust-bio-tools), [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong). Time to completion and maximum memory consumption were measured using `/usr/bin/time -f "%e %M"`, speedup is relative to the slowest command in the set. We note that summary statistics from `rust-bio-tools` do not compute read quality score and are therefore comparable to `nanoq-fast`.
+Benchmarks evaluate processing speed and memory consumption of a basic read length filter and summary statistics on the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) [@zymo] (`GridION`) with comparisons to [`seqtk fqchk`](https://github.com/lh3/seqtk), [`seqkit stats`](https://github.com/shenwei356/seqkit), [`rust-bio-tools`](https://github.com/rust-bio/rust-bio-tools), [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong). Time to completion and maximum memory consumption were measured using `/usr/bin/time -f "%e %M"`, speedup is relative to the slowest command in the set. We note that summary statistics from `rust-bio-tools` and `seqkit stats` do not compute read quality scores and are therefore comparable to `nanoq-fast`.
 
 Tasks:
 
@@ -48,12 +48,14 @@ Tools:
 * `filtlong=0.2.1`
 * `seqtk=1.3-r126`
 * `nanoq=0.8.2`
+* `seqkit=2.0.0`
 
 Commands used for `stats` task:
 
   * `nanostat` (fq + fq.gz)  --> `NanoStat --fastq test.fq --threads 1` 
   * `nanostat-t8` (fq + fq.gz) --> `NanoStat --fastq test.fq --threads 8` 
   * `seqtk-fqchk` (fq + fq.gz) --> `seqtk fqchk`
+  * `seqkit-stats` (fq + fq.gz) --> `seqkit stats -j1`
   * `rust-bio` (fq) --> `rbt sequence-stats --fastq < test.fq`
   * `rust-bio` (fq.gz) --> `zcat test.fq.gz | rbt sequence-stats --fastq`
   * `nanoq` (fq + fq.gz) --> `nanoq --input test.fq --stats` 
@@ -104,17 +106,17 @@ done
 
 ![Nanoq benchmarks on 3.5 million reads of the Zymo mock community (10 replicates)](benchmarks_zymo_full.png?raw=true "Nanoq benchmarks full")
 
-**Figure 1**: Nanoq benchmarks on 3.5 million reads of the Zymo mock community (10 replicates)
 
 ### `stats` + `zymo.full.fq`
 
-| command         | mem (sd)         | sec (sd)           |  reads / sec    | speedup  |
-| ----------------|------------------|--------------------|-----------------|----------|
-| nanostat        | 741.4 (0.09)     | 1260. (13.9)       | 2,770           | 01.00 x  |
-| nanostat-t8     | 741.4 (0.10)     | 1249. (9.12)       | 2,795           | 01.00 x  |
-| nanoq           | 35.83 (0.06)     | 94.51 (0.43)       | 36,938          | 13.34 x  |
-| rust-bio        | 43.20 (0.08)     | 06.54 (0.05)       | 533,803         | 192.7 x  |
-| nanoq-fast      | **22.18** (0.07) | **02.85** (0.02)   | 1,224,939       | 442.1 x  |
+| command         | mem (sd)         | sec (sd)           |  reads / sec    | speedup  | quality scores |
+| ----------------|------------------|--------------------|-----------------|----------|----------------|
+| nanostat        | 741.4 (0.09)     | 1260. (13.9)       | 2,770           | 01.00 x  | true           |
+| seqtk-fqchk     | 103.8 (0.04)     | 125.9 (0.15)       | 27,729          | 10.01 x  | true           |
+| seqkit-stats    | **18.68** (3.15) | 125.3 (0.91)       | 27,861          | 10.05 x  | false          |
+| nanoq           | 35.83 (0.06)     | 94.51 (0.43)       | 36,938          | 13.34 x  | true           |
+| rust-bio        | 43.20 (0.08)     | 06.54 (0.05)       | 533,803         | 192.7 x  | false          |
+| nanoq-fast      | 22.18 (0.07)     | **02.85** (0.02)   | 1,224,939       | 442.1 x  | false          |
 
 ### `filter` + `zymo.full.fq`
 
@@ -128,28 +130,28 @@ done
 
 ![Nanoq benchmarks on 100,000 reads of the Zymo mock community (10 replicates)](benchmarks_zymo.png?raw=true "Nanoq benchmarks subset" )
 
-**Figure 2**: Nanoq benchmarks on 100,000 reads of the Zymo mock community (10 replicates)
-
 ### `stats` + `zymo.fq`
 
-| command         | mem (sd)         | sec (sd)           |  reads / sec    | speedup  |
-| ----------------|------------------|--------------------|-----------------|----------|
-| nanostat        | 79.64 (0.14)     | 36.22 (0.27)       | 2,760           | 01.00 x  |
-| nanostat-t8     | 79.53 (0.24)     | 36.06 (0.34)       | 2,776           | 01.00 x  |
-| nanoq           | 04.26 (0.09)     | 02.69 (0.02)       | 37,147          | 13.46 x  |
-| rust-bio        | 16.61 (0.08)     | 00.22 (0.00)       | 100,000         | 36.23 x  |
-| nanoq-fast      | **03.81** (0.05) | **00.08** (0.00)   | 100,000         | 36.23 x  |
+| command         | mem (sd)         | sec (sd)           |  reads / sec    | speedup  | quality scores |
+| ----------------|------------------|--------------------|-----------------|----------|----------------|
+| nanostat        | 79.64 (0.14)     | 36.22 (0.27)       | 2,760           | 01.00 x  | true           |
+| nanoq           | 04.26 (0.09)     | 02.69 (0.02)       | 37,147          | 13.46 x  | true           |
+| seqtk-fqchk     | 53.01 (0.05)     | 02.28 (0.06)       | 43,859          | 15.89 x  | true           |
+| seqkit-stats    | 17.07 (3.03)     | 00.13 (0.00)       | 100,000         | 36.23 x  | false          |
+| rust-bio        | 16.61 (0.08)     | 00.22 (0.00)       | 100,000         | 36.23 x  | false          |
+| nanoq-fast      | **03.81** (0.05) | **00.08** (0.00)   | 100,000         | 36.23 x  | false          |
 
 
 ### `stats` + `zymo.fq.gz`
 
-| command         | mem (sd)         | sec (sd)           |  reads / sec    | speedup  |
-| ----------------|------------------|--------------------|-----------------|----------|
-| nanostat        | 79.46 (0.22)     | 40.98 (0.31)       | 2,440           | 01.00 x  |
-| nanostat-t8     | 79.43 (0.18)     | 41.01 (0.30)       | 2,438           | 01.00 x  |
-| nanoq           | 04.44 (0.09)     | 05.74 (0.04)       | 17,421          | 07.14 x  |
-| rust-bio        | **01.59** (0.06) | 05.06 (0.04)       | 19,762          | 08.09 x  |
-| nanoq-fast      | 03.95 (0.07)     | **03.15** (0.02)   | 31,746          | 13.01 x  |
+| command         | mem (sd)         | sec (sd)           |  reads / sec    | speedup  | quality scores |
+| ----------------|------------------|--------------------|-----------------|----------|----------------|
+| nanostat        | 79.46 (0.22)     | 40.98 (0.31)       | 2,440           | 01.00 x  | true           |
+| nanoq           | 04.44 (0.09)     | 05.74 (0.04)       | 17,421          | 07.14 x  | true           |
+| seqtk-fqchk     | 53.11 (0.05)     | 05.70 (0.08)       | 17,543          | 07.18 x  | true           |
+| rust-bio        | **01.59** (0.06) | 05.06 (0.04)       | 19,762          | 08.09 x  | false          |
+| seqkit-stats    | 20.54 (0.41)     | 04.85 (0.02)       | 20,619          | 08.45 x  | false          |
+| nanoq-fast      | 03.95 (0.07)     | **03.15** (0.02)   | 31,746          | 13.01 x  | false          |
 
 ### `filter` + `zymo.fq`
 

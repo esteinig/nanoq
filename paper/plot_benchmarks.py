@@ -53,6 +53,8 @@ def read_data() -> pandas.DataFrame:
             tool = "rust-bio-tools"
         elif tool == "seqtk":
             tool = "seqtk-fqchk"
+        elif tool == "seqkit":
+            tool = "seqkit-stats"
     
 
         df1 = df.iloc[1:11, :].copy()  # cold start
@@ -90,8 +92,8 @@ def plot_data(data: pandas.DataFrame) -> None:
 
     seaborn.barplot(
         y='time', x='file', hue='tool', data=stats_data, order=['zymo_fq', 'zymo_gz'],
-        ax=axes1[0][0], palette=["#de8f05", "#ece133", "#029e73", "#0173b2", "#56b4e9", "#cc78bc"], 
-        hue_order=["nanostat", "nanostat-t8", "seqtk-fqchk", "nanoq", "nanoq-fast", "rust-bio-tools"]
+        ax=axes1[0][0], palette=["#de8f05", "#029e73", "#0173b2", "#ece133", "#56b4e9", "#cc78bc"], 
+        hue_order=["nanostat", "seqtk-fqchk", "nanoq", "seqkit-stats", "nanoq-fast", "rust-bio-tools"]
     )
     
     seaborn.barplot(
@@ -109,8 +111,8 @@ def plot_data(data: pandas.DataFrame) -> None:
 
     seaborn.barplot(
         y='mem', x='file', hue='tool', data=stats_data, order=['zymo_fq', 'zymo_gz'],
-        ax=axes1[0][1], palette=["#de8f05", "#ece133", "#029e73", "#0173b2", "#56b4e9", "#cc78bc"], 
-        hue_order=["nanostat", "nanostat-t8", "seqtk-fqchk", "nanoq", "nanoq-fast", "rust-bio-tools"]
+        ax=axes1[0][1], palette=["#de8f05", "#029e73", "#0173b2", "#ece133", "#56b4e9", "#cc78bc"], 
+        hue_order=["nanostat", "seqtk-fqchk", "nanoq", "seqkit-stats", "nanoq-fast", "rust-bio-tools"]
     )
     
     seaborn.barplot(
@@ -146,12 +148,12 @@ def plot_data(data: pandas.DataFrame) -> None:
 
 
     seaborn.barplot(
-        y='time', x='tool', data=stats_data, order=["nanostat", "nanostat-t8", "seqtk-fqchk", "nanoq", "nanoq-fast", "rust-bio-tools"],
-        ax=axes2[0][0], palette=["#de8f05", "#ece133",  "#029e73", "#0173b2", "#56b4e9", "#cc78bc"],
+        y='time', x='tool', data=stats_data, order=["nanostat", "seqtk-fqchk", "nanoq", "seqkit-stats", "nanoq-fast", "rust-bio-tools"],
+        ax=axes2[0][0], palette=["#de8f05",  "#029e73", "#0173b2", "#ece133", "#56b4e9", "#cc78bc"],
     )
     
     seaborn.barplot(
-        y='time', x='tool', data=filter_data, order=["nanofilt", "filtlong", "nanoq", "nanoq-fast"],
+        y='time', x='tool', data=filter_data, order=["nanofilt", "filtlong",  "nanoq", "nanoq-fast"],
         ax=axes2[1][0], palette=["#de8f05", "#029e73",  "#0173b2", "#56b4e9"],
     )
 
@@ -164,8 +166,8 @@ def plot_data(data: pandas.DataFrame) -> None:
 
 
     seaborn.barplot(
-        y='mem', x='tool', data=stats_data, order=["nanostat", "nanostat-t8", "seqtk-fqchk", "nanoq", "nanoq-fast", "rust-bio-tools"],
-        ax=axes2[0][1], palette=["#de8f05", "#ece133", "#029e73", "#0173b2", "#56b4e9", "#cc78bc"],
+        y='mem', x='tool', data=stats_data, order=["nanostat", "seqtk-fqchk", "nanoq", "seqkit-stats", "nanoq-fast", "rust-bio-tools"],
+        ax=axes2[0][1], palette=["#de8f05", "#029e73", "#0173b2", "#ece133", "#56b4e9", "#cc78bc"],
     )
     
     seaborn.barplot(
