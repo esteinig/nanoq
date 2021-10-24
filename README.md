@@ -28,7 +28,15 @@ Ultra-fast quality control and summary reports for nanopore reads
 
 ## Performance
 
-`Nanoq` is as fast as `seqtk-fqchk` for summary statistics of small datasets (+ computes nanopore quality scores) and slightly faster on large datasets (~1.5x). In `fast` mode (no quality scores), `nanoq` is faster than `rust-bio-tools` and `seqkit stats` for summary statistics (~2-3x) and faster than other commonly used read filtering methods (up to ~450x). Memory consumption is consistent and tends to be lower than alternative tools (~5-10x). 
+`Nanoq` is as fast as `seqtk-fqchk` for summary statistics of small datasets (+ computes nanopore quality scores) and slightly faster on large datasets (1.3x - 1.5x). In `fast` mode (no quality scores), `nanoq` is faster than `rust-bio-tools` and `seqkit stats` for summary statistics (~2-3x) and faster than other commonly used read filtering methods (up to ~450x). Memory consumption is consistent and tends to be lower than alternative tools (~5-10x). 
+
+## Tests
+
+`Nanoq` comes with high test coverage for your peace of mind:
+
+```
+cargo test
+```
 
 ## Install
 
@@ -44,13 +52,6 @@ nanoq -h
 ```
 conda install -c bioconda nanoq=0.8.2
 nanoq -h
-```
-
-#### `Docker`
-
-```
-docker pull esteinig/nanoq:latest
-docker run esteinig/nanoq
 ```
 
 #### `Binaries`
