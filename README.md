@@ -32,7 +32,7 @@ Ultra-fast quality control and summary reports for nanopore reads
 
 ## Tests
 
-`Nanoq` comes with high test coverage for your peace of mind:
+`Nanoq` comes with high test coverage for your peace of mind.
 
 ```
 cargo test
