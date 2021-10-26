@@ -28,7 +28,7 @@ Ultra-fast quality control and summary reports for nanopore reads
 
 ## Performance
 
-`Nanoq` is as fast as `seqtk-fqchk` for summary statistics of small datasets (+ computes nanopore quality scores) and slightly faster on large datasets (1.3x - 1.5x). In `fast` mode (no quality scores), `nanoq` is faster than `rust-bio-tools` and `seqkit stats` for summary statistics (~2-3x) and faster than other commonly used read filtering methods (up to ~450x). Memory consumption is consistent and tends to be lower than alternative tools (~5-10x). 
+`Nanoq` is as fast as `seqtk-fqchk` for summary statistics of small datasets (100,000 reads, + computes nanopore quality scores) and slightly faster on large datasets (3.5 million reads, 1.3x - 1.5x). In `fast` mode (no quality scores), `nanoq` is (~2-3x) faster than `rust-bio-tools` and `seqkit stats` for summary statistics and faster than other commonly used summary (up to 442x) and read filtering methods (up to 297x). Memory consumption is consistent and tends to be lower than other tools (~5-10x). 
 
 ## Tests
 
