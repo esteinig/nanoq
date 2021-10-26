@@ -120,7 +120,7 @@ done
 
 ### `filter` + `zymo.full.fq`
 
-| command         | mb (sd)           | sec (sd)           |  reads / sec    | speedup  |
+| command         | mem (sd)           | sec (sd)           |  reads / sec    | speedup  |
 | ----------------|-------------------|--------------------|-----------------|----------|
 | nanofilt        | 67.47 (0.13)      | 1160. (20.2)       | 3,009           | 01.00 x  |
 | filtlong        | 1516. (5.98)      | 420.6 (4.53)       | 8,360           | 02.78 x  |
@@ -155,7 +155,7 @@ done
 
 ### `filter` + `zymo.fq`
 
-| command         | mb (sd)           | sec (sd)           |  reads / sec    | speedup  |
+| command         | mem (sd)           | sec (sd)           |  reads / sec    | speedup  |
 | ----------------|-------------------|--------------------|-----------------|----------|
 | nanofilt        | 66.29 (0.15)      | 33.01 (0.24)       | 3,029           | 01.00 x  |
 | filtlong        | 274.5 (0.04)      | 08.49 (0.01)       | 11,778          | 03.89 x  |
@@ -164,7 +164,7 @@ done
 
 ### `filter` + `zymo.fq.gz`
 
-| command         | mb (sd)           | sec (sd)           |  reads / sec    | speedup  |
+| command         | mem (sd)           | sec (sd)           |  reads / sec    | speedup  |
 | ----------------|-------------------|--------------------|-----------------|----------|
 | nanofilt        | **01.57** (0.07)  | 33.48 (0.35)       | 2,986           | 01.00 x  |
 | filtlong        | 274.2 (0.04)      | 16.45 (0.09)       | 6,079           | 02.04 x  |

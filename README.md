@@ -288,7 +288,7 @@ done
 
 ### `stats` + `zymo.full.fq`
 
-| command         | mem (sd)         | sec (sd)           |  reads / sec    | speedup  | quality scores |
+| command         | mb (sd)         | sec (sd)           |  reads / sec    | speedup  | quality scores |
 | ----------------|------------------|--------------------|-----------------|----------|----------------|
 | nanostat        | 741.4 (0.09)     | 1260. (13.9)       | 2,770           | 01.00 x  | true           |
 | seqtk-fqchk     | 103.8 (0.04)     | 125.9 (0.15)       | 27,729          | 10.01 x  | true           |
@@ -311,7 +311,7 @@ done
 
 ### `stats` + `zymo.fq`
 
-| command         | mem (sd)         | sec (sd)           |  reads / sec    | speedup  | quality scores |
+| command         | mb (sd)         | sec (sd)           |  reads / sec    | speedup  | quality scores |
 | ----------------|------------------|--------------------|-----------------|----------|----------------|
 | nanostat        | 79.64 (0.14)     | 36.22 (0.27)       | 2,760           | 01.00 x  | true           |
 | nanoq           | 04.26 (0.09)     | 02.69 (0.02)       | 37,147          | 13.46 x  | true           |
@@ -323,7 +323,7 @@ done
 
 ### `stats` + `zymo.fq.gz`
 
-| command         | mem (sd)         | sec (sd)           |  reads / sec    | speedup  | quality scores |
+| command         | mb (sd)         | sec (sd)           |  reads / sec    | speedup  | quality scores |
 | ----------------|------------------|--------------------|-----------------|----------|----------------|
 | nanostat        | 79.46 (0.22)     | 40.98 (0.31)       | 2,440           | 01.00 x  | true           |
 | nanoq           | 04.44 (0.09)     | 05.74 (0.04)       | 17,421          | 07.14 x  | true           |
