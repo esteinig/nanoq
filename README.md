@@ -213,7 +213,7 @@ Top ranking read lengths (bp)
 ## Benchmarks
 
 
-Benchmarks evaluate processing speed and memory consumption of a basic read length filter and summary statistics on the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) (`GridION`) with comparisons to [`rust-bio-tools`](https://github.com/rust-bio/rust-bio-tools), [`seqtk fqchk`](https://github.com/lh3/seqtk), [`seqkit stats`](https://github.com/shenwei356/seqkit), [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong). Time to completion and maximum memory consumption were measured using `/usr/bin/time -f "%e %M"`, speedup is relative to the slowest command in the set. We note that summary statistics from `rust-bio-tools` and `seqkit stats` do not compute read quality score and are therefore comparable to `nanoq-fast`.
+Benchmarks evaluate processing speed and memory consumption of a basic read length filter and summary statistics on the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) (`GridION`) with comparisons to [`rust-bio-tools`](https://github.com/rust-bio/rust-bio-tools), [`seqtk fqchk`](https://github.com/lh3/seqtk), [`seqkit stats`](https://github.com/shenwei356/seqkit), [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong). Time to completion and maximum memory consumption were measured using `/usr/bin/time -f "%e %M"`, speedup is relative to the slowest command in the set. We note that summary statistics from `rust-bio-tools` and `seqkit stats` do not compute read quality scores and are therefore comparable to `nanoq-fast`.
 
 Tasks:
 
