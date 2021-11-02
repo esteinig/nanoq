@@ -183,7 +183,7 @@ done
 
 # Acknowledgements
 
-We would like to thank the `OneCodex` team for developing [`needletail`](htps://github.com/onecodex/needletail), Luiz Irber and Pierre Marijon for developing [`niffler`](https://github.com/luizirber/niffler) and Michael Hall for code adoption from [Rasusa](https://github.com/mbhall88/rasusa). ES was funded by HOT NORTH and the Center for Policy Relevant Infectious Disease Simulation and Mathematical Modelling (NHMRC: #1131932).
+We would like to thank the `OneCodex` team for developing [`needletail`](htps://github.com/onecodex/needletail), Luiz Irber and Pierre Marijon for developing [`niffler`](https://github.com/luizirber/niffler) and Michael Hall for code adoption from [Rasusa](https://github.com/mbhall88/rasusa). ES was funded by HOT NORTH and the Center for Policy Relevant Infectious Disease Simulation and Mathematical Modelling (NHMRC: #1131932). LC was funded by a NHMRC grant (NHMRC: GNT1195743).
 
 # References
 
