@@ -1,23 +1,10 @@
-FROM rust:1.54 AS builder
+FROM alpine:latest
 
-COPY . /nanoq
+ENV VERSION=0.8.2
+ENV RELEASE=nanoq-${VERSION}-x86_64-unknown-linux-musl.tar.gz
 
-WORKDIR /nanoq
-
-ARG TARGET="x86_64-unknown-linux-musl"
-
-RUN apt update \
-    && apt install -y musl-tools \
-    && rustup target add "$TARGET" \
-    && cargo build --release --target "$TARGET" \
-    && strip target/${TARGET}/release/nanoq
-
-
-FROM bash:5.0
-
-ARG TARGET="x86_64-unknown-linux-musl"
-COPY --from=builder /nanoq/target/${TARGET}/release/nanoq /bin/
-
-RUN nanoq --version
-
-ENTRYPOINT [ "/bin/bash", "-l", "-c" ]
+RUN apk update && apk add --no-cache wget
+RUN wget https://github.com/esteinig/nanoq/releases/download/${VERSION}/${RELEASE} && \
+    tar xf nanoq-${VERSION}-x86_64-unknown-linux-musl.tar.gz && \ 
+    mv nanoq-${VERSION}-x86_64-unknown-linux-musl/nanoq /bin  && \
+    rm -rf nanoq-${VERSION}-x86_64-unknown-linux-musl.tar.gz nanoq-${VERSION}-x86_64-unknown-linux-musl
