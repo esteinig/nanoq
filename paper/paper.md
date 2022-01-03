@@ -19,21 +19,21 @@ authors:
 affiliations:
   - name: The Peter Doherty Institute for Infection and Immunity, The University of Melbourne, Australia
     index: 1
-date: 18 October 2021
+date: 29 Novemeber 2021
 bibliography: paper.bib
 ---
 
 # Summary
 
-Nanopore sequencing is now routinely used in a variety of genomics applications, including whole genome assembly [@human_genome] and real-time infectious disease surveillance [@covid]. One of the first steps in many workflows is to assess the quality of reads and to obtain summary statistics, as well as to filter fragmented or low quality reads. With increasing throughput on scalable nanopore platforms like `GridION` or `PromethION`, fast quality control of sequence reads and the ability to generate summary statistics on-the-fly are required. Benchmarks indicate that `nanoq` is as fast as `seqtk` for small datasets (100,000 reads) and ~1.5x as fast for large datasets (3.5 million reads). Without quality scores, computing summary statistics is around ~2-3x faster than `rust-bio-tools` and `seq-kit stats`, 44x faster than `seqtk` and up to ~450x faster than `NanoStats` (> 1.2 million reads per second). In read filtering applications, `nanoq` is considerably faster than other commonly used tools (`NanoFilt`, `Filtlong`). Memory consumption is consistent and tends to be lower than other applications (~5-10x). `Nanoq` offers nanopore-specific quality scores, read filtering options and output compression. It can be applied to data from the public domain, as part of automated pipelines, in streaming applications, or to rapidly check progress of active sequencing runs.
+Nanopore sequencing is now routinely used in a variety of genomics applications, including whole genome assembly [@human_genome] and real-time infectious disease surveillance [@covid]. One of the first steps in many workflows is to assess the quality of reads, obtain summary statistics, and filter fragmented or low quality reads. With increasing throughput on scalable nanopore platforms like `GridION` or `PromethION`, fast quality control of sequence reads and the ability to generate summary statistics on-the-fly are required. Benchmarks indicate that `nanoq` is as fast as `seqtk` for small datasets (100,000 reads) and ~1.5x as fast for large datasets (3.5 million reads). Without quality scores, computing summary statistics is around ~2-3x faster than `rust-bio-tools` and `seq-kit stats`, 44x faster than `seqtk`, and up to ~450x faster than `NanoStats` (> 1.2 million reads per second). In read filtering applications, `nanoq` is considerably faster than other commonly used tools (`NanoFilt`, `Filtlong`). Memory consumption is consistent and tends to be lower than other applications (~5-10x). `Nanoq` offers nanopore-specific quality scores, read filtering options, and output compression. It can be applied to data from the public domain, as part of automated pipelines, in streaming applications, or to rapidly check progress of active sequencing runs.
 
 # Statement of need
 
- [`NanoPack`](https://github.com/wdecoster/nanopack) (`biopython`) [@nanopack], [`Filtlong`](https://github.com/rrwick/Filtlong) ([`Klib`](https://github.com/attractivechaos/klib)) and [`MinIONQC`](https://github.com/roblanf/minion_qc/blob/master/README.md) (basecalling summary) [@minionqc] are common tools used to filter and obtain summary statistics from nanopore reads. However, their performance may be bottlenecked at read iteration (`NanoPack`, `Filtlong`), they may not immediately applicable due to reliance on basecalling summary files (`MinIONQC`) or implement more complex filters and data visualization for research applications (`NanoFilt`, `Filtlong`). We wrote `nanoq` to accelerate quality control and summary statistics for large nanopore data sets.
+ [`NanoPack`](https://github.com/wdecoster/nanopack) (`biopython`) [@nanopack], [`Filtlong`](https://github.com/rrwick/Filtlong) ([`Klib`](https://github.com/attractivechaos/klib)) and [`MinIONQC`](https://github.com/roblanf/minion_qc/blob/master/README.md) (basecalling summary) [@minionqc] are common tools used to filter and obtain summary statistics from nanopore reads. However, their performance may be bottlenecked at read iteration (`NanoPack`, `Filtlong`), they may not immediately be applicable due to reliance on basecalling summary files (`MinIONQC`), or implement more complex filters and data visualization for research applications (`NanoFilt`, `Filtlong`). We wrote `nanoq` to accelerate quality control and summary statistics for large nanopore data sets.
 
 # Benchmarks
 
-Benchmarks evaluate processing speed and memory consumption of a basic read length filter and summary statistics on the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) [@zymo] (`GridION`) with comparisons to [`seqtk fqchk`](https://github.com/lh3/seqtk), [`seqkit stats`](https://github.com/shenwei356/seqkit) [@seqkit], [`rust-bio-tools`](https://github.com/rust-bio/rust-bio-tools)[@rustbio], [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) [@nanopack] and [`Filtlong`](https://github.com/rrwick/Filtlong). Time to completion and maximum memory consumption were measured using `/usr/bin/time -f "%e %M"`, speedup is relative to the slowest command in the set. We note that summary statistics from `rust-bio-tools` and `seqkit stats` do not compute read quality scores and are therefore comparable to `nanoq-fast`.
+Benchmarks evaluate processing speed and memory consumption of a basic read length filter and summary statistics on the [Zymo mock community](https://github.com/LomanLab/mockcommunity) [@zymo] (`GridION`) with comparisons to [`seqtk fqchk`](https://github.com/lh3/seqtk), [`seqkit stats`](https://github.com/shenwei356/seqkit) [@seqkit], [`rust-bio-tools`](https://github.com/rust-bio/rust-bio-tools)[@rustbio], [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) [@nanopack] and [`Filtlong`](https://github.com/rrwick/Filtlong). Time to completion and maximum memory consumption were measured using `/usr/bin/time -f "%e %M"`, speedup is relative to the slowest command in the set. We note that summary statistics from `rust-bio-tools` and `seqkit stats` do not compute read quality scores and are therefore comparable to `nanoq-fast`.
 
 Tasks:
 
@@ -128,7 +128,7 @@ done
 | nanoq-fast      | **08.05** (0.05)  | **03.90** (0.30)   | 895,148         | 297.5 x  |
 
 
-![Nanoq benchmarks on 100,000 reads of the Zymo mock community (10 replicates)](benchmarks_zymo.png?raw=true "Nanoq benchmarks subset" )
+![Nanoq benchmarks on 100,000 reads of the Zymo mock community (10 replicates)](benchmarks_zymo.png?raw=true "Nanoq benchmarks subset")
 
 ### `stats` + `zymo.fq`
 
@@ -183,7 +183,7 @@ done
 
 # Acknowledgements
 
-We would like to thank the `OneCodex` team for developing [`needletail`](htps://github.com/onecodex/needletail), Luiz Irber and Pierre Marijon for developing [`niffler`](https://github.com/luizirber/niffler) and Michael Hall for code adoption from [Rasusa](https://github.com/mbhall88/rasusa). ES was funded by HOT NORTH and the Center for Policy Relevant Infectious Disease Simulation and Mathematical Modelling (NHMRC: #1131932). LC was funded by a NHMRC grant (NHMRC: GNT1195743).
+We would like to thank the `OneCodex` team for developing [`needletail`](htps://github.com/onecodex/needletail), Luiz Irber and Pierre Marijon for developing [`niffler`](https://github.com/luizirber/niffler), and Michael Hall for code adoption from [Rasusa](https://github.com/mbhall88/rasusa). ES was funded by HOT NORTH and the Center for Policy Relevant Infectious Disease Simulation and Mathematical Modelling (NHMRC: #1131932). LC was funded by a NHMRC grant (NHMRC: GNT1195743).
 
 # References
 

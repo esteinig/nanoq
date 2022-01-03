@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-ENV VERSION=0.8.2
+ENV VERSION=0.8.4
 ENV RELEASE=nanoq-${VERSION}-x86_64-unknown-linux-musl.tar.gz
 
 RUN apk update && apk add --no-cache wget

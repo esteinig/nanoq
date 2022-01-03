@@ -2,14 +2,14 @@
 
 [![build](https://github.com/esteinig/nanoq/actions/workflows/rust-ci.yaml/badge.svg?branch=master)](https://github.com/esteinig/nanoq/actions/workflows/rust-ci.yaml)
 [![codecov](https://codecov.io/gh/esteinig/nanoq/branch/master/graph/badge.svg?token=1X04YD8YOE)](https://codecov.io/gh/esteinig/nanoq)
-![](https://img.shields.io/badge/version-0.8.2-black.svg)
+![](https://img.shields.io/badge/version-0.8.4-black.svg)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3707754.svg)](https://doi.org/10.5281/zenodo.3707754)
 
 Ultra-fast quality control and summary reports for nanopore reads
 
 ## Overview
 
-**`v0.8.2`**
+**`v0.8.4`**
 
 - [Purpose](#purpose)
 - [Install](#install)
@@ -50,7 +50,7 @@ nanoq -h
 #### `Conda`
 
 ```
-conda install -c bioconda nanoq=0.8.2
+conda install -c bioconda nanoq=0.8.4
 nanoq -h
 ```
 
@@ -59,7 +59,7 @@ nanoq -h
 Precompiled binaries for Linux and MacOS are attached to the latest release.
 
 ```
-VERSION=0.8.2
+VERSION=0.8.4
 RELEASE=nanoq-${VERSION}-x86_64-unknown-linux-musl.tar.gz
 
 wget https://github.com/esteinig/nanoq/releases/download/${VERSION}/${RELEASE}
@@ -123,7 +123,7 @@ done
 ### Parameters
 
 ```
-nanoq 0.8.2
+nanoq 0.8.4
 
 Read filters and summary reports for nanopore data
 

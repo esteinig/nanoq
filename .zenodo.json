@@ -1,0 +1,17 @@
+{
+    "description": "Nanoq publication", 
+    "license": "MIT", 
+    "title": "Nanoq: ultra-fast quality control for nanopore reads",
+    "creators": [
+        {   
+            "orcid": "0000-0001-5399-5353",
+            "affiliation": "The Peter Doherty Institute for Infection and Immunity", 
+            "name": "Eike Steinig"
+        }, 
+        {   
+            "orcid": "0000-0002-4300-455X",
+            "affiliation": "The Peter Doherty Institute for Infection and Immunity", 
+            "name": "Lachlan Coin"
+        }
+    ]
+}
