@@ -3,7 +3,7 @@
 [![build](https://github.com/esteinig/nanoq/actions/workflows/rust-ci.yaml/badge.svg?branch=master)](https://github.com/esteinig/nanoq/actions/workflows/rust-ci.yaml)
 [![codecov](https://codecov.io/gh/esteinig/nanoq/branch/master/graph/badge.svg?token=1X04YD8YOE)](https://codecov.io/gh/esteinig/nanoq)
 ![](https://img.shields.io/badge/version-0.8.4-black.svg)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3707754.svg)](https://doi.org/10.5281/zenodo.3707754)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.02991/status.svg)](https://doi.org/10.21105/joss.02991)
 
 Ultra-fast quality control and summary reports for nanopore reads
 
@@ -25,6 +25,25 @@ Ultra-fast quality control and summary reports for nanopore reads
 ## Purpose
 
 `Nanoq` implements ultra-fast read filters and summary reports. Quality scores are computed for basecalls from nanopore sequencing data, as outlined in the [technical documentation](https://community.nanoporetech.com/technical_documents/data-analysis/) and this [blog post](https://gigabaseorgigabyte.wordpress.com/2017/06/26/averaging-basecall-quality-scores-the-right-way/). 
+
+## Citation
+
+`Nanoq` is now [published in JOSS](https://doi.org/10.21105/joss.02991). We would appreciate a citation if you are using `nanoq` for research. If you are using `nanoq` in industry, please see [here](#etymology) for some suggestions how you could give back to the community :pray:
+
+```bibtex
+@article{Steinig2022,
+  doi = {10.21105/joss.02991},
+  url = {https://doi.org/10.21105/joss.02991},
+  year = {2022},
+  publisher = {The Open Journal},
+  volume = {7},
+  number = {69},
+  pages = {2991},
+  author = {Eike Steinig and Lachlan Coin},
+  title = {Nanoq: ultra-fast quality control for nanopore reads},
+  journal = {Journal of Open Source Software}
+}
+```
 
 ## Performance
 
