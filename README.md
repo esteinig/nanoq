@@ -63,14 +63,14 @@ cargo test
 
 ```
 cargo install nanoq
-nanoq -h
 ```
 
 #### `Conda`
 
+Explicit version (for some reason defaults to old version)
+
 ```
-conda install -c bioconda nanoq=0.8.4
-nanoq -h
+conda install -c conda-forge -c bioconda nanoq=0.8.4
 ```
 
 #### `Binaries`
