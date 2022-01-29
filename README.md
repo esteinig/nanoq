@@ -14,17 +14,16 @@ Ultra-fast quality control and summary reports for nanopore reads
 - [Purpose](#purpose)
 - [Install](#install)
 - [Usage](#usage)
-  - [Command line](#command-line)
   - [Parameters](#parameters)
   - [Output](#output)
 - [Benchmarks](#benchmarks)
 - [Dependencies](#dependencies)
 - [Etymology](#etymology)
-- [Contributions](#Contributions)
+- [Contributions](#contributions)
 
 ## Purpose
 
-`Nanoq` implements ultra-fast read filters and summary reports. Mean read quality scores are computed for basecalls from nanopore sequencing data, as outlined in the [technical documentation](https://community.nanoporetech.com/technical_documents/data-analysis/) and this [blog post](https://gigabaseorgigabyte.wordpress.com/2017/06/26/averaging-basecall-quality-scores-the-right-way/). 
+As sequencing throughput increases, so does the time for read summaries and basic quality control. `Nanoq` implements ultra-fast read filters and summary reports. PE Illumina read support (threaded) is planned for the next major release (`0.9.0`).
 
 ## Citation
 
