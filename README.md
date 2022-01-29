@@ -2,14 +2,14 @@
 
 [![build](https://github.com/esteinig/nanoq/actions/workflows/rust-ci.yaml/badge.svg?branch=master)](https://github.com/esteinig/nanoq/actions/workflows/rust-ci.yaml)
 [![codecov](https://codecov.io/gh/esteinig/nanoq/branch/master/graph/badge.svg?token=1X04YD8YOE)](https://codecov.io/gh/esteinig/nanoq)
-![](https://img.shields.io/badge/version-0.8.4-black.svg)
+![](https://img.shields.io/badge/version-0.8.5-black.svg)
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.02991/status.svg)](https://doi.org/10.21105/joss.02991)
 
 Ultra-fast quality control and summary reports for nanopore reads
 
 ## Overview
 
-**`v0.8.4`**
+**`v0.8.5`**
 
 - [Purpose](#purpose)
 - [Install](#install)
@@ -72,7 +72,7 @@ cargo install nanoq
 Explicit version (for some reason defaults to old version)
 
 ```
-conda install -c conda-forge -c bioconda nanoq=0.8.4
+conda install -c conda-forge -c bioconda nanoq=0.8.5
 ```
 
 #### `Binaries`
@@ -80,7 +80,7 @@ conda install -c conda-forge -c bioconda nanoq=0.8.4
 Precompiled binaries for Linux and MacOS are attached to the latest release.
 
 ```
-VERSION=0.8.4
+VERSION=0.8.5
 RELEASE=nanoq-${VERSION}-x86_64-unknown-linux-musl.tar.gz
 
 wget https://github.com/esteinig/nanoq/releases/download/${VERSION}/${RELEASE}
@@ -144,7 +144,7 @@ done
 ### Parameters
 
 ```
-nanoq 0.8.4
+nanoq 0.8.5
 
 Read filters and summary reports for nanopore data
 
@@ -152,18 +152,19 @@ USAGE:
     nanoq [FLAGS] [OPTIONS]
 
 FLAGS:
-    -f, --fast       Fast mode, do not consider quality values
+    -f, --fast       Ignore quality values if present
     -h, --help       Prints help information
-    -s, --stats      Statistics only, reads to /dev/null
+    -s, --stats      Summary statistics report
     -V, --version    Prints version information
-    -v, --verbose    Pretty print output statistics
+    -v, --verbose    Verbose output statistics [multiple up to -vvv]
 
 OPTIONS:
     -c, --compress-level <1-9>     Compression level to use if compressing output [default: 6]
     -i, --input <input>            Fast{a,q}.{gz,xz,bz}, stdin if not present
     -m, --max-len <INT>            Maximum read length filter (bp) [default: 0]
+    -w, --max-qual <FLOAT>         Maximum average read quality filter (Q) [default: 0]
     -l, --min-len <INT>            Minimum read length filter (bp) [default: 0]
-    -m, --min-qual <FLOAT>         Minimum average read quality filter (Q) [default: 0]
+    -q, --min-qual <FLOAT>         Minimum average read quality filter (Q) [default: 0]
     -o, --output <output>          Output filepath, stdout if not present
     -O, --output-type <u|b|g|l>    u: uncompressed; b: Bzip2; g: Gzip; l: Lzma
     -t, --top <INT>                Number of top reads in verbose summary [default: 5]

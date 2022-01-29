@@ -96,6 +96,7 @@ impl NeedleCast {
         min_length: u32,
         max_length: u32,
         min_quality: f32,
+        max_quality: f32,
     ) -> Result<(Vec<u32>, Vec<f32>), ParseError> {
         let mut read_lengths: Vec<u32> = vec![];
         let mut read_qualities: Vec<f32> = vec![];
@@ -105,6 +106,9 @@ impl NeedleCast {
         } else {
             max_length
         };
+
+        let max_quality = if max_quality == 0. { 93. } else { max_quality };
+
         while let Some(record) = self.reader.next() {
             let rec = record.expect("failed to parse record");
             let seqlen = rec.num_bases() as u32; // NANOQ READ LENGTH LIMIT: ~ 4.2 x 10e9
@@ -113,7 +117,11 @@ impl NeedleCast {
                 let mean_error_prob = mean_error_probability(qual);
                 let mean_quality: f32 = -10f32 * mean_error_prob.log(10.0);
                 // FASTQ
-                if seqlen >= min_length && seqlen <= max_length && mean_quality >= min_quality {
+                if seqlen >= min_length
+                    && seqlen <= max_length
+                    && mean_quality >= min_quality
+                    && mean_quality <= max_quality
+                {
                     read_lengths.push(seqlen);
                     read_qualities.push(mean_quality);
                     rec.write(&mut self.writer, None)
@@ -241,7 +249,7 @@ mod tests {
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fq", "-o", "/dev/null"]);
         let mut caster = NeedleCast::new(&cli);
-        let (read_lengths, read_quals) = caster.filter(0, 0, 0.0).unwrap();
+        let (read_lengths, read_quals) = caster.filter(0, 0, 0.0, 0.0).unwrap();
 
         assert_eq!(read_lengths, vec![4]);
         assert_eq!(read_quals, vec![40.0]);
@@ -265,7 +273,7 @@ mod tests {
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fa", "-o", "/dev/null"]);
         let mut caster = NeedleCast::new(&cli);
-        let (read_lengths, read_quals) = caster.filter(0, 0, 0.0).unwrap();
+        let (read_lengths, read_quals) = caster.filter(0, 0, 0.0, 0.0).unwrap();
 
         assert_eq!(read_lengths, vec![4]);
         assert_eq!(read_quals, vec![]);
@@ -290,7 +298,7 @@ mod tests {
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_bad1.fa", "-o", "/dev/null"]);
         let mut caster = NeedleCast::new(&cli);
-        caster.filter(0, 0, 0.0).unwrap();
+        caster.filter(0, 0, 0.0, 0.0).unwrap();
     }
 
     #[test]
@@ -300,7 +308,7 @@ mod tests {
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_bad1.fq", "-o", "/dev/null"]);
         let mut caster = NeedleCast::new(&cli);
-        caster.filter(0, 0, 0.0).unwrap();
+        caster.filter(0, 0, 0.0, 0.0).unwrap();
     }
 
     #[test]
@@ -310,7 +318,7 @@ mod tests {
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_bad2.fq", "-o", "/dev/null"]);
         let mut caster = NeedleCast::new(&cli);
-        caster.filter(0, 0, 0.0).unwrap();
+        caster.filter(0, 0, 0.0, 0.0).unwrap();
     }
 
     #[test]

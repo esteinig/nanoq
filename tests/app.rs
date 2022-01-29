@@ -30,7 +30,7 @@ fn output_file_in_nonexistant_dir() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 #[test]
-fn valid_inputs_raises_no_errors() -> Result<(), Box<dyn std::error::Error>> {
+fn valid_inputs_raise_no_errors() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin(env!("CARGO_PKG_NAME"))?;
     cmd.args(vec![
         "-i",

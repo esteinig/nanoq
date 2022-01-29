@@ -26,7 +26,11 @@ pub struct Cli {
     #[structopt(short = "q", long, value_name = "FLOAT", default_value = "0")]
     pub min_qual: f32,
 
-    /// Pretty print output statistics.  
+    /// Maximum average read quality filter (Q).
+    #[structopt(short = "w", long, value_name = "FLOAT", default_value = "0")]
+    pub max_qual: f32,
+
+    /// Verbose output statistics [multiple up to -vvv]  
     #[structopt(
         short,
         long,
@@ -38,7 +42,7 @@ pub struct Cli {
     #[structopt(short, long, value_name = "INT", default_value = "5")]
     pub top: usize,
 
-    /// Statistics only, reads to /dev/null.
+    /// Summary statistics report
     #[structopt(short, long)]
     pub stats: bool,
 
@@ -187,6 +191,17 @@ mod tests {
     #[test]
     fn invalid_min_qual() {
         let passed_args = vec!["nanoq", "-q", "test"];
+        let args: Result<Cli, clap::Error> = Cli::from_iter_safe(passed_args);
+
+        let actual = args.unwrap_err().kind;
+        let expected = clap::ErrorKind::ValueValidation;
+
+        assert_eq!(actual, expected)
+    }
+
+    #[test]
+    fn invalid_max_qual() {
+        let passed_args = vec!["nanoq", "-w", "test"];
         let args: Result<Cli, clap::Error> = Cli::from_iter_safe(passed_args);
 
         let actual = args.unwrap_err().kind;

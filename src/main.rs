@@ -23,7 +23,7 @@ fn main() -> Result<()> {
             .filter_length(cli.min_len, cli.max_len)
             .context("unable to process reads")?,
         false => needle_cast
-            .filter(cli.min_len, cli.max_len, cli.min_qual)
+            .filter(cli.min_len, cli.max_len, cli.min_qual, cli.max_qual)
             .context("unable to process reads")?,
     };
 
