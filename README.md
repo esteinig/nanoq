@@ -23,7 +23,7 @@ Ultra-fast quality control and summary reports for nanopore reads
 
 ## Purpose
 
-As sequencing throughput increases, so does the time for read summaries and basic quality control. `Nanoq` implements ultra-fast read filters and summary reports. PE Illumina read support (threaded) is planned for the next major release (`0.9.0`).
+As sequencing throughput increases, so does the time for read summaries and basic quality control. `Nanoq` implements ultra-fast read filters and summary reports.
 
 ## Citation
 
