@@ -29,21 +29,6 @@ As sequencing throughput increases, so does the time for read summaries and basi
 
 `Nanoq` is now [published in JOSS](https://doi.org/10.21105/joss.02991). We would appreciate a citation if you are using `nanoq` for research. If you are using `nanoq` in industry, please see [here](#etymology) for some suggestions how you could give back to the community :pray:
 
-```bibtex
-@article{Steinig2022,
-  doi = {10.21105/joss.02991},
-  url = {https://doi.org/10.21105/joss.02991},
-  year = {2022},
-  publisher = {The Open Journal},
-  volume = {7},
-  number = {69},
-  pages = {2991},
-  author = {Eike Steinig and Lachlan Coin},
-  title = {Nanoq: ultra-fast quality control for nanopore reads},
-  journal = {Journal of Open Source Software}
-}
-```
-
 > Steinig and Coin (2022). Nanoq: ultra-fast quality control for nanopore reads. Journal of Open Source Software, 7(69), 2991, https://doi.org/10.21105/joss.02991
 
 ## Performance
