@@ -27,13 +27,13 @@ As sequencing throughput increases, so does the time for read summaries and basi
 
 ## Citation
 
-`Nanoq` is now [published in JOSS](https://doi.org/10.21105/joss.02991). We would appreciate a citation if you are using `nanoq` for research. If you are using `nanoq` in industry, please see [here](#etymology) for some suggestions how you could give back to the community :pray:
+`Nanoq` is now published in [JOSS](https://doi.org/10.21105/joss.02991). We would appreciate a citation if you are using `nanoq` for research. If you are using `nanoq` in industry, please see [here](#etymology) for some suggestions how you could give back to the community :pray:
 
 > Steinig and Coin (2022). Nanoq: ultra-fast quality control for nanopore reads. Journal of Open Source Software, 7(69), 2991, https://doi.org/10.21105/joss.02991
 
 ## Performance
 
-`Nanoq` is as fast as `seqtk-fqchk` for summary statistics of small datasets (100,000 reads, + computes nanopore quality scores) and slightly faster on large datasets (3.5 million reads, 1.3x - 1.5x). In `fast` mode (no quality scores), `nanoq` is (~2-3x) faster than `rust-bio-tools` and `seqkit stats` for summary statistics and faster than other commonly used summary (up to 442x) and read filtering methods (up to 297x). Memory consumption is consistent and tends to be lower than other tools (~5-10x). 
+`Nanoq` is as fast as `seqtk-fqchk` for summary statistics of small datasets (100,000 reads, + computes nanopore quality scores) and slightly faster on large datasets (3.5 million reads, 1.3x - 1.5x). In `fast` mode (no quality scores), `nanoq` is (~2-3x) faster than `rust-bio-tools` and `seqkit stats` for summary statistics and faster than other commonly used summary reporters (up to 442x) and read filtering methods (up to 297x). Memory consumption is consistent and tends to be lower than other tools (~5-10x). 
 
 ## Tests
 
