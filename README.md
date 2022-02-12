@@ -23,7 +23,7 @@ Ultra-fast quality control and summary reports for nanopore reads
 
 ## Purpose
 
-As sequencing throughput increases, so does runtime for read summaries and basic quality control. `Nanoq` implements ultra-fast read filters and summary reports.
+`Nanoq` implements ultra-fast read filters and summary reports for high-throughput nanopore reads.
 
 ## Citation
 
