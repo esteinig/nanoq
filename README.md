@@ -113,6 +113,8 @@ Read qualities may be excluded from filters and statistics to speed up read iter
 nanoq -i test.fq.gz -f -s
 ```
 
+> :warning: When using fast mode `-f` read quality scores are not computed
+
 `Nanoq` can be used to check on active sequencing runs and barcoded samples.
 
 ```bash
