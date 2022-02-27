@@ -30,7 +30,7 @@ pub struct Cli {
     #[structopt(short = "w", long, value_name = "FLOAT", default_value = "0")]
     pub max_qual: f32,
 
-    /// Verbose output statistics [multiple up to -vvv]  
+    /// Verbose output statistics [multiple, up to -vvv]  
     #[structopt(
         short,
         long,
@@ -38,11 +38,15 @@ pub struct Cli {
     )]
     pub verbose: u64,
 
+    /// Header for summary output
+    #[structopt(short = "H", long)]
+    pub header: bool,
+
     /// Number of top reads in verbose summary.  
     #[structopt(short, long, value_name = "INT", default_value = "5")]
     pub top: usize,
 
-    /// Summary statistics report
+    /// Summary statistics report.
     #[structopt(short, long)]
     pub stats: bool,
 

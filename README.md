@@ -33,7 +33,7 @@ Ultra-fast quality control and summary reports for nanopore reads
 
 ## Performance
 
-`Nanoq` is as fast as `seqtk-fqchk` for summary statistics of small datasets (100,000 reads, + computes nanopore quality scores) and slightly faster on large datasets (3.5 million reads, 1.3x - 1.5x). In `fast` mode (no quality scores), `nanoq` is (~2-3x) faster than `rust-bio-tools` and `seqkit stats` for summary statistics and faster than other commonly used summary reporters (up to 442x) and read filtering methods (up to 297x). Memory consumption is consistent and tends to be lower than other tools (~5-10x). 
+`Nanoq` is as fast as `seqtk-fqchk` for summary statistics of small datasets (e.g. Zymo - 100,000 reads) and slightly faster on large datasets (e.g. Zymo - 3.5 million reads, 1.3x - 1.5x). In `fast` mode (no quality scores), `nanoq` is (~2-3x) faster than `rust-bio-tools` and `seqkit stats` for summary statistics and faster than other commonly used summary reporters (up to 442x) and read filtering methods (up to 297x). Memory consumption is consistent and tends to be lower than other tools (~5-10x). 
 
 ## Tests
 
@@ -112,6 +112,8 @@ Read qualities may be excluded from filters and statistics to speed up read iter
 ```bash
 nanoq -i test.fq.gz -f -s
 ```
+
+> :warning: When using fast mode `-f` read quality scores are not computed
 
 `Nanoq` can be used to check on active sequencing runs and barcoded samples.
 

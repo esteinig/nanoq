@@ -256,14 +256,66 @@ mod tests {
     }
 
     #[test]
-    fn needlecast_filter_length_fq_ok() {
+    fn needlecast_filter_max_fq_ok() {
         use structopt::StructOpt;
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fq", "-o", "/dev/null"]);
         let mut caster = NeedleCast::new(&cli);
+        let (read_lengths, read_quals) = caster.filter(0, 3, 0.0, 0.0).unwrap();
+
+        assert_eq!(read_lengths, vec![]);
+        assert_eq!(read_quals, vec![]);
+    }
+
+    #[test]
+    fn needlecast_filter_length_fq_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_len.fq", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli);
         let (read_lengths, read_quals) = caster.filter_length(0, 0).unwrap();
 
+        assert_eq!(read_lengths, vec![4, 8]);
+        assert_eq!(read_quals, vec![]);
+    }
+
+    #[test]
+    fn needlecast_filter_length_max_fq_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_len.fq", "-o", "/dev/null"]);
+
+        let mut caster = NeedleCast::new(&cli);
+        let (read_lengths, read_quals) = caster.filter_length(0, 3).unwrap();
+
+        assert_eq!(read_lengths, vec![]);
+        assert_eq!(read_quals, vec![]);
+
+        // NeedleCast struct has to be initiated again to reset filter length parameters
+        let mut caster = NeedleCast::new(&cli);
+        let (read_lengths, read_quals) = caster.filter_length(0, 5).unwrap();
+
         assert_eq!(read_lengths, vec![4]);
+        assert_eq!(read_quals, vec![]);
+    }
+
+    #[test]
+    fn needlecast_filter_length_min_fq_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_len.fq", "-o", "/dev/null"]);
+
+        let mut caster = NeedleCast::new(&cli);
+        let (read_lengths, read_quals) = caster.filter_length(5, 0).unwrap();
+
+        assert_eq!(read_lengths, vec![8]);
+        assert_eq!(read_quals, vec![]);
+
+        // NeedleCast struct has to be initiated again to reset filter length parameters
+        let mut caster = NeedleCast::new(&cli);
+        let (read_lengths, read_quals) = caster.filter_length(4, 0).unwrap();
+
+        assert_eq!(read_lengths, vec![4, 8]);
         assert_eq!(read_quals, vec![]);
     }
 
