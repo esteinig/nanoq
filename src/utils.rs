@@ -722,4 +722,29 @@ mod tests {
         read_set_none.print_ranking(3);
         read_set_none.summary(&3, 3, false).unwrap();
     }
+    // These tests are not testing for the correct stderr output,
+    // does not seem possible with libtest at the moment:
+    //  * https://github.com/rust-lang/rust/issues/42474
+    //  * https://github.com/rust-lang/rust/issues/40298
+    #[test]
+    fn summary_output_ok() {
+        use float_eq::float_eq;
+
+        let mut read_set_none = ReadSet::new(vec![10], vec![8.0]);
+        assert_eq!(read_set_none.mean_length(), 10);
+        assert_eq!(read_set_none.median_length(), 10);
+        float_eq!(read_set_none.mean_quality(), 8.0, abs <= f32::EPSILON);
+        float_eq!(read_set_none.median_quality(), 8.0, abs <= f32::EPSILON);
+        assert_eq!(read_set_none.range_length(), [10, 10]);
+
+        read_set_none.print_thresholds();
+        read_set_none.print_ranking(3);
+        read_set_none.summary(&3, 3, false).unwrap();
+    }
+
+    #[test]
+    fn summary_header_stderr_ok() {
+        let mut read_set_none = ReadSet::new(vec![10], vec![8.0]);
+        read_set_none.summary(&0, 3, true).unwrap();
+    }
 }
