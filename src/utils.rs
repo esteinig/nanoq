@@ -85,13 +85,24 @@ impl ReadSet {
     /// )
     /// read_set.summary(0, 3);
     /// ```
-    pub fn summary(&mut self, verbosity: &u64, top: usize) -> Result<(), UtilityError> {
+    pub fn summary(
+        &mut self,
+        verbosity: &u64,
+        top: usize,
+        header: bool,
+    ) -> Result<(), UtilityError> {
         let length_range = self.range_length();
 
         match verbosity {
             &0 => {
+                let head = match header {
+                    true => "reads bases n50 longest shortest mean_length median_length mean_quality median_quality\n",
+                    false => ""
+                };
+
                 eprintdoc! {
-                    "{reads} {bases} {n50} {longest} {shortest} {mean} {median} {meanq:.1} {medianq:.1}\n",
+                    "{head}{reads} {bases} {n50} {longest} {shortest} {mean} {median} {meanq:.1} {medianq:.1}\n",
+                    head = head,
                     reads = self.reads(),
                     bases = self.bases(),
                     n50 = self.n50(),
@@ -661,12 +672,12 @@ mod tests {
         read_set_odd.print_ranking(3);
         read_set_odd.print_ranking(5);
 
-        read_set_odd.summary(&0, 5).unwrap();
-        read_set_odd.summary(&1, 5).unwrap();
-        read_set_odd.summary(&2, 5).unwrap();
-        read_set_odd.summary(&3, 5).unwrap();
+        read_set_odd.summary(&0, 5, false).unwrap();
+        read_set_odd.summary(&1, 5, false).unwrap();
+        read_set_odd.summary(&2, 5, false).unwrap();
+        read_set_odd.summary(&3, 5, false).unwrap();
 
-        let error = read_set_odd.summary(&4, 5).unwrap_err();
+        let error = read_set_odd.summary(&4, 5, false).unwrap_err();
         assert_eq!(error, UtilityError::InvalidVerbosity("4".to_string()));
     }
 
@@ -679,7 +690,7 @@ mod tests {
 
         read_set_noqual.print_thresholds();
         read_set_noqual.print_ranking(3);
-        read_set_noqual.summary(&3, 3).unwrap();
+        read_set_noqual.summary(&3, 3, false).unwrap();
     }
 
     #[test]
@@ -693,7 +704,7 @@ mod tests {
 
         read_set_none.print_thresholds();
         read_set_none.print_ranking(3);
-        read_set_none.summary(&3, 3).unwrap();
+        read_set_none.summary(&3, 3, false).unwrap();
     }
 
     #[test]
@@ -709,6 +720,6 @@ mod tests {
 
         read_set_none.print_thresholds();
         read_set_none.print_ranking(3);
-        read_set_none.summary(&3, 3).unwrap();
+        read_set_none.summary(&3, 3, false).unwrap();
     }
 }
