@@ -2,14 +2,14 @@
 
 [![build](https://github.com/esteinig/nanoq/actions/workflows/rust-ci.yaml/badge.svg?branch=master)](https://github.com/esteinig/nanoq/actions/workflows/rust-ci.yaml)
 [![codecov](https://codecov.io/gh/esteinig/nanoq/branch/master/graph/badge.svg?token=1X04YD8YOE)](https://codecov.io/gh/esteinig/nanoq)
-![](https://img.shields.io/badge/version-0.8.5-black.svg)
+![](https://img.shields.io/badge/version-0.8.6-black.svg)
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.02991/status.svg)](https://doi.org/10.21105/joss.02991)
 
 Ultra-fast quality control and summary reports for nanopore reads
 
 ## Overview
 
-**`v0.8.5`**
+**`v0.8.6`**
 
 - [Purpose](#purpose)
 - [Install](#install)
@@ -56,7 +56,7 @@ cargo install nanoq
 Explicit version (for some reason defaults to old version)
 
 ```
-conda install -c conda-forge -c bioconda nanoq=0.8.5
+conda install -c conda-forge -c bioconda nanoq=0.8.6
 ```
 
 #### `Binaries`
@@ -64,7 +64,7 @@ conda install -c conda-forge -c bioconda nanoq=0.8.5
 Precompiled binaries for Linux and MacOS are attached to the latest release.
 
 ```
-VERSION=0.8.5
+VERSION=0.8.6
 RELEASE=nanoq-${VERSION}-x86_64-unknown-linux-musl.tar.gz
 
 wget https://github.com/esteinig/nanoq/releases/download/${VERSION}/${RELEASE}
@@ -128,7 +128,7 @@ done
 ### Parameters
 
 ```
-nanoq 0.8.5
+nanoq 0.8.6
 
 Read filters and summary reports for nanopore data
 
@@ -138,6 +138,7 @@ USAGE:
 FLAGS:
     -f, --fast       Ignore quality values if present
     -h, --help       Prints help information
+    -H, --header     Header for summary output
     -s, --stats      Summary statistics report
     -V, --version    Prints version information
     -v, --verbose    Verbose output statistics [multiple up to -vvv]
@@ -171,6 +172,12 @@ A basic read summary is output to `stderr`:
 * median read length
 * mean read quality 
 * median read quality
+
+A machine readable header can be added using the `-H` flag:
+
+```bash
+nanoq -i test.fq -s -H
+```
 
 Extended summaries analogous to `NanoStat` can be obtained using multiple `-v` flags (up to `-vvv`), including the top (`-t`) read lengths and qualities:
 
