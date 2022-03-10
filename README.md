@@ -108,14 +108,13 @@ For report types and configuration see the [output section](#output).
 
 ### Fast mode
 
+> :warning: When using fast mode `-f` read quality scores are not computed (`NaN`)
+
 Read qualities may be excluded from filters and statistics to speed up read iteration (`-f`).
 
 ```bash
 nanoq -i test.fq.gz -f -s
 ```
-
-> :warning: When using fast mode `-f` read quality scores are not computed
-
 
 ### Compression
 
