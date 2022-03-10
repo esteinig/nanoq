@@ -135,7 +135,7 @@ nanoq -i test.fq -O g -c 9 -o reads.fq.cmp
 `Nanoq` can be used to check on active sequencing runs and barcoded samples.
 
 ```bash
-find /data/nanopore/run -name *.fastq -print0 | xargs -0 cat | nanoq -s
+find /data/nanopore/run -name "*.fastq" -print0 | xargs -0 cat | nanoq -s
 ```
 
 ```bash
