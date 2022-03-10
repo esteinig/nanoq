@@ -32,7 +32,7 @@ Ultra-fast quality control and summary reports for nanopore reads
 
 ## Citation
 
-`Nanoq` is now published in [JOSS](https://doi.org/10.21105/joss.02991). We would appreciate a citation if you are using it for research. If you are using it for applications in industry, please see [here](#etymology) for some suggestions how you could give back to the community :pray:
+We would appreciate a citation if you are using `nanoq` for research. Please see [here](#etymology) for some suggestions how you could give back to the community if you are using `nanoq` for industry applications :pray:
 
 > Steinig and Coin (2022). Nanoq: ultra-fast quality control for nanopore reads. Journal of Open Source Software, 7(69), 2991, https://doi.org/10.21105/joss.02991
 
