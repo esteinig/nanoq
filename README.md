@@ -14,6 +14,11 @@ Ultra-fast quality control and summary reports for nanopore reads
 - [Purpose](#purpose)
 - [Install](#install)
 - [Usage](#usage)
+  - [Read filters](#read-filters)
+  - [Read report](#read-report) 
+  - [Fast mode](#fast-mode)
+  - [Compression](#compression)
+  - [Online runs](#online-runs)
   - [Parameters](#parameters)
   - [Output](#output)
 - [Benchmarks](#benchmarks)
@@ -82,6 +87,38 @@ nanoq -i test.fq.gz -o reads.fq
 cat test.fq.gz | nanoq > reads.fq
 ```
 
+### Read filters
+
+Reads can be filtered by minimum read length (`-l`), maximum read length (`-m`), minimum average read quality (`-q`) or maximum average read quality (`-w`).
+
+```bash
+nanoq -i test.fq -l 1000 -m 10000 -q 10 -w 15 > reads.fq 
+```
+
+### Read report
+
+Read summaries without output can be obtained by directing to `/dev/null` or using the stats flag (`-s`):
+
+```bash
+nanoq -i test.fq > /dev/null
+nanoq -i test.fq -s
+```
+
+For report types and configuration see the [output section](#output).
+
+### Fast mode
+
+Read qualities may be excluded from filters and statistics to speed up read iteration (`-f`).
+
+```bash
+nanoq -i test.fq.gz -f -s
+```
+
+> :warning: When using fast mode `-f` read quality scores are not computed
+
+
+### Compression
+
 Output compression is inferred from file extensions (`gz`, `bz2`, `lzma`).
 
 ```bash
@@ -94,26 +131,7 @@ Output compression can be specified manually with `-O` and `-c`.
 nanoq -i test.fq -O g -c 9 -o reads.fq.cmp
 ```
 
-Reads can be filtered by minimum read length (`-l`), maximum read length (`-m`), minimum average read quality (`-q`) or maximum average read quality (`-w`).
-
-```bash
-nanoq -i test.fq -l 1000 -m 10000 -q 10 -w 15 > reads.fq 
-```
-
-Read summaries without output can be obtained by directing to `/dev/null` or using the stats flag (`-s`):
-
-```bash
-nanoq -i test.fq > /dev/null
-nanoq -i test.fq -s
-```
-
-Read qualities may be excluded from filters and statistics to speed up read iteration (`-f`).
-
-```bash
-nanoq -i test.fq.gz -f -s
-```
-
-> :warning: When using fast mode `-f` read quality scores are not computed
+### Online runs
 
 `Nanoq` can be used to check on active sequencing runs and barcoded samples.
 
