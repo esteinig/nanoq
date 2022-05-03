@@ -54,6 +54,10 @@ pub struct Cli {
     #[structopt(short, long)]
     pub report: Option<PathBuf>,
 
+     /// Summary report in JSON
+     #[structopt(short, long)]
+     pub json: bool,
+
     /// Ignore quality values if present.
     #[structopt(short, long)]
     pub fast: bool,

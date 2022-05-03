@@ -28,6 +28,8 @@ needletail = "0.4.1"
 thiserror = "1.0"
 niffler = "2.3"
 float_eq = "0.6.1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 
 [dev-dependencies]
 assert_cmd = "2.0.1"
