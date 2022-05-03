@@ -1,5 +1,5 @@
 use anyhow::Result;
-use indoc::eprintdoc;
+use indoc::formatdoc;
 use std::cmp::Ordering;
 use std::ffi::OsStr;
 use std::path::Path;
@@ -66,7 +66,7 @@ impl ReadSet {
             read_qualities,
         }
     }
-    /// Print a summary of the read set to stderr
+    /// Print a summary of the read set to stdout
     ///
     /// * `verbosity` - detail of summary message
     ///     * 0: standard output without headers
@@ -90,18 +90,20 @@ impl ReadSet {
         verbosity: &u64,
         top: usize,
         header: bool,
+        stats: bool
     ) -> Result<(), UtilityError> {
+
         let length_range = self.range_length();
 
-        match verbosity {
+        let output_string = match verbosity {
             &0 => {
                 let head = match header {
                     true => "reads bases n50 longest shortest mean_length median_length mean_quality median_quality\n",
                     false => ""
                 };
 
-                eprintdoc! {
-                    "{head}{reads} {bases} {n50} {longest} {shortest} {mean} {median} {meanq:.1} {medianq:.1}\n",
+                formatdoc! {
+                    "{head}{reads} {bases} {n50} {longest} {shortest} {mean} {median} {meanq:.1} {medianq:.1}",
                     head = head,
                     reads = self.reads(),
                     bases = self.bases(),
@@ -113,10 +115,9 @@ impl ReadSet {
                     meanq = self.mean_quality(),
                     medianq = self.median_quality(),
                 }
-                Ok(())
             }
             &1 | &2 | &3 => {
-                eprintdoc! {"\n
+                let output_string = formatdoc! {"
                     Nanoq Read Summary
                     ====================
                     
@@ -139,18 +140,31 @@ impl ReadSet {
                     median = self.median_length(),
                     meanq = self.mean_quality(),
                     medianq = self.median_quality(),
-                }
-                if verbosity > &1 {
-                    self.print_thresholds();
-                }
-                if verbosity > &2 {
-                    self.print_ranking(top);
-                }
+                };
 
-                Ok(())
+
+                let output_string = if verbosity > &1 {
+                    self.add_thresholds(output_string)?
+                } else {
+                    output_string
+                };
+
+                let output_string = if verbosity > &2 {
+                    self.add_ranking(top, output_string)?
+                } else {
+                    output_string
+                };
+                output_string
             }
-            _ => Err(UtilityError::InvalidVerbosity(verbosity.to_string())),
+            _ => return Err(UtilityError::InvalidVerbosity(verbosity.to_string()))
+        };
+
+        match stats {
+            true => println!("{}", output_string),
+            false => eprintln!("{}", output_string)
         }
+
+        Ok(())
     }
     /// Get the number of reads
     ///
@@ -306,13 +320,14 @@ impl ReadSet {
     ///
     /// Used internally by the `summary` method. Creates
     /// an instance of the `ThresholdCounter` struct.
-    fn print_thresholds(&self) {
+    fn add_thresholds(&self, mut output_string: String) -> Result<String, UtilityError> {
         let mut thresholds = ThresholdCounter::new();
+        
         let length_thresholds = thresholds.length(&self.read_lengths);
         let quality_thresholds = thresholds.quality(&self.read_qualities);
         let n_reads = self.reads();
 
-        eprintdoc! {"\n
+        let _length_thresholds = formatdoc! {"\n
             Read length thresholds (bp)
             
             > 200       {l200:<12}      {lp200:04.1}%
@@ -346,10 +361,12 @@ impl ReadSet {
             lp50000=get_length_percent(length_thresholds[7], n_reads),
             lp100000=get_length_percent(length_thresholds[8], n_reads),
             lp1000000=get_length_percent(length_thresholds[9], n_reads),
-        }
+        };
 
-        if !self.read_qualities.is_empty() {
-            eprintdoc! {"\n
+        output_string.push_str(&_length_thresholds);
+
+        let output_string = if !self.read_qualities.is_empty() {
+            let _quality_thresholds = formatdoc! {"\n
                 Read quality thresholds (Q)
                 
                 > 5   {q5:<12}  {qp5:04.1}%
@@ -377,15 +394,21 @@ impl ReadSet {
                 qp20=get_quality_percent(quality_thresholds[5], n_reads),
                 qp25=get_quality_percent(quality_thresholds[6], n_reads),
                 qp30=get_quality_percent(quality_thresholds[7], n_reads),
-            }
+            };
+            output_string.push_str(&_quality_thresholds);
+            output_string
         } else {
-            eprintln!("\n");
-        }
+            let _quality_thresholds = String::from("\n");
+            output_string.push_str(&_quality_thresholds);
+            output_string
+        };
+
+        Ok(output_string)
     }
     /// Print top ranking read lengths and qualities to stderr
     ///
     /// Used internally by the summary method.
-    fn print_ranking(&mut self, top: usize) {
+    fn add_ranking(&mut self, top: usize, mut output_string: String) -> Result<String, UtilityError> {
         let max = match (self.reads() as usize) < top {
             true => self.reads() as usize,
             false => top,
@@ -393,21 +416,24 @@ impl ReadSet {
 
         self.read_lengths.sort_unstable();
         self.read_lengths.reverse();
-        eprintln!("Top ranking read lengths (bp)\n");
+        
+        output_string.push_str("Top ranking read lengths (bp)\n");
+
         for i in 0..max {
-            eprintln!("{}. {:<12}", i + 1, self.read_lengths[i]);
+            output_string.push_str(&format!("{}. {:<12}", i + 1, self.read_lengths[i]));
         }
-        eprintln!("\n");
+        output_string.push_str("\n");
 
         if !self.read_qualities.is_empty() {
             self.read_qualities
                 .sort_by(|a, b| b.partial_cmp(a).unwrap());
-            eprintln!("Top ranking read qualities (Q)\n");
+                output_string.push_str("Top ranking read qualities (Q)\n");
             for i in 0..max {
-                eprintln!("{}. {:04.1}", i + 1, self.read_qualities[i]);
+                output_string.push_str(&format!("{}. {:04.1}", i + 1, self.read_qualities[i]));
             }
-            eprintln!("\n");
+            output_string.push_str("\n");
         }
+        Ok(output_string)
     }
 }
 

@@ -30,7 +30,7 @@ fn main() -> Result<()> {
     let mut read_set = ReadSet::new(read_lengths, read_qualities);
 
     read_set
-        .summary(&cli.verbose, cli.top, cli.header)
+        .summary(&cli.verbose, cli.top, cli.header, cli.stats)
         .context("unable to get summary")?;
 
     Ok(())
