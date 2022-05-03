@@ -4,13 +4,19 @@ use std::cmp::Ordering;
 use std::ffi::OsStr;
 use std::path::Path;
 use thiserror::Error;
+use std::path::PathBuf;
+use std::fs::File;
+use std::io::Write;
 
 /// A collection of custom errors relating to the utility components for this package.
-#[derive(Error, Debug, PartialEq)]
+#[derive(Error, Debug)]
 pub enum UtilityError {
     /// Indicates an invalid verbosity for summary output
     #[error("{0} is not a valid level of verbosity")]
     InvalidVerbosity(String),
+    /// Indicates an invalid file operation
+    #[error("Could not open file {0}")]
+    InvalidFileOperation(#[from] std::io::Error)
 }
 
 // Adopted from Michael B. Hall - Rasusa (https://github.com/mbhall88/rasusa)
@@ -90,7 +96,8 @@ impl ReadSet {
         verbosity: &u64,
         top: usize,
         header: bool,
-        stats: bool
+        stats: bool,
+        report: Option<PathBuf>
     ) -> Result<(), UtilityError> {
 
         let length_range = self.range_length();
@@ -159,9 +166,20 @@ impl ReadSet {
             _ => return Err(UtilityError::InvalidVerbosity(verbosity.to_string()))
         };
 
-        match stats {
-            true => println!("{}", output_string),
-            false => eprintln!("{}", output_string)
+
+        match report {
+            Some(file) => {
+                let mut file_handle = File::create(&file)?;
+                write!(file_handle, "{}", &output_string)?;
+            },
+            None => {
+                // If no report file is specified, output the report to 
+                // stdout (--stats) or stderr (with filters)
+                match stats {
+                    true => println!("{}", output_string),
+                    false => eprintln!("{}", output_string)
+                }
+            }
         }
 
         Ok(())
