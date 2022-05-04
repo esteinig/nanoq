@@ -4,7 +4,6 @@ use std::fs::File;
 use std::io::{sink, stdout};
 use std::io::{BufWriter, Write};
 
-
 use crate::cli::Cli;
 use crate::utils::CompressionExt;
 
@@ -280,7 +279,7 @@ mod tests {
         let (read_lengths, read_quals) = caster.filter_length(0, 0).unwrap();
 
         let expected_quality: Vec<f32> = vec![];
-        
+
         assert_eq!(read_lengths, vec![4, 8]);
         assert_eq!(read_quals, expected_quality);
     }
@@ -316,7 +315,7 @@ mod tests {
 
         let mut caster = NeedleCast::new(&cli);
         let (read_lengths, read_quals) = caster.filter_length(5, 0).unwrap();
-        
+
         let expected_quality: Vec<f32> = vec![];
 
         assert_eq!(read_lengths, vec![8]);
@@ -353,7 +352,7 @@ mod tests {
         let (read_lengths, read_quals) = caster.filter_length(0, 0).unwrap();
 
         let expected_quality: Vec<f32> = vec![];
-        
+
         assert_eq!(read_lengths, vec![4]);
         assert_eq!(read_quals, expected_quality);
     }
