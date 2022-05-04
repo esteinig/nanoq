@@ -1,13 +1,18 @@
 use anyhow::Result;
 use indoc::formatdoc;
+use serde::Serialize;
 use std::cmp::Ordering;
+use std::collections::BTreeMap;
 use std::ffi::OsStr;
-use std::path::Path;
-use thiserror::Error;
-use std::path::PathBuf;
 use std::fs::File;
 use std::io::Write;
-use serde::Serialize;
+use std::path::Path;
+use std::path::PathBuf;
+use thiserror::Error;
+
+const LENGTH_THRESHOLDS: [u64; 10] = [200, 500, 1000, 2000, 5000, 10000, 30000, 50000, 100000, 1000000];
+const QUALITY_THRESHOLDS: [u64; 8] = [5, 7, 10, 12, 15, 20, 25, 30];
+
 
 /// A collection of custom errors relating to the utility components for this package.
 #[derive(Error, Debug)]
@@ -20,7 +25,7 @@ pub enum UtilityError {
     InvalidFileOperation(#[from] std::io::Error),
     /// Indicates error in serialization to JSON
     #[error("Could not open file {0}")]
-    InvalidSerialization(#[from] serde_json::Error)
+    InvalidSerialization(#[from] serde_json::Error),
 }
 
 // Adopted from Michael B. Hall - Rasusa (https://github.com/mbhall88/rasusa)
@@ -43,7 +48,6 @@ impl CompressionExt for niffler::compression::Format {
     }
 }
 
-
 #[derive(Serialize)]
 /// Output data for JSON
 pub struct OutputData {
@@ -56,15 +60,19 @@ pub struct OutputData {
     median_length: u32,
     mean_quality: f32,
     median_quality: f32,
-    length_thresholds: Vec<u64>,
-    quality_thresholds: Vec<u64>,
+    length_thresholds: BTreeMap<u64, u64>,
+    quality_thresholds: BTreeMap<u64, u64>,
     top_lengths: Vec<u32>,
-    top_qualities: Vec<f32>
+    top_qualities: Vec<f32>,
 }
 
 impl OutputData {
-    pub fn get_string(&self, verbosity: &u64, header: bool, read_qualities: &Vec<f32>) -> Result<String, UtilityError> {
-
+    pub fn get_string(
+        &self,
+        verbosity: &u64,
+        header: bool,
+        read_qualities: &Vec<f32>,
+    ) -> Result<String, UtilityError> {
         let output_string = match verbosity {
             &0 => {
                 let head = match header {
@@ -112,9 +120,13 @@ impl OutputData {
                     medianq = self.median_quality,
                 };
 
-
                 let output_string = if verbosity > &1 {
-                    self.add_thresholds(output_string, read_qualities, &self.length_thresholds, &self.quality_thresholds)?
+                    self.add_thresholds(
+                        output_string,
+                        read_qualities,
+                        &self.length_thresholds,
+                        &self.quality_thresholds,
+                    )?
                 } else {
                     output_string
                 };
@@ -126,7 +138,7 @@ impl OutputData {
                 };
                 output_string
             }
-            _ => return Err(UtilityError::InvalidVerbosity(verbosity.to_string()))
+            _ => return Err(UtilityError::InvalidVerbosity(verbosity.to_string())),
         };
 
         Ok(output_string)
@@ -134,8 +146,16 @@ impl OutputData {
     /// Add read length and quality thresholds to output string
     ///
     /// Used internally by the `summary` method.
-    fn add_thresholds(&self, mut output_string: String, read_qualities: &Vec<f32>,length_thresholds: &Vec<u64>, quality_thresholds: &Vec<u64>) -> Result<String, UtilityError> {
+    fn add_thresholds(
+        &self,
+        mut output_string: String,
+        read_qualities: &Vec<f32>,
+        length_thresholds: &BTreeMap<u64, u64>,
+        quality_thresholds: &BTreeMap<u64, u64>,
+    ) -> Result<String, UtilityError> {
         let n_reads = self.reads;
+
+        let length_thresholds: Vec<u64> = length_thresholds.values().cloned().collect();
 
         let _length_thresholds = formatdoc! {"
             Read length thresholds (bp)
@@ -176,6 +196,9 @@ impl OutputData {
         output_string.push_str(&_length_thresholds);
 
         let output_string = if !read_qualities.is_empty() {
+
+            let quality_thresholds: Vec<u64> = quality_thresholds.values().cloned().collect();
+
             let _quality_thresholds = formatdoc! {"\n
                 Read quality thresholds (Q)
                 
@@ -218,8 +241,12 @@ impl OutputData {
     /// Print top ranking read lengths and qualities to stderr
     ///
     /// Used internally by the summary method.
-    fn add_ranking(&self, mut output_string: String, top_lengths: &Vec<u32>, top_qualities: &Vec<f32>) -> Result<String, UtilityError> {
-                
+    fn add_ranking(
+        &self,
+        mut output_string: String,
+        top_lengths: &Vec<u32>,
+        top_qualities: &Vec<f32>,
+    ) -> Result<String, UtilityError> {
         output_string.push_str("Top ranking read lengths (bp)\n\n");
 
         for (i, length) in top_lengths.iter().enumerate() {
@@ -229,7 +256,7 @@ impl OutputData {
 
         if !top_qualities.is_empty() {
             output_string.push_str("Top ranking read qualities (Q)\n\n");
-            for (i , quality) in top_qualities.iter().enumerate() {
+            for (i, quality) in top_qualities.iter().enumerate() {
                 output_string.push_str(&format!("{}. {:04.1}\n", i + 1, quality));
             }
             output_string.push_str("\n\n");
@@ -297,11 +324,10 @@ impl ReadSet {
         header: bool,
         stats: bool,
         json: bool,
-        report: Option<PathBuf>
+        report: Option<PathBuf>,
     ) -> Result<(), UtilityError> {
-
         let length_range = self.range_length();
-        
+
         let (length_thresholds, quality_thresholds) = self.get_thresholds();
         let (top_lengths, top_qualities) = self.get_ranking(top);
 
@@ -318,27 +344,27 @@ impl ReadSet {
             length_thresholds: length_thresholds,
             quality_thresholds: quality_thresholds,
             top_lengths: top_lengths,
-            top_qualities: top_qualities
+            top_qualities: top_qualities,
         };
 
         let output_string = output_data.get_string(verbosity, header, &self.read_qualities)?;
 
         let output_string = match json {
-            true => serde_json::to_string(&output_data)?,
-            false => output_string
+            true => serde_json::to_string_pretty(&output_data)?,
+            false => output_string,
         };
 
         match report {
             Some(file) => {
                 let mut file_handle = File::create(&file)?;
                 write!(file_handle, "{}", &output_string)?;
-            },
+            }
             None => {
-                // If no report file is specified, output the report to 
-                // stdout (--stats) or stderr (with filters)
+                // If no report file is specified, output the report to
+                // stdout (--stats) or stderr (no --stats)
                 match stats {
                     true => println!("{}", output_string),
-                    false => eprintln!("{}", output_string)
+                    false => eprintln!("{}", output_string),
                 }
             }
         }
@@ -346,10 +372,10 @@ impl ReadSet {
         Ok(())
     }
     // Get read length and quality thresholds
-    pub fn get_thresholds(&self) -> (Vec<u64>, Vec<u64>) {
+    pub fn get_thresholds(&self) -> (BTreeMap<u64, u64>, BTreeMap<u64, u64>) {
         let mut thresholds = ThresholdCounter::new();
-        let length_thresholds = thresholds.length(&self.read_lengths).to_vec();
-        let quality_thresholds = thresholds.quality(&self.read_qualities).to_vec();
+        let length_thresholds = thresholds.length(&self.read_lengths);
+        let quality_thresholds = thresholds.quality(&self.read_qualities);
         (length_thresholds, quality_thresholds)
     }
     // Get the top ranking read lengths and mean read qualities
@@ -368,7 +394,8 @@ impl ReadSet {
 
         let mut top_qualities = Vec::new();
         if !self.read_qualities.is_empty() {
-            self.read_qualities.sort_by(|a, b| b.partial_cmp(a).unwrap());
+            self.read_qualities
+                .sort_by(|a, b| b.partial_cmp(a).unwrap());
             for i in 0..max {
                 top_qualities.push(self.read_qualities[i]);
             }
@@ -603,7 +630,7 @@ impl ThresholdCounter {
     /// let actual = counter.quality(&vec![5.0, 7.0, 10.0]);
     /// assert_eq!(actual, expected);
     /// ```
-    fn quality(&mut self, read_qualities: &[f32]) -> [u64; 8] {
+    fn quality(&mut self, read_qualities: &[f32]) -> BTreeMap<u64, u64> {
         for q in read_qualities.iter() {
             if q > &5.0 {
                 self.q5 += 1
@@ -630,9 +657,12 @@ impl ThresholdCounter {
                 self.q30 += 1
             }
         }
-        [
+        let read_counts = [
             self.q5, self.q7, self.q10, self.q12, self.q15, self.q20, self.q25, self.q30,
-        ]
+        ];
+
+        QUALITY_THRESHOLDS.iter().map(|x|*x).zip(read_counts.iter().map(|x|*x)).collect()
+
     }
     /// Get read length threshold counts
     ///
@@ -651,7 +681,7 @@ impl ThresholdCounter {
     /// let actual = counter.length(&vec![200, 500, 1000]);
     /// assert_eq!(actual, expected);
     /// ```
-    fn length(&mut self, read_lengths: &[u32]) -> [u64; 10] {
+    fn length(&mut self, read_lengths: &[u32]) -> BTreeMap<u64, u64> {
         for l in read_lengths.iter() {
             if l > &200 {
                 self.l200 += 1
@@ -684,7 +714,7 @@ impl ThresholdCounter {
                 self.l1000000 += 1
             }
         }
-        [
+        let read_counts = [
             self.l200,
             self.l500,
             self.l1000,
@@ -695,7 +725,10 @@ impl ThresholdCounter {
             self.l50000,
             self.l100000,
             self.l1000000,
-        ]
+        ];
+
+        LENGTH_THRESHOLDS.iter().map(|x|*x).zip(read_counts.iter().map(|x|*x)).collect()
+
     }
 }
 
@@ -712,6 +745,7 @@ fn get_quality_percent(number: u64, n_reads: u64) -> f64 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::env::temp_dir;
 
     #[test]
     fn compression_format_from_path() {
@@ -739,13 +773,12 @@ mod tests {
     #[test]
     fn threshold_counter_methods_ok() {
         let mut counter = ThresholdCounter::new();
-
-        let exp_qual = [8, 7, 6, 5, 4, 3, 2, 1];
+        let exp_qual = BTreeMap::from([(5, 8), (7, 7), (10, 6), (12, 5), (15, 4), (20, 3), (25, 2), (30, 1)]);
         let actual_qual = counter.quality(&[5.0, 7.0, 10.0, 12.0, 15.0, 20.0, 25.0, 30.0, 30.1]);
 
         assert_eq!(actual_qual, exp_qual);
 
-        let exp_len = [10, 9, 8, 7, 6, 5, 4, 3, 2, 1];
+        let exp_len = BTreeMap::from([(200, 10), (500, 9), (1000, 8), (2000, 7), (5000, 6), (10000, 5), (30000, 4), (50000, 3), (100000, 2), (1000000, 1)]);
         let actual_len = counter.length(&[
             200, 500, 1000, 2000, 5000, 10000, 30000, 50000, 100000, 1000000, 1000001,
         ]);
@@ -765,7 +798,7 @@ mod tests {
     }
 
     #[test]
-    fn read_set_methods_ok() {
+    fn read_set_summary_verbosity_ok() {
         use float_eq::float_eq;
 
         let mut read_set_even = ReadSet::new(vec![10, 1000], vec![10.0, 12.0]);
@@ -784,17 +817,21 @@ mod tests {
         float_eq!(read_set_odd.mean_quality(), 11.0, abs <= f32::EPSILON);
         float_eq!(read_set_odd.median_quality(), 11.0, abs <= f32::EPSILON);
 
-        read_set_odd.print_thresholds();
-        read_set_odd.print_ranking(3);
-        read_set_odd.print_ranking(5);
+        read_set_odd.summary(&0, 5, false, false, false, None).unwrap();
+        read_set_odd.summary(&1, 5, false, false, false, None).unwrap();
+        read_set_odd.summary(&2, 5, false, false, false, None).unwrap();
+        read_set_odd.summary(&3, 5, false, false, false, None).unwrap();
 
-        read_set_odd.summary(&0, 5, false).unwrap();
-        read_set_odd.summary(&1, 5, false).unwrap();
-        read_set_odd.summary(&2, 5, false).unwrap();
-        read_set_odd.summary(&3, 5, false).unwrap();
+    }
 
-        let error = read_set_odd.summary(&4, 5, false, false, None).unwrap_err();
-        assert_eq!(error, UtilityError);
+    #[test]
+    #[should_panic]
+    fn read_set_summary_verbosity_fail() {
+
+        let mut read_set_odd = ReadSet::new(vec![10, 100, 1000], vec![10.0, 11.0, 12.0]);
+
+        read_set_odd.summary(&4, 5, false, false, false, None).unwrap();
+        
     }
 
     #[test]
@@ -804,9 +841,7 @@ mod tests {
         assert!(read_set_noqual.mean_quality().is_nan());
         assert!(read_set_noqual.median_quality().is_nan());
 
-        read_set_noqual.print_thresholds();
-        read_set_noqual.print_ranking(3);
-        read_set_noqual.summary(&3, 3, false).unwrap();
+        read_set_noqual.summary(&3, 5, false, false, false, None).unwrap();
     }
 
     #[test]
@@ -818,9 +853,7 @@ mod tests {
         assert!(read_set_none.median_quality().is_nan());
         assert_eq!(read_set_none.range_length(), [0, 0]);
 
-        read_set_none.print_thresholds();
-        read_set_none.print_ranking(3);
-        read_set_none.summary(&3, 3, false).unwrap();
+        read_set_none.summary(&3, 5, false, false, false, None).unwrap();
     }
 
     #[test]
@@ -834,14 +867,8 @@ mod tests {
         float_eq!(read_set_none.median_quality(), 8.0, abs <= f32::EPSILON);
         assert_eq!(read_set_none.range_length(), [10, 10]);
 
-        read_set_none.print_thresholds();
-        read_set_none.print_ranking(3);
-        read_set_none.summary(&3, 3, false).unwrap();
+        read_set_none.summary(&3, 5, false, false, false, None).unwrap();
     }
-    // These tests are not testing for the correct stderr output,
-    // does not seem possible with libtest at the moment:
-    //  * https://github.com/rust-lang/rust/issues/42474
-    //  * https://github.com/rust-lang/rust/issues/40298
     #[test]
     fn summary_output_ok() {
         use float_eq::float_eq;
@@ -853,14 +880,28 @@ mod tests {
         float_eq!(read_set_none.median_quality(), 8.0, abs <= f32::EPSILON);
         assert_eq!(read_set_none.range_length(), [10, 10]);
 
-        read_set_none.print_thresholds();
-        read_set_none.print_ranking(3);
-        read_set_none.summary(&3, 3, false).unwrap();
+        read_set_none.summary(&3, 5, false, false, false, None).unwrap();
     }
-
     #[test]
     fn summary_header_stderr_ok() {
         let mut read_set_none = ReadSet::new(vec![10], vec![8.0]);
-        read_set_none.summary(&0, 3, true).unwrap();
+        read_set_none.summary(&0, 3, true, false, false, None).unwrap();
+    }
+    #[test]
+    fn summary_json_ok() {
+        let mut read_set_none = ReadSet::new(vec![10], vec![8.0]);
+        read_set_none.summary(&0, 3, true, false, true, None).unwrap();
+    }
+    #[test]
+    fn summary_report_file_ok() {
+        let mut read_set_none = ReadSet::new(vec![10], vec![8.0]);
+
+        let sink_file = PathBuf::from("/dev/null");
+        read_set_none.summary(&0, 3, true, false, true, Some(sink_file)).unwrap();
+    }
+    #[test]
+    fn summary_report_stats_ok() {
+        let mut read_set_none = ReadSet::new(vec![10], vec![8.0]);
+        read_set_none.summary(&0, 1, true, true, true, None).unwrap();
     }
 }
