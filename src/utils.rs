@@ -348,19 +348,21 @@ impl ReadSet {
 
         let output_string = output_data.get_string(verbosity, header, &self.read_qualities)?;
 
-        let output_string = match json {
-            true => serde_json::to_string_pretty(&output_data)?,
-            false => output_string,
-        };
-
         match report {
-            Some(file) => {
-                let mut file_handle = File::create(&file)?;
-                write!(file_handle, "{}", &output_string)?;
-            }
+            Some(file) => match json {
+                true => serde_json::to_writer(File::create(&file)?, &output_data)?,
+                false => {
+                    let mut file_handle = File::create(&file)?;
+                    write!(file_handle, "{}", &output_string)?;
+                }
+            },
             None => {
                 // If no report file is specified, output the report to
                 // stdout (--stats) or stderr (no --stats)
+                let output_string = match json {
+                    true => serde_json::to_string_pretty(&output_data)?,
+                    false => output_string,
+                };
                 match stats {
                     true => println!("{}", output_string),
                     false => eprintln!("{}", output_string),
@@ -936,12 +938,21 @@ mod tests {
             .unwrap();
     }
     #[test]
-    fn summary_report_file_ok() {
+    fn summary_report_file_json_ok() {
         let mut read_set_none = ReadSet::new(vec![10], vec![8.0]);
 
         let sink_file = PathBuf::from("/dev/null");
         read_set_none
             .summary(&0, 3, true, false, true, Some(sink_file))
+            .unwrap();
+    }
+    #[test]
+    fn summary_report_file_report_ok() {
+        let mut read_set_none = ReadSet::new(vec![10], vec![8.0]);
+
+        let sink_file = PathBuf::from("/dev/null");
+        read_set_none
+            .summary(&0, 3, true, false, false, Some(sink_file))
             .unwrap();
     }
     #[test]
@@ -951,4 +962,5 @@ mod tests {
             .summary(&0, 1, true, true, true, None)
             .unwrap();
     }
+    
 }
