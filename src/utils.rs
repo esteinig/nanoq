@@ -962,5 +962,4 @@ mod tests {
             .summary(&0, 1, true, true, true, None)
             .unwrap();
     }
-    
 }
