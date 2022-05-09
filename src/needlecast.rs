@@ -128,7 +128,7 @@ impl NeedleCast {
                         .expect("failed to write fastq record");
                 }
             } else {
-                // FASTA filter
+                // FASTA
                 if seqlen >= min_length && seqlen <= max_length {
                     read_lengths.push(seqlen);
                     rec.write(&mut self.writer, None)
@@ -263,8 +263,11 @@ mod tests {
         let mut caster = NeedleCast::new(&cli);
         let (read_lengths, read_quals) = caster.filter(0, 3, 0.0, 0.0).unwrap();
 
-        assert_eq!(read_lengths, vec![]);
-        assert_eq!(read_quals, vec![]);
+        let expected_length: Vec<u32> = vec![];
+        let expected_quality: Vec<f32> = vec![];
+
+        assert_eq!(read_lengths, expected_length);
+        assert_eq!(read_quals, expected_quality);
     }
 
     #[test]
@@ -275,8 +278,10 @@ mod tests {
         let mut caster = NeedleCast::new(&cli);
         let (read_lengths, read_quals) = caster.filter_length(0, 0).unwrap();
 
+        let expected_quality: Vec<f32> = vec![];
+
         assert_eq!(read_lengths, vec![4, 8]);
-        assert_eq!(read_quals, vec![]);
+        assert_eq!(read_quals, expected_quality);
     }
 
     #[test]
@@ -288,15 +293,18 @@ mod tests {
         let mut caster = NeedleCast::new(&cli);
         let (read_lengths, read_quals) = caster.filter_length(0, 3).unwrap();
 
-        assert_eq!(read_lengths, vec![]);
-        assert_eq!(read_quals, vec![]);
+        let expected_length: Vec<u32> = vec![];
+        let expected_quality: Vec<f32> = vec![];
+
+        assert_eq!(read_lengths, expected_length);
+        assert_eq!(read_quals, expected_quality);
 
         // NeedleCast struct has to be initiated again to reset filter length parameters
         let mut caster = NeedleCast::new(&cli);
         let (read_lengths, read_quals) = caster.filter_length(0, 5).unwrap();
 
         assert_eq!(read_lengths, vec![4]);
-        assert_eq!(read_quals, vec![]);
+        assert_eq!(read_quals, expected_quality);
     }
 
     #[test]
@@ -308,15 +316,17 @@ mod tests {
         let mut caster = NeedleCast::new(&cli);
         let (read_lengths, read_quals) = caster.filter_length(5, 0).unwrap();
 
+        let expected_quality: Vec<f32> = vec![];
+
         assert_eq!(read_lengths, vec![8]);
-        assert_eq!(read_quals, vec![]);
+        assert_eq!(read_quals, expected_quality);
 
         // NeedleCast struct has to be initiated again to reset filter length parameters
         let mut caster = NeedleCast::new(&cli);
         let (read_lengths, read_quals) = caster.filter_length(4, 0).unwrap();
 
         assert_eq!(read_lengths, vec![4, 8]);
-        assert_eq!(read_quals, vec![]);
+        assert_eq!(read_quals, expected_quality);
     }
 
     #[test]
@@ -327,8 +337,10 @@ mod tests {
         let mut caster = NeedleCast::new(&cli);
         let (read_lengths, read_quals) = caster.filter(0, 0, 0.0, 0.0).unwrap();
 
+        let expected_quality: Vec<f32> = vec![];
+
         assert_eq!(read_lengths, vec![4]);
-        assert_eq!(read_quals, vec![]);
+        assert_eq!(read_quals, expected_quality);
     }
 
     #[test]
@@ -339,8 +351,10 @@ mod tests {
         let mut caster = NeedleCast::new(&cli);
         let (read_lengths, read_quals) = caster.filter_length(0, 0).unwrap();
 
+        let expected_quality: Vec<f32> = vec![];
+
         assert_eq!(read_lengths, vec![4]);
-        assert_eq!(read_quals, vec![]);
+        assert_eq!(read_quals, expected_quality);
     }
 
     #[test]

@@ -1,6 +1,6 @@
 [package]
 name = "nanoq"
-version = "0.8.6"
+version = "0.9.0"
 authors = ["esteinig <eike.steinig@unimelb.edu.au>", "ljmcoin <lachlan.coin@unimelb.edu.au>"]
 description = "Minimal but speedy quality control and summaries of nanopore reads"
 documentation = "https://github.com/esteinig/nanoq"
@@ -28,6 +28,8 @@ needletail = "0.4.1"
 thiserror = "1.0"
 niffler = "2.3"
 float_eq = "0.6.1"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 
 [dev-dependencies]
 assert_cmd = "2.0.1"
