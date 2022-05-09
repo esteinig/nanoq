@@ -358,14 +358,14 @@ impl ReadSet {
             },
             None => {
                 // If no report file is specified, output the report to
-                // stdout (--stats) or stderr (no --stats)
+                // stdout with the --stats flag
                 let output_string = match json {
                     true => serde_json::to_string_pretty(&output_data)?,
                     false => output_string,
                 };
                 match stats {
                     true => println!("{}", output_string),
-                    false => eprintln!("{}", output_string),
+                    false => {} // do not output when not using --stats or --report
                 }
             }
         }

@@ -46,15 +46,15 @@ pub struct Cli {
     #[structopt(short, long, value_name = "INT", default_value = "5")]
     pub top: usize,
 
-    /// Summary read statistics report.
+    /// Summary report only [stdout].
     #[structopt(short, long)]
     pub stats: bool,
 
-    /// Summary read statistics report output file.
+    /// Summary report output file.
     #[structopt(short, long)]
     pub report: Option<PathBuf>,
 
-    /// Summary report in JSON
+    /// Summary report in JSON format.
     #[structopt(short, long)]
     pub json: bool,
 

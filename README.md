@@ -97,18 +97,18 @@ nanoq -i test.fq -l 1000 -m 10000 -q 10 -w 15 > reads.fq
 
 ### Read report
 
-Read summaries without output can be obtained by directing to `/dev/null` or using the stats flag (`-s`):
+Read summaries are produced when using the stats flag (`-s`, report to `stdout`, no read output to `stdout`) or when specifying a report file (`-r`):
 
 ```bash
-nanoq -i test.fq > /dev/null
 nanoq -i test.fq -s
+nanoq -i test.fq -r report.txt > reads.fq
 ```
 
 For report types and configuration see the [output section](#output).
 
 ### Fast mode
 
-> :warning: When using fast mode `-f` read quality scores are not computed (`NaN`)
+> :warning: When using fast mode `-f` read quality scores are not computed (output of quality fields: `NaN`)
 
 Read qualities may be excluded from filters and statistics to speed up read iteration (`-f`).
 
@@ -127,7 +127,7 @@ nanoq -i test.fq -o reads.fq.gz
 Output compression can be specified manually with `-O` and `-c`.
 
 ```bash
-nanoq -i test.fq -O g -c 9 -o reads.fq.cmp
+nanoq -i test.fq -O g -c 9 -o reads.fq.gz
 ```
 
 ### Online runs
@@ -158,10 +158,10 @@ FLAGS:
     -f, --fast       Ignore quality values if present
     -h, --help       Prints help information
     -H, --header     Header for summary output
-    -j, --json       Summary report in JSON
-    -s, --stats      Summary statistics report
+    -j, --json       Summary report in JSON format
+    -s, --stats      Summary report only [stdout]
     -V, --version    Prints version information
-    -v, --verbose    Verbose output statistics [multiple up to -vvv]
+    -v, --verbose    Verbose output statistics [multiple, up to -vvv]
 
 OPTIONS:
     -c, --compress-level <1-9>     Compression level to use if compressing output [default: 6]
@@ -178,23 +178,17 @@ OPTIONS:
 
 ### Output
 
-A basic read summary is output to `stderr`:
-
-```bash
-nanoq -i test.fq > reads.fq 2> report.txt
-```
-
-When using the `--stats/-s` flag the summary is output to `stdout`: 
-
-```bash
-nanoq -i test.fq -s > report.txt
-```
-
-Summary reports can also be output to a file explicitly (instead of `stderr/stdout`) using the `--report/-r` option:
+Summary reports are output to file explicitly using `--report/-r`:
 
 ```bash
 nanoq -i test.fq -r report.txt > reads.fq
 nanoq -i test.fq -r report.txt -s
+```
+
+When using the `--stats/-s` flag read output is suppressed and summary is directed to `stdout`: 
+
+```bash
+nanoq -i test.fq -s > report.txt
 ```
 
 Report format is minimal by default:
@@ -221,8 +215,12 @@ nanoq -i test.fq -s -H
 
 Extended summaries analogous to `NanoStat` can be obtained using multiple `-v` flags (up to `-vvv`), including the top (`-t`) read lengths and qualities:
 
+* `-v` - verbose read summary (top block as below)
+* `-vv` - like `-v` with read length and/or quality thresholds 
+* `-vvv` - like `-vv` with top ranking read lengths and/or qualities
+
 ```bash
-nanoq -i test.fq -f -s -t 5 -vv
+nanoq -i test.fq -f -s -t 5 -vvv
 ```
 
 ```
@@ -263,7 +261,7 @@ Top ranking read lengths (bp)
 5. 35630
 ```
 
-JSON formatted extended output (equivalent to `-vvv`) can be output to file or `stderr/stdout` using the `--json/-j` flag:
+JSON formatted extended output (equivalent to `-vvv`) can be output to `--report` (`-r`) or `stdout` (`-s`) using the `--json/-j` flag:
 
 ```bash
 nanoq -i test.fq --json -f -r report.json > reads.fq
@@ -310,9 +308,9 @@ nanoq -i test.fq --json -f -s > report.json
 }
 ```
 
+Note that in this example no read qualities are computed; quality thresholds are therefore all zero.
 
 ## Benchmarks
-
 
 Benchmarks evaluate processing speed and memory consumption of a basic read length filter and summary statistics on the even [Zymo mock community](https://github.com/LomanLab/mockcommunity) (`GridION`) with comparisons to [`rust-bio-tools`](https://github.com/rust-bio/rust-bio-tools), [`seqtk fqchk`](https://github.com/lh3/seqtk), [`seqkit stats`](https://github.com/shenwei356/seqkit), [`NanoFilt`](https://github.com/wdecoster/nanofilt), [`NanoStat`](https://github.com/wdecoster/nanostat) and [`Filtlong`](https://github.com/rrwick/Filtlong). Time to completion and maximum memory consumption were measured using `/usr/bin/time -f "%e %M"`, speedup is relative to the slowest command in the set. We note that summary statistics from `rust-bio-tools` and `seqkit stats` do not compute read quality scores and are therefore comparable to `nanoq-fast`.
 

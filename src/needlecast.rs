@@ -128,7 +128,7 @@ impl NeedleCast {
                         .expect("failed to write fastq record");
                 }
             } else {
-                // FASTA filter
+                // FASTA
                 if seqlen >= min_length && seqlen <= max_length {
                     read_lengths.push(seqlen);
                     rec.write(&mut self.writer, None)
