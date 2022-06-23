@@ -14,10 +14,10 @@ use crate::utils::CompressionExt;
 #[derive(Error, Debug)]
 pub enum NeedlecastError {
     /// Indicates error in parsing Needletail Fastx
-    #[error("Could not parse fastx file or stdin: {0}")]
+    #[error("Could not parse fastx file or stdin")]
     ParseFastx(#[from] needletail::errors::ParseError),
     /// Indicates error in Niffler compression format
-    #[error("Could not get compressed writer: {0}")]
+    #[error("Could not get compressed writer")]
     CompressionError(#[from] niffler::Error),
 }
 
