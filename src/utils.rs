@@ -298,6 +298,20 @@ impl ReadSet {
             read_qualities,
         }
     }
+    pub fn write_read_lengths(&self, path: PathBuf) -> Result<()> {
+        let mut f = File::create(path)?;
+        for read_length in &self.read_lengths {
+            write!(f, "{}\n", read_length)?;
+        }
+        Ok(())
+    }
+    pub fn write_read_qualities(&self, path: PathBuf) -> Result<()> {
+        let mut f = File::create(path)?;
+        for read_quality in &self.read_qualities {
+            write!(f, "{}\n", read_quality)?;
+        }
+        Ok(())
+    }
     /// Print a summary of the read set to stdout
     ///
     /// * `verbosity` - detail of summary message
@@ -847,16 +861,16 @@ mod tests {
         float_eq!(read_set_odd.median_quality(), 11.0, abs <= f32::EPSILON);
 
         read_set_odd
-            .summary(&0, 5, false, false, false, None)
+            .summary(&0, 5, false, false, false, None, 0)
             .unwrap();
         read_set_odd
-            .summary(&1, 5, false, false, false, None)
+            .summary(&1, 5, false, false, false, None, 0)
             .unwrap();
         read_set_odd
-            .summary(&2, 5, false, false, false, None)
+            .summary(&2, 5, false, false, false, None, 0)
             .unwrap();
         read_set_odd
-            .summary(&3, 5, false, false, false, None)
+            .summary(&3, 5, false, false, false, None, 0)
             .unwrap();
     }
 
@@ -866,7 +880,7 @@ mod tests {
         let mut read_set_odd = ReadSet::new(vec![10, 100, 1000], vec![10.0, 11.0, 12.0]);
 
         read_set_odd
-            .summary(&4, 5, false, false, false, None)
+            .summary(&4, 5, false, false, false, None, 0)
             .unwrap();
     }
 
@@ -878,7 +892,7 @@ mod tests {
         assert!(read_set_noqual.median_quality().is_nan());
 
         read_set_noqual
-            .summary(&3, 5, false, false, false, None)
+            .summary(&3, 5, false, false, false, None, 0)
             .unwrap();
     }
 
@@ -892,7 +906,7 @@ mod tests {
         assert_eq!(read_set_none.range_length(), [0, 0]);
 
         read_set_none
-            .summary(&3, 5, false, false, false, None)
+            .summary(&3, 5, false, false, false, None, 0)
             .unwrap();
     }
 
@@ -908,7 +922,7 @@ mod tests {
         assert_eq!(read_set_none.range_length(), [10, 10]);
 
         read_set_none
-            .summary(&3, 5, false, false, false, None)
+            .summary(&3, 5, false, false, false, None, 0)
             .unwrap();
     }
     #[test]
@@ -923,21 +937,21 @@ mod tests {
         assert_eq!(read_set_none.range_length(), [10, 10]);
 
         read_set_none
-            .summary(&3, 5, false, false, false, None)
+            .summary(&3, 5, false, false, false, None, 0)
             .unwrap();
     }
     #[test]
     fn summary_header_stderr_ok() {
         let mut read_set_none = ReadSet::new(vec![10], vec![8.0]);
         read_set_none
-            .summary(&0, 3, true, false, false, None)
+            .summary(&0, 3, true, false, false, None, 0)
             .unwrap();
     }
     #[test]
     fn summary_json_ok() {
         let mut read_set_none = ReadSet::new(vec![10], vec![8.0]);
         read_set_none
-            .summary(&0, 3, true, false, true, None)
+            .summary(&0, 3, true, false, true, None, 0)
             .unwrap();
     }
     #[test]
@@ -946,7 +960,7 @@ mod tests {
 
         let sink_file = PathBuf::from("/dev/null");
         read_set_none
-            .summary(&0, 3, true, false, true, Some(sink_file))
+            .summary(&0, 3, true, false, true, Some(sink_file), 0)
             .unwrap();
     }
     #[test]
@@ -955,14 +969,14 @@ mod tests {
 
         let sink_file = PathBuf::from("/dev/null");
         read_set_none
-            .summary(&0, 3, true, false, false, Some(sink_file))
+            .summary(&0, 3, true, false, false, Some(sink_file), 0)
             .unwrap();
     }
     #[test]
     fn summary_report_stats_ok() {
         let mut read_set_none = ReadSet::new(vec![10], vec![8.0]);
         read_set_none
-            .summary(&0, 1, true, true, true, None)
+            .summary(&0, 1, true, true, true, None, 0)
             .unwrap();
     }
 }

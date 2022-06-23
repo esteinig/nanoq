@@ -3,11 +3,23 @@ use needletail::{parse_fastx_file, parse_fastx_stdin, FastxReader};
 use std::fs::File;
 use std::io::{sink, stdout};
 use std::io::{BufWriter, Write};
+use thiserror::Error;
 
 use crate::cli::Cli;
 use crate::utils::CompressionExt;
 
 // Niffler output compression adopted from Michael B. Hall - Rasusa (https://github.com/mbhall88/rasusa)
+
+/// A collection of custom errors relating to the Needlecast class.
+#[derive(Error, Debug)]
+pub enum NeedlecastError {
+    /// Indicates error in parsing Needletail Fastx
+    #[error("Could not parse fastx file or stdin: {0}")]
+    ParseFastx(#[from] needletail::errors::ParseError),
+    /// Indicates error in Niffler compression format
+    #[error("Could not get compressed writer: {0}")]
+    CompressionError(#[from] niffler::Error),
+}
 
 /// NeedleCast object
 ///
@@ -34,10 +46,10 @@ impl NeedleCast {
     /// let caster = nanoq::needlecast::NeedleCast::new(&args);
     /// ```
     #[cfg(not(tarpaulin_include))]
-    pub fn new(cli: &Cli) -> Self {
+    pub fn new(cli: &Cli) -> Result<Self, NeedlecastError> {
         let reader = match &cli.input {
-            Some(file) => parse_fastx_file(file).expect("failed to get file reader"),
-            None => parse_fastx_stdin().expect("failed to get stdin reader"),
+            Some(file) => parse_fastx_file(file)?,
+            None => parse_fastx_stdin()?,
         };
         let writer = match &cli.output {
             None => {
@@ -47,8 +59,7 @@ impl NeedleCast {
                     match cli.output_type {
                         None => Box::new(stdout()),
                         Some(fmt) => {
-                            niffler::basic::get_writer(Box::new(stdout()), fmt, cli.compress_level)
-                                .expect("failed to get compressed stdout writer")
+                            niffler::basic::get_writer(Box::new(stdout()), fmt, cli.compress_level)?
                         }
                     }
                 }
@@ -61,11 +72,10 @@ impl NeedleCast {
                     None => niffler::Format::from_path(&output),
                     Some(f) => f,
                 };
-                niffler::get_writer(file_handle, fmt, cli.compress_level)
-                    .expect("failed to get compressed file writer")
+                niffler::get_writer(file_handle, fmt, cli.compress_level)?
             }
         };
-        NeedleCast { reader, writer }
+        Ok(NeedleCast { reader, writer })
     }
     /// Filter reads and store lengths and qualities
     ///
@@ -257,8 +267,8 @@ mod tests {
         use structopt::StructOpt;
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fq", "-o", "/dev/null"]);
-        let mut caster = NeedleCast::new(&cli);
-        let (read_lengths, read_quals) = caster.filter(0, 0, 0.0, 0.0).unwrap();
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter(0, 0, 0.0, 0.0).unwrap();
 
         assert_eq!(read_lengths, vec![4]);
         assert_eq!(read_quals, vec![40.0]);
@@ -269,8 +279,8 @@ mod tests {
         use structopt::StructOpt;
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fq", "-o", "/dev/null"]);
-        let mut caster = NeedleCast::new(&cli);
-        let (read_lengths, read_quals) = caster.filter(0, 3, 0.0, 0.0).unwrap();
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter(0, 3, 0.0, 0.0).unwrap();
 
         let expected_length: Vec<u32> = vec![];
         let expected_quality: Vec<f32> = vec![];
@@ -284,8 +294,8 @@ mod tests {
         use structopt::StructOpt;
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_len.fq", "-o", "/dev/null"]);
-        let mut caster = NeedleCast::new(&cli);
-        let (read_lengths, read_quals) = caster.filter_length(0, 0).unwrap();
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(0, 0).unwrap();
 
         let expected_quality: Vec<f32> = vec![];
 
@@ -299,8 +309,8 @@ mod tests {
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_len.fq", "-o", "/dev/null"]);
 
-        let mut caster = NeedleCast::new(&cli);
-        let (read_lengths, read_quals) = caster.filter_length(0, 3).unwrap();
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(0, 3).unwrap();
 
         let expected_length: Vec<u32> = vec![];
         let expected_quality: Vec<f32> = vec![];
@@ -309,8 +319,8 @@ mod tests {
         assert_eq!(read_quals, expected_quality);
 
         // NeedleCast struct has to be initiated again to reset filter length parameters
-        let mut caster = NeedleCast::new(&cli);
-        let (read_lengths, read_quals) = caster.filter_length(0, 5).unwrap();
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(0, 5).unwrap();
 
         assert_eq!(read_lengths, vec![4]);
         assert_eq!(read_quals, expected_quality);
@@ -322,8 +332,8 @@ mod tests {
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_len.fq", "-o", "/dev/null"]);
 
-        let mut caster = NeedleCast::new(&cli);
-        let (read_lengths, read_quals) = caster.filter_length(5, 0).unwrap();
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(5, 0).unwrap();
 
         let expected_quality: Vec<f32> = vec![];
 
@@ -331,8 +341,8 @@ mod tests {
         assert_eq!(read_quals, expected_quality);
 
         // NeedleCast struct has to be initiated again to reset filter length parameters
-        let mut caster = NeedleCast::new(&cli);
-        let (read_lengths, read_quals) = caster.filter_length(4, 0).unwrap();
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(4, 0).unwrap();
 
         assert_eq!(read_lengths, vec![4, 8]);
         assert_eq!(read_quals, expected_quality);
@@ -343,8 +353,8 @@ mod tests {
         use structopt::StructOpt;
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fa", "-o", "/dev/null"]);
-        let mut caster = NeedleCast::new(&cli);
-        let (read_lengths, read_quals) = caster.filter(0, 0, 0.0, 0.0).unwrap();
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter(0, 0, 0.0, 0.0).unwrap();
 
         let expected_quality: Vec<f32> = vec![];
 
@@ -357,8 +367,8 @@ mod tests {
         use structopt::StructOpt;
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fa", "-o", "/dev/null"]);
-        let mut caster = NeedleCast::new(&cli);
-        let (read_lengths, read_quals) = caster.filter_length(0, 0).unwrap();
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(0, 0).unwrap();
 
         let expected_quality: Vec<f32> = vec![];
 
@@ -372,7 +382,7 @@ mod tests {
         use structopt::StructOpt;
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_bad1.fa", "-o", "/dev/null"]);
-        let mut caster = NeedleCast::new(&cli);
+        let mut caster = NeedleCast::new(&cli).unwrap();
         caster.filter(0, 0, 0.0, 0.0).unwrap();
     }
 
@@ -382,7 +392,7 @@ mod tests {
         use structopt::StructOpt;
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_bad1.fq", "-o", "/dev/null"]);
-        let mut caster = NeedleCast::new(&cli);
+        let mut caster = NeedleCast::new(&cli).unwrap();
         caster.filter(0, 0, 0.0, 0.0).unwrap();
     }
 
@@ -392,7 +402,7 @@ mod tests {
         use structopt::StructOpt;
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_bad2.fq", "-o", "/dev/null"]);
-        let mut caster = NeedleCast::new(&cli);
+        let mut caster = NeedleCast::new(&cli).unwrap();
         caster.filter(0, 0, 0.0, 0.0).unwrap();
     }
 
@@ -402,7 +412,7 @@ mod tests {
         use structopt::StructOpt;
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_bad1.fq", "-o", "/dev/null"]);
-        let mut caster = NeedleCast::new(&cli);
+        let mut caster = NeedleCast::new(&cli).unwrap();
         caster.filter_length(0, 0).unwrap();
     }
 
@@ -412,7 +422,7 @@ mod tests {
         use structopt::StructOpt;
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_bad2.fq", "-o", "/dev/null"]);
-        let mut caster = NeedleCast::new(&cli);
+        let mut caster = NeedleCast::new(&cli).unwrap();
         caster.filter_length(0, 0).unwrap();
     }
 }

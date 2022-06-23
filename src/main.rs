@@ -16,7 +16,7 @@ mod utils;
 #[cfg(not(tarpaulin_include))]
 fn main() -> Result<()> {
     let cli: Cli = Cli::from_args();
-    let mut needle_cast = NeedleCast::new(&cli);
+    let mut needle_cast = NeedleCast::new(&cli)?;
 
     let (read_lengths, read_qualities, filtered) = match cli.fast {
         true => needle_cast
@@ -40,20 +40,18 @@ fn main() -> Result<()> {
             filtered
         )
         .context("unable to get summary")?;
-    
+   
     match cli.read_lengths {
         Some(path) => {
-            
+            read_set.write_read_lengths(path)?;
         },
         None => {}
-    };
-
+    }
     match cli.read_qualities {
         Some(path) => {
-
+            read_set.write_read_qualities(path)?;
         },
         None => {}
-    };
-
+    }
     Ok(())
 }
