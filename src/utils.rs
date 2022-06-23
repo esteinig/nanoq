@@ -65,6 +65,7 @@ pub struct OutputData {
     quality_thresholds: BTreeMap<u64, u64>,
     top_lengths: Vec<u32>,
     top_qualities: Vec<f32>,
+    filtered: u64
 }
 
 impl OutputData {
@@ -324,6 +325,7 @@ impl ReadSet {
         stats: bool,
         json: bool,
         report: Option<PathBuf>,
+        filtered: u64
     ) -> Result<(), UtilityError> {
         let length_range = self.range_length();
 
@@ -344,6 +346,7 @@ impl ReadSet {
             quality_thresholds,
             top_lengths,
             top_qualities,
+            filtered
         };
 
         let output_string = output_data.get_string(verbosity, header, &self.read_qualities)?;

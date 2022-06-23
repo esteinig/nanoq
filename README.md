@@ -2,14 +2,14 @@
 
 [![build](https://github.com/esteinig/nanoq/actions/workflows/rust-ci.yaml/badge.svg?branch=master)](https://github.com/esteinig/nanoq/actions/workflows/rust-ci.yaml)
 [![codecov](https://codecov.io/gh/esteinig/nanoq/branch/master/graph/badge.svg?token=1X04YD8YOE)](https://codecov.io/gh/esteinig/nanoq)
-![](https://img.shields.io/badge/version-0.9.0-black.svg)
+![](https://img.shields.io/badge/version-0.9.1-black.svg)
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.02991/status.svg)](https://doi.org/10.21105/joss.02991)
 
 Ultra-fast quality control and summary reports for nanopore reads
 
 ## Overview
 
-**`v0.9.0`**
+**`v0.9.1`**
 
 - [Purpose](#purpose)
 - [Install](#install)
@@ -61,7 +61,7 @@ cargo install nanoq
 Explicit version (for some reason defaults to old version)
 
 ```
-conda install -c conda-forge -c bioconda nanoq=0.9.0
+conda install -c conda-forge -c bioconda nanoq=0.9.1
 ```
 
 #### `Binaries`
@@ -69,7 +69,7 @@ conda install -c conda-forge -c bioconda nanoq=0.9.0
 Precompiled binaries for Linux and MacOS are attached to the latest release.
 
 ```
-VERSION=0.9.0
+VERSION=0.9.1
 RELEASE=nanoq-${VERSION}-x86_64-unknown-linux-musl.tar.gz
 
 wget https://github.com/esteinig/nanoq/releases/download/${VERSION}/${RELEASE}
@@ -147,7 +147,7 @@ done
 ### Parameters
 
 ```
-nanoq 0.9.0
+nanoq 0.9.1
 
 Read filters and summary reports for nanopore data
 

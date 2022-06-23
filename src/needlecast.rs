@@ -97,7 +97,7 @@ impl NeedleCast {
         max_length: u32,
         min_quality: f32,
         max_quality: f32,
-    ) -> Result<(Vec<u32>, Vec<f32>), ParseError> {
+    ) -> Result<(Vec<u32>, Vec<f32>, u64), ParseError> {
         let mut read_lengths: Vec<u32> = vec![];
         let mut read_qualities: Vec<f32> = vec![];
 
@@ -109,10 +109,12 @@ impl NeedleCast {
 
         let max_quality = if max_quality == 0. { 93. } else { max_quality };
 
+        let mut filtered: u64 = 0;
         while let Some(record) = self.reader.next() {
             let rec = record.expect("failed to parse record");
             let seqlen = rec.num_bases() as u32; // NANOQ READ LENGTH LIMIT: ~ 4.2 x 10e9
-                                                 // Quality scores present (FASTQ not FASTA)
+            
+            //  Quality scores present (FASTQ not FASTA)
             if let Some(qual) = rec.qual() {
                 let mean_error_prob = mean_error_probability(qual);
                 let mean_quality: f32 = -10f32 * mean_error_prob.log(10.0);
@@ -126,6 +128,8 @@ impl NeedleCast {
                     read_qualities.push(mean_quality);
                     rec.write(&mut self.writer, None)
                         .expect("failed to write fastq record");
+                } else {
+                    filtered += 1;
                 }
             } else {
                 // FASTA
@@ -133,10 +137,12 @@ impl NeedleCast {
                     read_lengths.push(seqlen);
                     rec.write(&mut self.writer, None)
                         .expect("failed to write fasta record");
+                } else {
+                    filtered += 1;
                 }
             }
         }
-        Ok((read_lengths, read_qualities))
+        Ok((read_lengths, read_qualities, filtered))
     }
     /// Filter reads and store lengths and qualities
     /// without considering quality scores
@@ -164,7 +170,7 @@ impl NeedleCast {
         &mut self,
         min_length: u32,
         max_length: u32,
-    ) -> Result<(Vec<u32>, Vec<f32>), ParseError> {
+    ) -> Result<(Vec<u32>, Vec<f32>, u64), ParseError> {
         let mut read_lengths: Vec<u32> = vec![];
         let read_qualities: Vec<f32> = vec![];
 
@@ -173,6 +179,7 @@ impl NeedleCast {
         } else {
             max_length
         };
+        let mut filtered: u64 = 0;
         while let Some(record) = self.reader.next() {
             let rec = record.expect("failed to parse record");
             let seqlen = rec.num_bases() as u32;
@@ -180,9 +187,11 @@ impl NeedleCast {
                 read_lengths.push(seqlen);
                 rec.write(&mut self.writer, None)
                     .expect("failed to write fastq record");
+            } else {
+                filtered += 1;
             }
         }
-        Ok((read_lengths, read_qualities))
+        Ok((read_lengths, read_qualities, filtered))
     }
 }
 

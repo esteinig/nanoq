@@ -58,6 +58,14 @@ pub struct Cli {
     #[structopt(short, long)]
     pub json: bool,
 
+    /// Read lengths output file.
+    #[structopt(short, long)]
+    pub read_lengths: Option<PathBuf>,
+
+    /// Read qualities output file.
+    #[structopt(short, long)]
+    pub read_qualities: Option<PathBuf>,
+
     /// Ignore quality values if present.
     #[structopt(short, long)]
     pub fast: bool,
