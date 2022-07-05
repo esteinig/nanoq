@@ -123,7 +123,7 @@ impl NeedleCast {
         while let Some(record) = self.reader.next() {
             let rec = record.expect("failed to parse record");
             let seqlen = rec.num_bases() as u32; // NANOQ READ LENGTH LIMIT: ~ 4.2 x 10e9
-            
+
             //  Quality scores present (FASTQ not FASTA)
             if let Some(qual) = rec.qual() {
                 let mean_error_prob = mean_error_probability(qual);

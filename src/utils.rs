@@ -49,7 +49,7 @@ impl CompressionExt for niffler::compression::Format {
     }
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Debug, Clone)]
 /// Output data for JSON
 pub struct OutputData {
     reads: u64,
@@ -65,7 +65,7 @@ pub struct OutputData {
     quality_thresholds: BTreeMap<u64, u64>,
     top_lengths: Vec<u32>,
     top_qualities: Vec<f32>,
-    filtered: u64
+    filtered: u64,
 }
 
 impl OutputData {
@@ -301,14 +301,14 @@ impl ReadSet {
     pub fn write_read_lengths(&self, path: PathBuf) -> Result<()> {
         let mut f = File::create(path)?;
         for read_length in &self.read_lengths {
-            write!(f, "{}\n", read_length)?;
+            writeln!(f, "{}", read_length)?;
         }
         Ok(())
     }
     pub fn write_read_qualities(&self, path: PathBuf) -> Result<()> {
         let mut f = File::create(path)?;
         for read_quality in &self.read_qualities {
-            write!(f, "{}\n", read_quality)?;
+            writeln!(f, "{}", read_quality)?;
         }
         Ok(())
     }
@@ -333,36 +333,13 @@ impl ReadSet {
     /// ```
     pub fn summary(
         &mut self,
+        output_data: OutputData,
         verbosity: &u64,
-        top: usize,
         header: bool,
         stats: bool,
         json: bool,
         report: Option<PathBuf>,
-        filtered: u64
     ) -> Result<(), UtilityError> {
-        let length_range = self.range_length();
-
-        let (length_thresholds, quality_thresholds) = self.get_thresholds();
-        let (top_lengths, top_qualities) = self.get_ranking(top);
-
-        let output_data = OutputData {
-            reads: self.reads(),
-            bases: self.bases(),
-            n50: self.n50(),
-            longest: length_range[1],
-            shortest: length_range[0],
-            mean_length: self.mean_length(),
-            median_length: self.median_length(),
-            mean_quality: self.mean_quality(),
-            median_quality: self.median_quality(),
-            length_thresholds,
-            quality_thresholds,
-            top_lengths,
-            top_qualities,
-            filtered
-        };
-
         let output_string = output_data.get_string(verbosity, header, &self.read_qualities)?;
 
         match report {
@@ -388,6 +365,30 @@ impl ReadSet {
         }
 
         Ok(())
+    }
+    // Get output data struct
+    pub fn get_output_data(&mut self, top: usize, filtered: u64) -> OutputData {
+        let length_range = self.range_length();
+
+        let (length_thresholds, quality_thresholds) = self.get_thresholds();
+        let (top_lengths, top_qualities) = self.get_ranking(top);
+
+        OutputData {
+            reads: self.reads(),
+            bases: self.bases(),
+            n50: self.n50(),
+            longest: length_range[1],
+            shortest: length_range[0],
+            mean_length: self.mean_length(),
+            median_length: self.median_length(),
+            mean_quality: self.mean_quality(),
+            median_quality: self.median_quality(),
+            length_thresholds,
+            quality_thresholds,
+            top_lengths,
+            top_qualities,
+            filtered,
+        }
     }
     // Get read length and quality thresholds
     pub fn get_thresholds(&self) -> (BTreeMap<u64, u64>, BTreeMap<u64, u64>) {
@@ -860,17 +861,19 @@ mod tests {
         float_eq!(read_set_odd.mean_quality(), 11.0, abs <= f32::EPSILON);
         float_eq!(read_set_odd.median_quality(), 11.0, abs <= f32::EPSILON);
 
+        let output_data = read_set_odd.get_output_data(5, 0);
+
         read_set_odd
-            .summary(&0, 5, false, false, false, None, 0)
+            .summary(output_data.clone(), &0, false, false, false, None)
             .unwrap();
         read_set_odd
-            .summary(&1, 5, false, false, false, None, 0)
+            .summary(output_data.clone(), &1, false, false, false, None)
             .unwrap();
         read_set_odd
-            .summary(&2, 5, false, false, false, None, 0)
+            .summary(output_data.clone(), &2, false, false, false, None)
             .unwrap();
         read_set_odd
-            .summary(&3, 5, false, false, false, None, 0)
+            .summary(output_data, &3, false, false, false, None)
             .unwrap();
     }
 
@@ -879,8 +882,10 @@ mod tests {
     fn read_set_summary_verbosity_fail() {
         let mut read_set_odd = ReadSet::new(vec![10, 100, 1000], vec![10.0, 11.0, 12.0]);
 
+        let output_data = read_set_odd.get_output_data(5, 0);
+
         read_set_odd
-            .summary(&4, 5, false, false, false, None, 0)
+            .summary(output_data, &4, false, false, false, None)
             .unwrap();
     }
 
@@ -891,8 +896,10 @@ mod tests {
         assert!(read_set_noqual.mean_quality().is_nan());
         assert!(read_set_noqual.median_quality().is_nan());
 
+        let output_data = read_set_noqual.get_output_data(5, 0);
+
         read_set_noqual
-            .summary(&3, 5, false, false, false, None, 0)
+            .summary(output_data, &3, false, false, false, None)
             .unwrap();
     }
 
@@ -905,8 +912,10 @@ mod tests {
         assert!(read_set_none.median_quality().is_nan());
         assert_eq!(read_set_none.range_length(), [0, 0]);
 
+        let output_data = read_set_none.get_output_data(5, 0);
+
         read_set_none
-            .summary(&3, 5, false, false, false, None, 0)
+            .summary(output_data, &3, false, false, false, None)
             .unwrap();
     }
 
@@ -921,8 +930,9 @@ mod tests {
         float_eq!(read_set_none.median_quality(), 8.0, abs <= f32::EPSILON);
         assert_eq!(read_set_none.range_length(), [10, 10]);
 
+        let output_data = read_set_none.get_output_data(5, 0);
         read_set_none
-            .summary(&3, 5, false, false, false, None, 0)
+            .summary(output_data, &3, false, false, false, None)
             .unwrap();
     }
     #[test]
@@ -936,47 +946,53 @@ mod tests {
         float_eq!(read_set_none.median_quality(), 8.0, abs <= f32::EPSILON);
         assert_eq!(read_set_none.range_length(), [10, 10]);
 
+        let output_data = read_set_none.get_output_data(5, 0);
+
         read_set_none
-            .summary(&3, 5, false, false, false, None, 0)
+            .summary(output_data, &3, false, false, false, None)
             .unwrap();
     }
     #[test]
     fn summary_header_stderr_ok() {
         let mut read_set_none = ReadSet::new(vec![10], vec![8.0]);
+        let output_data = read_set_none.get_output_data(5, 0);
         read_set_none
-            .summary(&0, 3, true, false, false, None, 0)
+            .summary(output_data, &0, true, false, false, None)
             .unwrap();
     }
     #[test]
     fn summary_json_ok() {
         let mut read_set_none = ReadSet::new(vec![10], vec![8.0]);
+        let output_data = read_set_none.get_output_data(5, 0);
         read_set_none
-            .summary(&0, 3, true, false, true, None, 0)
+            .summary(output_data, &0, true, false, true, None)
             .unwrap();
     }
     #[test]
     fn summary_report_file_json_ok() {
         let mut read_set_none = ReadSet::new(vec![10], vec![8.0]);
-
+        let output_data = read_set_none.get_output_data(5, 0);
         let sink_file = PathBuf::from("/dev/null");
         read_set_none
-            .summary(&0, 3, true, false, true, Some(sink_file), 0)
+            .summary(output_data, &0, true, false, true, Some(sink_file))
             .unwrap();
     }
     #[test]
     fn summary_report_file_report_ok() {
         let mut read_set_none = ReadSet::new(vec![10], vec![8.0]);
-
+        let output_data = read_set_none.get_output_data(5, 0);
         let sink_file = PathBuf::from("/dev/null");
         read_set_none
-            .summary(&0, 3, true, false, false, Some(sink_file), 0)
+            .summary(output_data, &0, true, false, false, Some(sink_file))
             .unwrap();
     }
     #[test]
     fn summary_report_stats_ok() {
         let mut read_set_none = ReadSet::new(vec![10], vec![8.0]);
+
+        let output_data = read_set_none.get_output_data(5, 0);
         read_set_none
-            .summary(&0, 1, true, true, true, None, 0)
+            .summary(output_data, &0, true, true, true, None)
             .unwrap();
     }
 }

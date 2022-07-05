@@ -18,7 +18,7 @@ fn main() -> Result<()> {
     let cli: Cli = Cli::from_args();
     let mut needle_cast = NeedleCast::new(&cli)?;
 
-    let (read_lengths, read_qualities, filtered) = match cli.fast {
+    let (read_lengths, read_qualities, n_filtered) = match cli.fast {
         true => needle_cast
             .filter_length(cli.min_len, cli.max_len)
             .context("unable to process reads")?,
@@ -29,29 +29,24 @@ fn main() -> Result<()> {
 
     let mut read_set = ReadSet::new(read_lengths, read_qualities);
 
+    let output_data = read_set.get_output_data(cli.top, n_filtered);
+
     read_set
         .summary(
+            output_data,
             &cli.verbose,
-            cli.top,
             cli.header,
             cli.stats,
             cli.json,
             cli.report,
-            filtered
         )
         .context("unable to get summary")?;
-   
-    match cli.read_lengths {
-        Some(path) => {
-            read_set.write_read_lengths(path)?;
-        },
-        None => {}
+
+    if let Some(path) = cli.read_lengths {
+        read_set.write_read_lengths(path)?;
     }
-    match cli.read_qualities {
-        Some(path) => {
-            read_set.write_read_qualities(path)?;
-        },
-        None => {}
+    if let Some(path) = cli.read_qualities {
+        read_set.write_read_qualities(path)?;
     }
     Ok(())
 }

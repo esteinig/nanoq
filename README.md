@@ -38,7 +38,7 @@ We would appreciate a citation if you are using `nanoq` for research. Please see
 
 ## Performance
 
-`Nanoq` is as fast as `seqtk-fqchk` for summary statistics of small datasets (e.g. Zymo - 100,000 reads) and slightly faster on large datasets (e.g. Zymo - 3.5 million reads, 1.3x - 1.5x). In `fast` mode (no quality scores), `nanoq` is (~2-3x) faster than `rust-bio-tools` and `seqkit stats` for summary statistics and faster than other commonly used summary reporters (up to 442x) and read filtering methods (up to 297x). Memory consumption is consistent and tends to be lower than other tools (~5-10x). 
+`Nanoq` is as fast as `seqtk-fqchk` for summary statistics of small datasets (e.g. Zymo - 100,000 reads) and slightly faster on large datasets (e.g. Zymo - 3.5 million reads, 1.3x - 1.5x). In `fast` mode (no quality scores), `nanoq` is ~2-3x faster than `rust-bio-tools` and `seqkit stats` for summary statistics and other commonly used read summary or filtering methods (up to 297x-442x). Memory consumption is consistent and tends to be lower than other tools (~5-10x). 
 
 ## Tests
 
