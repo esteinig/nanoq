@@ -363,6 +363,21 @@ mod tests {
     }
 
     #[test]
+    fn needlecast_filter_fa_filter_count_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fa", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter(0, 3, 0.0, 0.0).unwrap();
+
+        let expected_quality: Vec<f32> = vec![];
+        let expected_lengths: Vec<u32> = vec![];
+
+        assert_eq!(read_lengths, expected_lengths);
+        assert_eq!(read_quals, expected_quality);
+    }
+
+    #[test]
     fn needlecast_filter_length_fa_ok() {
         use structopt::StructOpt;
 

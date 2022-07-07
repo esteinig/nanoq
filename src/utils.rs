@@ -298,14 +298,14 @@ impl ReadSet {
             read_qualities,
         }
     }
-    pub fn write_read_lengths(&self, path: PathBuf) -> Result<()> {
+    pub fn write_read_lengths(&self, path: PathBuf) -> Result<(), UtilityError> {
         let mut f = File::create(path)?;
         for read_length in &self.read_lengths {
             writeln!(f, "{}", read_length)?;
         }
         Ok(())
     }
-    pub fn write_read_qualities(&self, path: PathBuf) -> Result<()> {
+    pub fn write_read_qualities(&self, path: PathBuf) -> Result<(), UtilityError> {
         let mut f = File::create(path)?;
         for read_quality in &self.read_qualities {
             writeln!(f, "{}", read_quality)?;
@@ -989,7 +989,6 @@ mod tests {
     #[test]
     fn summary_report_stats_ok() {
         let mut read_set_none = ReadSet::new(vec![10], vec![8.0]);
-
         let output_data = read_set_none.get_output_data(5, 0);
         read_set_none
             .summary(output_data, &0, true, true, true, None)
