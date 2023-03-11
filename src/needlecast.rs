@@ -1,4 +1,5 @@
 use needletail::errors::ParseError;
+use needletail::parser::{write_fasta, write_fastq};
 use needletail::{parse_fastx_file, parse_fastx_stdin, FastxReader};
 use std::fs::File;
 use std::io::{sink, stdout};
@@ -65,7 +66,7 @@ impl NeedleCast {
                 }
             }
             Some(output) => {
-                let file = File::create(&output).expect("failed to create output file");
+                let file = File::create(output).expect("failed to create output file");
                 let file_handle = Box::new(BufWriter::new(file));
 
                 let fmt = match cli.output_type {
@@ -103,26 +104,42 @@ impl NeedleCast {
     /// ```
     pub fn filter(
         &mut self,
-        min_length: u32,
-        max_length: u32,
+        min_length: usize,
+        max_length: usize,
         min_quality: f32,
         max_quality: f32,
-    ) -> Result<(Vec<u32>, Vec<f32>, u64), ParseError> {
-        let mut read_lengths: Vec<u32> = vec![];
+        head_trim: usize,
+        tail_trim: usize,
+    ) -> Result<(Vec<usize>, Vec<f32>, usize), ParseError> {
+        let mut read_lengths: Vec<usize> = vec![];
         let mut read_qualities: Vec<f32> = vec![];
 
-        let max_length: u32 = if max_length == 0 {
-            u32::MAX
+        let max_length: usize = if max_length == 0 {
+            usize::MAX
         } else {
             max_length
         };
 
-        let max_quality = if max_quality == 0. { 93. } else { max_quality };
+        let total_trim = head_trim + tail_trim;
+        let trim_seq = total_trim > 0;
 
-        let mut filtered: u64 = 0;
+        let max_quality = if max_quality == 0. { 100. } else { max_quality };
+
+        let mut filtered: usize = 0;
         while let Some(record) = self.reader.next() {
             let rec = record.expect("failed to parse record");
-            let seqlen = rec.num_bases() as u32; // NANOQ READ LENGTH LIMIT: ~ 4.2 x 10e9
+            let read_len = rec.num_bases();
+
+            // Guard against unsigned integer overflow in slices
+            if total_trim >= read_len {
+                filtered += 1;
+                continue;
+            }
+
+            let seqlen = match trim_seq {
+                false => read_len,
+                true => read_len - total_trim, // because of guard we can do this without invokign usize::MAX
+            };
 
             //  Quality scores present (FASTQ not FASTA)
             if let Some(qual) = rec.qual() {
@@ -136,8 +153,19 @@ impl NeedleCast {
                 {
                     read_lengths.push(seqlen);
                     read_qualities.push(mean_quality);
-                    rec.write(&mut self.writer, None)
-                        .expect("failed to write fastq record");
+                    match trim_seq {
+                        true => write_fastq(
+                            rec.id(),
+                            &rec.seq()[head_trim..read_len - tail_trim],
+                            Some(&qual[head_trim..read_len - tail_trim]),
+                            &mut self.writer,
+                            rec.line_ending(),
+                        )
+                        .expect("failed to write fastq record"),
+                        false => rec
+                            .write(&mut self.writer, None)
+                            .expect("failed to write fastq record"),
+                    }
                 } else {
                     filtered += 1;
                 }
@@ -178,25 +206,68 @@ impl NeedleCast {
     /// ```
     pub fn filter_length(
         &mut self,
-        min_length: u32,
-        max_length: u32,
-    ) -> Result<(Vec<u32>, Vec<f32>, u64), ParseError> {
-        let mut read_lengths: Vec<u32> = vec![];
+        min_length: usize,
+        max_length: usize,
+        head_trim: usize,
+        tail_trim: usize,
+    ) -> Result<(Vec<usize>, Vec<f32>, usize), ParseError> {
+        let mut read_lengths: Vec<usize> = vec![];
         let read_qualities: Vec<f32> = vec![];
 
-        let max_length: u32 = if max_length == 0 {
-            u32::MAX
+        let max_length: usize = if max_length == 0 {
+            usize::MAX
         } else {
             max_length
         };
-        let mut filtered: u64 = 0;
+
+        let total_trim = head_trim + tail_trim;
+        let trim_seq = total_trim > 0;
+
+        let mut filtered: usize = 0;
         while let Some(record) = self.reader.next() {
             let rec = record.expect("failed to parse record");
-            let seqlen = rec.num_bases() as u32;
+
+            let read_len = rec.num_bases();
+
+            // Guard against unsigned integer overflow in slices
+            if total_trim >= read_len {
+                filtered += 1;
+                continue;
+            }
+
+            let seqlen = match trim_seq {
+                true => read_len - total_trim,
+                false => read_len,
+            };
+
             if seqlen >= min_length && seqlen <= max_length {
                 read_lengths.push(seqlen);
-                rec.write(&mut self.writer, None)
-                    .expect("failed to write fastq record");
+                match trim_seq {
+                    false => rec
+                        .write(&mut self.writer, None)
+                        .expect("failed to write record"),
+                    true => {
+                        match rec.qual() {
+                            // FASTA
+                            None => write_fasta(
+                                rec.id(),
+                                &rec.seq()[head_trim..read_len - tail_trim],
+                                &mut self.writer,
+                                rec.line_ending(),
+                            )
+                            .expect("failed to write fasta record"),
+                            // FASTQ
+                            Some(qual) => write_fastq(
+                                rec.id(),
+                                &rec.seq()[head_trim..read_len - tail_trim],
+                                Some(&qual[head_trim..read_len - tail_trim]),
+                                &mut self.writer,
+                                rec.line_ending(),
+                            )
+                            .expect("failed to write fastq record"),
+                        };
+                    }
+                }
             } else {
                 filtered += 1;
             }
@@ -268,7 +339,7 @@ mod tests {
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fq", "-o", "/dev/null"]);
         let mut caster = NeedleCast::new(&cli).unwrap();
-        let (read_lengths, read_quals, _) = caster.filter(0, 0, 0.0, 0.0).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter(0, 0, 0.0, 0.0, 0, 0).unwrap();
 
         assert_eq!(read_lengths, vec![4]);
         assert_eq!(read_quals, vec![40.0]);
@@ -280,9 +351,9 @@ mod tests {
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fq", "-o", "/dev/null"]);
         let mut caster = NeedleCast::new(&cli).unwrap();
-        let (read_lengths, read_quals, _) = caster.filter(0, 3, 0.0, 0.0).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter(0, 3, 0.0, 0.0, 0, 0).unwrap();
 
-        let expected_length: Vec<u32> = vec![];
+        let expected_length: Vec<usize> = vec![];
         let expected_quality: Vec<f32> = vec![];
 
         assert_eq!(read_lengths, expected_length);
@@ -295,7 +366,7 @@ mod tests {
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_len.fq", "-o", "/dev/null"]);
         let mut caster = NeedleCast::new(&cli).unwrap();
-        let (read_lengths, read_quals, _) = caster.filter_length(0, 0).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(0, 0, 0, 0).unwrap();
 
         let expected_quality: Vec<f32> = vec![];
 
@@ -310,9 +381,9 @@ mod tests {
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_len.fq", "-o", "/dev/null"]);
 
         let mut caster = NeedleCast::new(&cli).unwrap();
-        let (read_lengths, read_quals, _) = caster.filter_length(0, 3).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(0, 3, 0, 0).unwrap();
 
-        let expected_length: Vec<u32> = vec![];
+        let expected_length: Vec<usize> = vec![];
         let expected_quality: Vec<f32> = vec![];
 
         assert_eq!(read_lengths, expected_length);
@@ -320,7 +391,7 @@ mod tests {
 
         // NeedleCast struct has to be initiated again to reset filter length parameters
         let mut caster = NeedleCast::new(&cli).unwrap();
-        let (read_lengths, read_quals, _) = caster.filter_length(0, 5).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(0, 5, 0, 0).unwrap();
 
         assert_eq!(read_lengths, vec![4]);
         assert_eq!(read_quals, expected_quality);
@@ -333,7 +404,7 @@ mod tests {
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_len.fq", "-o", "/dev/null"]);
 
         let mut caster = NeedleCast::new(&cli).unwrap();
-        let (read_lengths, read_quals, _) = caster.filter_length(5, 0).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(5, 0, 0, 0).unwrap();
 
         let expected_quality: Vec<f32> = vec![];
 
@@ -342,7 +413,7 @@ mod tests {
 
         // NeedleCast struct has to be initiated again to reset filter length parameters
         let mut caster = NeedleCast::new(&cli).unwrap();
-        let (read_lengths, read_quals, _) = caster.filter_length(4, 0).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(4, 0, 0, 0).unwrap();
 
         assert_eq!(read_lengths, vec![4, 8]);
         assert_eq!(read_quals, expected_quality);
@@ -354,7 +425,31 @@ mod tests {
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fa", "-o", "/dev/null"]);
         let mut caster = NeedleCast::new(&cli).unwrap();
-        let (read_lengths, read_quals, _) = caster.filter(0, 0, 0.0, 0.0).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter(0, 0, 0.0, 0.0, 0, 0).unwrap();
+
+        let expected_quality: Vec<f32> = vec![];
+
+        assert_eq!(read_lengths, vec![4]);
+        assert_eq!(read_quals, expected_quality);
+
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter(5, 0, 0.0, 0.0, 0, 0).unwrap();
+
+        let expected_length: Vec<usize> = vec![];
+        let expected_quality: Vec<f32> = vec![];
+
+        assert_eq!(read_lengths, expected_length);
+        assert_eq!(read_quals, expected_quality);
+
+    }   
+
+    #[test]
+    fn needlecast_filter_length_fa_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fa", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(0, 0, 0, 0).unwrap();
 
         let expected_quality: Vec<f32> = vec![];
 
@@ -363,16 +458,260 @@ mod tests {
     }
 
     #[test]
-    fn needlecast_filter_length_fa_ok() {
+    fn needlecast_filter_length_trim_bigger_read_length_ok() {
         use structopt::StructOpt;
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fa", "-o", "/dev/null"]);
         let mut caster = NeedleCast::new(&cli).unwrap();
-        let (read_lengths, read_quals, _) = caster.filter_length(0, 0).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(0, 0, 5, 0).unwrap();
+
+        let expected_quality: Vec<f32> = vec![];
+        let expected_lengths: Vec<usize> = vec![];
+
+        assert_eq!(read_lengths, expected_lengths);
+        assert_eq!(read_quals, expected_quality);
+    }
+
+    #[test]
+    fn needlecast_filter_length_head_trim_fa_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fa", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(0, 0, 2, 0).unwrap();
 
         let expected_quality: Vec<f32> = vec![];
 
-        assert_eq!(read_lengths, vec![4]);
+        assert_eq!(read_lengths, vec![2]);
+        assert_eq!(read_quals, expected_quality);
+    }
+
+    #[test]
+    fn needlecast_filter_length_tail_trim_fa_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fa", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(0, 0, 0, 2).unwrap();
+
+        let expected_quality: Vec<f32> = vec![];
+
+        assert_eq!(read_lengths, vec![2]);
+        assert_eq!(read_quals, expected_quality);
+    }
+
+    #[test]
+    fn needlecast_filter_length_head_tail_trim_fa_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fa", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(0, 0, 1, 1).unwrap();
+
+        let expected_quality: Vec<f32> = vec![];
+
+        assert_eq!(read_lengths, vec![2]);
+        assert_eq!(read_quals, expected_quality);
+    }
+
+    #[test]
+    fn needlecast_filter_length_head_trim_fq_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fq", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(0, 0, 2, 0).unwrap();
+
+        let expected_quality: Vec<f32> = vec![];
+
+        assert_eq!(read_lengths, vec![2]);
+        assert_eq!(read_quals, expected_quality);
+    }
+
+    #[test]
+    fn needlecast_filter_length_tail_trim_fq_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fq", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(0, 0, 0, 2).unwrap();
+
+        let expected_quality: Vec<f32> = vec![];
+
+        assert_eq!(read_lengths, vec![2]);
+        assert_eq!(read_quals, expected_quality);
+    }
+
+    #[test]
+    fn needlecast_filter_length_head_tail_trim_fq_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fq", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(0, 0, 1, 1).unwrap();
+
+        let expected_quality: Vec<f32> = vec![];
+
+        assert_eq!(read_lengths, vec![2]);
+        assert_eq!(read_quals, expected_quality);
+    }
+
+    #[test]
+    fn needlecast_filter_trim_bigger_read_length_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fa", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter(0, 0, 0.0, 0.0, 5, 0).unwrap();
+
+        let expected_quality: Vec<f32> = vec![];
+        let expected_lengths: Vec<usize> = vec![];
+
+        assert_eq!(read_lengths, expected_lengths);
+        assert_eq!(read_quals, expected_quality);
+    }
+
+    #[test]
+    fn needlecast_filter_head_trim_fa_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fa", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter(0, 0, 0.0, 0.0, 2, 0).unwrap();
+
+        let expected_quality: Vec<f32> = vec![];
+
+        assert_eq!(read_lengths, vec![2]);
+        assert_eq!(read_quals, expected_quality);
+    }
+
+    #[test]
+    fn needlecast_filter_tail_trim_fa_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fa", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter(0, 0, 0.0, 0.0, 0, 2).unwrap();
+
+        let expected_quality: Vec<f32> = vec![];
+
+        assert_eq!(read_lengths, vec![2]);
+        assert_eq!(read_quals, expected_quality);
+    }
+
+    #[test]
+    fn needlecast_filter_head_tail_trim_fa_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fa", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter(0, 0, 0.0, 0.0, 1, 1).unwrap();
+
+        let expected_quality: Vec<f32> = vec![];
+
+        assert_eq!(read_lengths, vec![2]);
+        assert_eq!(read_quals, expected_quality);
+    }
+
+    #[test]
+    fn needlecast_filter_head_trim_fq_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fq", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter(0, 0, 0.0, 0.0, 2, 0).unwrap();
+
+        let expected_quality: Vec<f32> = vec![40.0];
+
+        assert_eq!(read_lengths, vec![2]);
+        assert_eq!(read_quals, expected_quality);
+    }
+
+    #[test]
+    fn needlecast_filter_tail_trim_fq_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fq", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter(0, 0, 0.0, 0.0, 0, 2).unwrap();
+
+        let expected_quality: Vec<f32> = vec![40.0];
+
+        assert_eq!(read_lengths, vec![2]);
+        assert_eq!(read_quals, expected_quality);
+    }
+
+    #[test]
+    fn needlecast_filter_head_tail_trim_fq_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fq", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter(0, 0, 0.0, 0.0, 1, 1).unwrap();
+
+        let expected_quality: Vec<f32> = vec![40.0];
+
+        assert_eq!(read_lengths, vec![2]);
+        assert_eq!(read_quals, expected_quality);
+    }
+
+    #[test]
+    fn needlecast_filter_length_head_tail_trim_min_len_no_reads_fq_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fq", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(3, 0, 1, 1).unwrap();
+
+        let expected_quality: Vec<f32> = vec![];
+        let expected_lengths: Vec<usize> = vec![];
+
+        assert_eq!(read_lengths, expected_lengths);
+        assert_eq!(read_quals, expected_quality);
+    }
+
+    #[test]
+    fn needlecast_filter_length_head_tail_trim_max_len_no_reads_fq_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fq", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(0, 1, 1, 1).unwrap();
+
+        let expected_quality: Vec<f32> = vec![];
+        let expected_lengths: Vec<usize> = vec![];
+
+        assert_eq!(read_lengths, expected_lengths);
+        assert_eq!(read_quals, expected_quality);
+    }
+
+    #[test]
+    fn needlecast_filter_length_head_tail_trim_min_len_no_reads_fa_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fa", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(3, 0, 1, 1).unwrap();
+
+        let expected_quality: Vec<f32> = vec![];
+        let expected_lengths: Vec<usize> = vec![];
+
+        assert_eq!(read_lengths, expected_lengths);
+        assert_eq!(read_quals, expected_quality);
+    }
+
+    #[test]
+    fn needlecast_filter_length_head_tail_trim_max_len_no_reads_fa_ok() {
+        use structopt::StructOpt;
+
+        let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_ok.fa", "-o", "/dev/null"]);
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter_length(0, 1, 1, 1).unwrap();
+
+        let expected_quality: Vec<f32> = vec![];
+        let expected_lengths: Vec<usize> = vec![];
+
+        assert_eq!(read_lengths, expected_lengths);
         assert_eq!(read_quals, expected_quality);
     }
 
@@ -383,7 +722,7 @@ mod tests {
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_bad1.fa", "-o", "/dev/null"]);
         let mut caster = NeedleCast::new(&cli).unwrap();
-        caster.filter(0, 0, 0.0, 0.0).unwrap();
+        caster.filter(0, 0, 0.0, 0.0, 0, 0).unwrap();
     }
 
     #[test]
@@ -393,7 +732,7 @@ mod tests {
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_bad1.fq", "-o", "/dev/null"]);
         let mut caster = NeedleCast::new(&cli).unwrap();
-        caster.filter(0, 0, 0.0, 0.0).unwrap();
+        caster.filter(0, 0, 0.0, 0.0, 0, 0).unwrap();
     }
 
     #[test]
@@ -403,7 +742,7 @@ mod tests {
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_bad2.fq", "-o", "/dev/null"]);
         let mut caster = NeedleCast::new(&cli).unwrap();
-        caster.filter(0, 0, 0.0, 0.0).unwrap();
+        caster.filter(0, 0, 0.0, 0.0, 0, 0).unwrap();
     }
 
     #[test]
@@ -413,7 +752,7 @@ mod tests {
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_bad1.fq", "-o", "/dev/null"]);
         let mut caster = NeedleCast::new(&cli).unwrap();
-        caster.filter_length(0, 0).unwrap();
+        caster.filter_length(0, 0, 0, 0).unwrap();
     }
 
     #[test]
@@ -423,6 +762,6 @@ mod tests {
 
         let cli = Cli::from_iter(&["nanoq", "-i", "tests/cases/test_bad2.fq", "-o", "/dev/null"]);
         let mut caster = NeedleCast::new(&cli).unwrap();
-        caster.filter_length(0, 0).unwrap();
+        caster.filter_length(0, 0, 0, 0).unwrap();
     }
 }

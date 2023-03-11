@@ -10,10 +10,10 @@ use std::path::Path;
 use std::path::PathBuf;
 use thiserror::Error;
 
-const LENGTH_THRESHOLDS: [u64; 10] = [
+const LENGTH_THRESHOLDS: [usize; 10] = [
     200, 500, 1000, 2000, 5000, 10000, 30000, 50000, 100000, 1000000,
 ];
-const QUALITY_THRESHOLDS: [u64; 8] = [5, 7, 10, 12, 15, 20, 25, 30];
+const QUALITY_THRESHOLDS: [usize; 8] = [5, 7, 10, 12, 15, 20, 25, 30];
 
 /// A collection of custom errors relating to the utility components for this package.
 #[derive(Error, Debug)]
@@ -29,8 +29,22 @@ pub enum UtilityError {
     JSONSerialization(#[from] serde_json::Error),
 }
 
-// Adopted from Michael B. Hall - Rasusa (https://github.com/mbhall88/rasusa)
+#[allow(dead_code)]
+#[cfg(not(tarpaulin_include))]
+/// Compare provided barcode with a sequence
+/// Adopted from Sabreur (https://github.com/Ebedthan/sabreur)
+pub fn bc_cmp(bc: &[u8], seq: &[u8], mismatch: i32) -> bool {
+    // This wonderful line below compute the number of
+    // character mismatch between two strings
+    bc.iter()
+        .zip(seq.iter())
+        .map(|(a, b)| (a != b) as i32)
+        .sum::<i32>()
+        <= mismatch
+}
 
+/// Adopted from Michael B. Hall - Rasusa (https://github.com/mbhall88/rasusa)
+#[cfg(not(tarpaulin_include))]
 pub trait CompressionExt {
     fn from_path<S: AsRef<OsStr> + ?Sized>(p: &S) -> Self;
 }
@@ -52,20 +66,20 @@ impl CompressionExt for niffler::compression::Format {
 #[derive(Serialize, Debug, Clone)]
 /// Output data for JSON
 pub struct OutputData {
-    reads: u64,
-    bases: u64,
-    n50: u64,
-    longest: u32,
-    shortest: u32,
-    mean_length: u32,
-    median_length: u32,
+    reads: usize,
+    bases: usize,
+    n50: usize,
+    longest: usize,
+    shortest: usize,
+    mean_length: usize,
+    median_length: usize,
     mean_quality: f32,
     median_quality: f32,
-    length_thresholds: BTreeMap<u64, u64>,
-    quality_thresholds: BTreeMap<u64, u64>,
-    top_lengths: Vec<u32>,
+    length_thresholds: BTreeMap<usize, usize>,
+    quality_thresholds: BTreeMap<usize, usize>,
+    top_lengths: Vec<usize>,
     top_qualities: Vec<f32>,
-    filtered: u64,
+    filtered: usize,
 }
 
 impl OutputData {
@@ -151,12 +165,12 @@ impl OutputData {
         &self,
         mut output_string: String,
         read_qualities: &[f32],
-        length_thresholds: &BTreeMap<u64, u64>,
-        quality_thresholds: &BTreeMap<u64, u64>,
+        length_thresholds: &BTreeMap<usize, usize>,
+        quality_thresholds: &BTreeMap<usize, usize>,
     ) -> Result<String, UtilityError> {
         let n_reads = self.reads;
 
-        let length_thresholds: Vec<u64> = length_thresholds.values().cloned().collect();
+        let length_thresholds: Vec<usize> = length_thresholds.values().cloned().collect();
 
         let _length_thresholds = formatdoc! {"
             Read length thresholds (bp)
@@ -197,7 +211,7 @@ impl OutputData {
         output_string.push_str(&_length_thresholds);
 
         let output_string = if !read_qualities.is_empty() {
-            let quality_thresholds: Vec<u64> = quality_thresholds.values().cloned().collect();
+            let quality_thresholds: Vec<usize> = quality_thresholds.values().cloned().collect();
 
             let _quality_thresholds = formatdoc! {"\n
                 Read quality thresholds (Q)
@@ -244,7 +258,7 @@ impl OutputData {
     fn add_ranking(
         &self,
         mut output_string: String,
-        top_lengths: &[u32],
+        top_lengths: &[usize],
         top_qualities: &[f32],
     ) -> Result<String, UtilityError> {
         output_string.push_str("Top ranking read lengths (bp)\n\n");
@@ -275,7 +289,7 @@ impl OutputData {
 ///
 #[derive(Debug)]
 pub struct ReadSet {
-    read_lengths: Vec<u32>,
+    read_lengths: Vec<usize>,
     read_qualities: Vec<f32>,
 }
 
@@ -292,7 +306,7 @@ impl ReadSet {
     ///     vec![10, 100, 1000], vec![10.0, 11.0, 12.0]
     /// )
     /// ```
-    pub fn new(read_lengths: Vec<u32>, read_qualities: Vec<f32>) -> Self {
+    pub fn new(read_lengths: Vec<usize>, read_qualities: Vec<f32>) -> Self {
         ReadSet {
             read_lengths,
             read_qualities,
@@ -308,7 +322,7 @@ impl ReadSet {
     pub fn write_read_qualities(&self, path: PathBuf) -> Result<()> {
         let mut f = File::create(path)?;
         for read_quality in &self.read_qualities {
-            writeln!(f, "{}", read_quality)?;
+            writeln!(f, "{:.1}", read_quality)?;
         }
         Ok(())
     }
@@ -367,7 +381,7 @@ impl ReadSet {
         Ok(())
     }
     // Get output data struct
-    pub fn get_output_data(&mut self, top: usize, filtered: u64) -> OutputData {
+    pub fn get_output_data(&mut self, top: usize, filtered: usize) -> OutputData {
         let length_range = self.range_length();
 
         let (length_thresholds, quality_thresholds) = self.get_thresholds();
@@ -391,16 +405,16 @@ impl ReadSet {
         }
     }
     // Get read length and quality thresholds
-    pub fn get_thresholds(&self) -> (BTreeMap<u64, u64>, BTreeMap<u64, u64>) {
+    pub fn get_thresholds(&self) -> (BTreeMap<usize, usize>, BTreeMap<usize, usize>) {
         let mut thresholds = ThresholdCounter::new();
         let length_thresholds = thresholds.length(&self.read_lengths);
         let quality_thresholds = thresholds.quality(&self.read_qualities);
         (length_thresholds, quality_thresholds)
     }
     // Get the top ranking read lengths and mean read qualities
-    pub fn get_ranking(&mut self, top: usize) -> (Vec<u32>, Vec<f32>) {
-        let max = match (self.reads() as usize) < top {
-            true => self.reads() as usize,
+    pub fn get_ranking(&mut self, top: usize) -> (Vec<usize>, Vec<f32>) {
+        let max = match self.reads() < top {
+            true => self.reads(),
             false => top,
         };
         self.read_lengths.sort_unstable();
@@ -430,8 +444,8 @@ impl ReadSet {
     /// let expected = 3;
     /// assert_eq!(actual, expected);
     /// ```
-    pub fn reads(&self) -> u64 {
-        self.read_lengths.len() as u64
+    pub fn reads(&self) -> usize {
+        self.read_lengths.len()
     }
     /// Get the total number of bases
     ///
@@ -442,10 +456,8 @@ impl ReadSet {
     /// let expected = 1110;
     /// assert_eq!(actual, expected);
     /// ```
-    pub fn bases(&self) -> u64 {
-        self.read_lengths
-            .iter()
-            .fold(0u64, |sum, i| sum + (*i as u64))
+    pub fn bases(&self) -> usize {
+        self.read_lengths.iter().fold(0usize, |sum, i| sum + *i)
     }
     /// Get the range of read lengths
     ///
@@ -456,7 +468,7 @@ impl ReadSet {
     /// let expected = (10, 1000);
     /// assert_eq!(actual, expected);
     /// ```
-    pub fn range_length(&self) -> [u32; 2] {
+    pub fn range_length(&self) -> [usize; 2] {
         let n_reads = self.reads();
         match n_reads.cmp(&1) {
             Ordering::Greater => [
@@ -476,10 +488,10 @@ impl ReadSet {
     /// let expected = 370;
     /// assert_eq!(actual, expected);
     /// ```
-    pub fn mean_length(&self) -> u32 {
+    pub fn mean_length(&self) -> usize {
         let n_reads = self.reads();
         if n_reads > 0 {
-            (self.bases() / n_reads) as u32
+            self.bases() / n_reads
         } else {
             0
         }
@@ -493,7 +505,7 @@ impl ReadSet {
     /// let expected = 100;
     /// assert_eq!(actual, expected);
     /// ```
-    pub fn median_length(&mut self) -> u32 {
+    pub fn median_length(&mut self) -> usize {
         let n_reads = self.reads();
         if n_reads == 0 {
             0
@@ -501,9 +513,9 @@ impl ReadSet {
             self.read_lengths.sort_unstable();
             let mid = n_reads / 2;
             if n_reads % 2 == 0 {
-                (self.read_lengths[mid as usize - 1] + self.read_lengths[mid as usize]) / 2
+                (self.read_lengths[mid - 1] + self.read_lengths[mid]) / 2
             } else {
-                self.read_lengths[mid as usize]
+                self.read_lengths[mid]
             }
         }
     }
@@ -516,13 +528,13 @@ impl ReadSet {
     /// let expected = 1000;
     /// assert_eq!(actual, expected);
     /// ```
-    pub fn n50(&mut self) -> u64 {
+    pub fn n50(&mut self) -> usize {
         self.read_lengths.sort_unstable();
         self.read_lengths.reverse();
         let _stop = self.bases() / 2;
-        let mut n50: u64 = 0;
-        let mut _cum_sum: u64 = 0;
-        for x in self.read_lengths.iter().map(|&i| i as u64) {
+        let mut n50: usize = 0;
+        let mut _cum_sum: usize = 0;
+        for x in self.read_lengths.iter() {
             _cum_sum += x;
             if _cum_sum >= _stop {
                 n50 += x;
@@ -578,25 +590,25 @@ impl ReadSet {
 /// Used internally by the `print_thresholds` method.
 struct ThresholdCounter {
     // read quality
-    q5: u64,
-    q7: u64,
-    q10: u64,
-    q12: u64,
-    q15: u64,
-    q20: u64,
-    q25: u64,
-    q30: u64,
+    q5: usize,
+    q7: usize,
+    q10: usize,
+    q12: usize,
+    q15: usize,
+    q20: usize,
+    q25: usize,
+    q30: usize,
     // read length
-    l200: u64,
-    l500: u64,
-    l1000: u64,
-    l2000: u64,
-    l5000: u64,
-    l10000: u64,
-    l30000: u64,
-    l50000: u64,
-    l100000: u64,
-    l1000000: u64,
+    l200: usize,
+    l500: usize,
+    l1000: usize,
+    l2000: usize,
+    l5000: usize,
+    l10000: usize,
+    l30000: usize,
+    l50000: usize,
+    l100000: usize,
+    l1000000: usize,
 }
 
 impl ThresholdCounter {
@@ -649,7 +661,7 @@ impl ThresholdCounter {
     /// let actual = counter.quality(&vec![5.0, 7.0, 10.0]);
     /// assert_eq!(actual, expected);
     /// ```
-    fn quality(&mut self, read_qualities: &[f32]) -> BTreeMap<u64, u64> {
+    fn quality(&mut self, read_qualities: &[f32]) -> BTreeMap<usize, usize> {
         for q in read_qualities.iter() {
             if q > &5.0 {
                 self.q5 += 1
@@ -703,7 +715,7 @@ impl ThresholdCounter {
     /// let actual = counter.length(&vec![200, 500, 1000]);
     /// assert_eq!(actual, expected);
     /// ```
-    fn length(&mut self, read_lengths: &[u32]) -> BTreeMap<u64, u64> {
+    fn length(&mut self, read_lengths: &[usize]) -> BTreeMap<usize, usize> {
         for l in read_lengths.iter() {
             if l > &200 {
                 self.l200 += 1
@@ -758,18 +770,20 @@ impl ThresholdCounter {
 }
 
 // utility function to get length threshold percent
-fn get_length_percent(number: u64, n_reads: u64) -> f64 {
+fn get_length_percent(number: usize, n_reads: usize) -> f64 {
     (number as f64 / n_reads as f64) * 100.0
 }
 
 // utility function to get quality threshold percent
-fn get_quality_percent(number: u64, n_reads: u64) -> f64 {
+fn get_quality_percent(number: usize, n_reads: usize) -> f64 {
     (number as f64 / n_reads as f64) * 100.0
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
+    use tempfile::tempdir;
 
     #[test]
     fn compression_format_from_path() {
@@ -994,5 +1008,76 @@ mod tests {
         read_set_none
             .summary(output_data, &0, true, true, true, None)
             .unwrap();
+    }
+    #[test]
+    fn read_set_get_ranking_reads_bigger_top_ok() {
+        let mut read_set_none = ReadSet::new(vec![10, 15, 20], vec![8.0, 9.0, 10.0]);
+
+        let (top_lengths, top_qualities) = read_set_none.get_ranking(2);
+
+        assert_eq!(top_lengths, vec![20, 15]);
+        assert_eq!(top_qualities, vec![10.0, 9.0]);
+        
+    }
+    #[test]
+    fn length_file_output_ok() {
+        let dir = tempdir().unwrap();
+        let test_file = dir.path().join("test.txt");
+
+        let read_set = ReadSet::new(vec![10], vec![8.0]);
+        read_set.write_read_lengths(test_file.clone()).unwrap();
+
+        let contents = fs::read_to_string(test_file).unwrap();
+
+        dir.close().unwrap();
+
+        assert_eq!(contents.trim(), "10");
+
+    }
+    #[test]
+    fn quality_file_output_ok() {
+        let dir = tempdir().unwrap();
+        let test_file = dir.path().join("test.txt");
+
+        let read_set = ReadSet::new(vec![10], vec![8.0]);
+        read_set.write_read_qualities(test_file.clone()).unwrap();
+
+        let contents = fs::read_to_string(test_file).unwrap();
+
+        dir.close().unwrap();
+
+        assert_eq!(contents.trim(), "8.0");
+    }
+
+    #[test]
+    fn test_bc_cmp_ok() {
+        let seq = b"ATCGATCGATCG";
+        let bc = b"ATCG";
+
+        assert!(bc_cmp(bc, seq, 0));
+    }
+
+    #[test]
+    fn test_bc_cmp_not_ok() {
+        let bc = b"TGCA";
+        let seq = b"ATCGATCGATCG";
+
+        assert!(!bc_cmp(bc, seq, 0));
+    }
+
+    #[test]
+    fn test_bc_cmp_mismatch_ok() {
+        let bc = b"AACG";
+        let seq = b"ATCGATCGATCG";
+
+        assert!(bc_cmp(bc, seq, 1));
+    }
+
+    #[test]
+    fn test_bc_cmp_mismatch_not_ok() {
+        let bc = b"AACG";
+        let seq = b"ATCGATCGATCG";
+
+        assert!(!bc_cmp(bc, seq, 0));
     }
 }

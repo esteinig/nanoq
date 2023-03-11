@@ -20,10 +20,17 @@ fn main() -> Result<()> {
 
     let (read_lengths, read_qualities, n_filtered) = match cli.fast {
         true => needle_cast
-            .filter_length(cli.min_len, cli.max_len)
+            .filter_length(cli.min_len, cli.max_len, cli.trim_start, cli.trim_end)
             .context("unable to process reads")?,
         false => needle_cast
-            .filter(cli.min_len, cli.max_len, cli.min_qual, cli.max_qual)
+            .filter(
+                cli.min_len,
+                cli.max_len,
+                cli.min_qual,
+                cli.max_qual,
+                cli.trim_start,
+                cli.trim_end,
+            )
             .context("unable to process reads")?,
     };
 

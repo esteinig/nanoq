@@ -2,14 +2,14 @@
 
 [![build](https://github.com/esteinig/nanoq/actions/workflows/rust-ci.yaml/badge.svg?branch=master)](https://github.com/esteinig/nanoq/actions/workflows/rust-ci.yaml)
 [![codecov](https://codecov.io/gh/esteinig/nanoq/branch/master/graph/badge.svg?token=1X04YD8YOE)](https://codecov.io/gh/esteinig/nanoq)
-![](https://img.shields.io/badge/version-0.9.1-black.svg)
+![](https://img.shields.io/badge/version-0.10.0-black.svg)
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.02991/status.svg)](https://doi.org/10.21105/joss.02991)
 
 Ultra-fast quality control and summary reports for nanopore reads
 
 ## Overview
 
-**`v0.9.1`**
+**`v0.10.0`**
 
 - [Purpose](#purpose)
 - [Install](#install)
@@ -61,7 +61,7 @@ cargo install nanoq
 Explicit version (for some reason defaults to old version)
 
 ```
-conda install -c conda-forge -c bioconda nanoq=0.9.1
+conda install -c conda-forge -c bioconda nanoq=0.10.0
 ```
 
 #### `Binaries`
@@ -69,7 +69,7 @@ conda install -c conda-forge -c bioconda nanoq=0.9.1
 Precompiled binaries for Linux and MacOS are attached to the latest release.
 
 ```
-VERSION=0.9.1
+VERSION=0.10.0
 RELEASE=nanoq-${VERSION}-x86_64-unknown-linux-musl.tar.gz
 
 wget https://github.com/esteinig/nanoq/releases/download/${VERSION}/${RELEASE}
@@ -93,6 +93,14 @@ Reads can be filtered by minimum read length (`-l`), maximum read length (`-m`),
 
 ```bash
 nanoq -i test.fq -l 1000 -m 10000 -q 10 -w 15 > reads.fq 
+```
+
+### Read trimming
+
+A fixed number of bases can be trimmed from the start (`-S`) or end (`-E`) of reads:
+
+```bash
+nanoq -i test.fq -S 100 -E 100 > reads.fq 
 ```
 
 ### Read report
@@ -147,9 +155,9 @@ done
 ### Parameters
 
 ```
-nanoq 0.9.1
+nanoq 0.10.0
 
-Read filters and summary reports for nanopore data
+Filters and summary reports for nanopore reads
 
 USAGE:
     nanoq [FLAGS] [OPTIONS]
@@ -172,11 +180,25 @@ OPTIONS:
     -q, --min-qual <FLOAT>         Minimum average read quality filter (Q) [default: 0]
     -o, --output <output>          Output filepath, stdout if not present
     -O, --output-type <u|b|g|l>    u: uncompressed; b: Bzip2; g: Gzip; l: Lzma
-    -r, --report <report>          Summary read statistics report output file
+    -r, --report <FILE>            Summary read statistics report output file
     -t, --top <INT>                Number of top reads in verbose summary [default: 5]
+    -L, --read-lengths <FILE>      Output read lengths of surviving reads to file
+    -Q, --read-qualities <FILE>    Output read qualities of surviving reads to file
+    -S, --trim-start <INT>         Trim bases from the start of each read [default: 0]
+    -E, --trim-end <INT>           Trim bases from the end of each read [default: 0]
 ```
 
 ### Output
+
+#### Read lengths and qualities
+
+Files with read lengths (`--read-lengths/-L`) and qualities (`--read-qualities/-Q`) of the surviving reads can be output:
+
+```
+nanoq -i test.fq -Q rq.txt -L rl.txt > reads.fq
+```
+
+#### Summary reports
 
 Summary reports are output to file explicitly using `--report/-r`:
 
