@@ -62,6 +62,9 @@ cargo install nanoq
 
 #### `Conda`
 
+![](https://anaconda.org/bioconda/nanoq/badges/platforms.svg)
+![](https://anaconda.org/bioconda/nanoq/badges/downloads.svg)
+
 ```
 conda install -c conda-forge -c bioconda nanoq
 ```
@@ -137,7 +140,7 @@ nanoq -i test.fq -o reads.fq.gz
 Output compression can be specified manually with `-O` and `-c`.
 
 ```bash
-nanoq -i test.fq -O g -c 9 -o reads.fq.gz
+nanoq -i test.fq -O g -c 9 > reads.fq.gz
 ```
 
 ### Online runs
