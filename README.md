@@ -62,10 +62,8 @@ cargo install nanoq
 
 #### `Conda`
 
-Explicit version (for some reason defaults to old version)
-
 ```
-conda install -c conda-forge -c bioconda nanoq=0.10.0
+conda install -c conda-forge -c bioconda nanoq
 ```
 
 #### `Binaries`
