@@ -5,9 +5,9 @@ use std::process::Command;
 use tempfile::tempdir;
 
 #[test]
-fn input_file_doesnt_exist() -> Result<(), Box<dyn std::error::Error>> {
+fn input_file_does_not_exist() -> Result<(), Box<dyn std::error::Error>> {
     let mut cmd = Command::cargo_bin(env!("CARGO_PKG_NAME"))?;
-    cmd.args(vec!["-i", "file/doesnt/exist.fq", "-s"]);
+    cmd.args(vec!["-i", "file/does/not/exist.fq", "-s"]);
     cmd.assert()
         .failure()
         .stderr(predicate::str::contains("No such file"));

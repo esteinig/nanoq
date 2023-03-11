@@ -431,17 +431,7 @@ mod tests {
 
         assert_eq!(read_lengths, vec![4]);
         assert_eq!(read_quals, expected_quality);
-
-        let mut caster = NeedleCast::new(&cli).unwrap();
-        let (read_lengths, read_quals, _) = caster.filter(5, 0, 0.0, 0.0, 0, 0).unwrap();
-
-        let expected_length: Vec<usize> = vec![];
-        let expected_quality: Vec<f32> = vec![];
-
-        assert_eq!(read_lengths, expected_length);
-        assert_eq!(read_quals, expected_quality);
-
-    }   
+    }
 
     #[test]
     fn needlecast_filter_length_fa_ok() {
@@ -454,6 +444,15 @@ mod tests {
         let expected_quality: Vec<f32> = vec![];
 
         assert_eq!(read_lengths, vec![4]);
+        assert_eq!(read_quals, expected_quality);
+
+        let mut caster = NeedleCast::new(&cli).unwrap();
+        let (read_lengths, read_quals, _) = caster.filter(5, 0, 0.0, 0.0, 0, 0).unwrap();
+
+        let expected_length: Vec<usize> = vec![];
+        let expected_quality: Vec<f32> = vec![];
+
+        assert_eq!(read_lengths, expected_length);
         assert_eq!(read_quals, expected_quality);
     }
 
