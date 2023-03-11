@@ -2,25 +2,25 @@ use std::path::PathBuf;
 use structopt::StructOpt;
 use thiserror::Error;
 
-/// Read filters and summary reports for nanopore data
+/// Filters and summary reports for nanopore reads
 #[derive(Debug, StructOpt)]
 #[structopt()]
 pub struct Cli {
     /// Fast{a,q}.{gz,xz,bz}, stdin if not present.
-    #[structopt(short, long, parse(from_os_str))]
+    #[structopt(short = "i", long, parse(from_os_str))]
     pub input: Option<PathBuf>,
 
     /// Output filepath, stdout if not present.
-    #[structopt(short, long, parse(from_os_str))]
+    #[structopt(short = "o", long, parse(from_os_str))]
     pub output: Option<PathBuf>,
 
     /// Minimum read length filter (bp).
     #[structopt(short = "l", long, value_name = "INT", default_value = "0")]
-    pub min_len: u32,
+    pub min_len: usize,
 
     /// Maximum read length filter (bp).
     #[structopt(short = "m", long, value_name = "INT", default_value = "0")]
-    pub max_len: u32,
+    pub max_len: usize,
 
     /// Minimum average read quality filter (Q).
     #[structopt(short = "q", long, value_name = "FLOAT", default_value = "0")]
@@ -32,7 +32,7 @@ pub struct Cli {
 
     /// Verbose output statistics [multiple, up to -vvv]  
     #[structopt(
-        short,
+        short = "v",
         long,
         parse(from_occurrences = parse_verbosity)
     )]
@@ -43,23 +43,39 @@ pub struct Cli {
     pub header: bool,
 
     /// Number of top reads in verbose summary.  
-    #[structopt(short, long, value_name = "INT", default_value = "5")]
+    #[structopt(short = "t", long, value_name = "INT", default_value = "5")]
     pub top: usize,
 
     /// Summary report only [stdout].
-    #[structopt(short, long)]
+    #[structopt(short = "s", long)]
     pub stats: bool,
 
     /// Summary report output file.
-    #[structopt(short, long)]
+    #[structopt(short = "r", long)]
     pub report: Option<PathBuf>,
 
     /// Summary report in JSON format.
-    #[structopt(short, long)]
+    #[structopt(short = "j", long)]
     pub json: bool,
 
+    /// Trim bases from start of each read.
+    #[structopt(short = "S", long, value_name = "INT", default_value = "0")]
+    pub trim_start: usize,
+
+    /// Trim bases from end of each read.
+    #[structopt(short = "E", long, value_name = "INT", default_value = "0")]
+    pub trim_end: usize,
+
+    /// Read lengths output file.
+    #[structopt(short = "L", long)]
+    pub read_lengths: Option<PathBuf>,
+
+    /// Read qualities output file.
+    #[structopt(short = "Q", long)]
+    pub read_qualities: Option<PathBuf>,
+
     /// Ignore quality values if present.
-    #[structopt(short, long)]
+    #[structopt(short = "f", long)]
     pub fast: bool,
 
     /// u: uncompressed; b: Bzip2; g: Gzip; l: Lzma
