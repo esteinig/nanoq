@@ -63,6 +63,7 @@ cargo install nanoq
 #### `Conda`
 
 ![](https://anaconda.org/bioconda/nanoq/badges/platforms.svg)
+![](https://anaconda.org/bioconda/nanoq/badges/latest_release_date.svg)
 ![](https://anaconda.org/bioconda/nanoq/badges/downloads.svg)
 
 ```
