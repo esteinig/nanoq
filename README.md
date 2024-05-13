@@ -204,6 +204,8 @@ Files with read lengths (`--read-lengths/-L`) and qualities (`--read-qualities/-
 nanoq -i test.fq -Q rq.txt -L rl.txt > reads.fq
 ```
 
+> :warning: Length and quality outputs are meant for quick plotting of distributions. Because of dubious internal design decisions (my bad) outputs are ordered with an unstable sorting function, which means the order of identical values may change between outputs. Furthermore, output order does not correspond to read output order - this will change in the next release [as outlined in this issue](#https://github.com/esteinig/nanoq/issues/45)
+
 #### Summary reports
 
 Summary reports are output to file explicitly using `--report/-r`:
